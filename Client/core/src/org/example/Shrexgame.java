@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class Shrexgame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
-	
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -22,7 +22,7 @@ public class Shrexgame extends ApplicationAdapter {
 		batch.draw(img, 0, 0);
 		batch.end();
 	}
-	
+
 	@Override
 	public void dispose () {
 		batch.dispose();
