@@ -54,7 +54,7 @@ public class MyClient extends ApplicationAdapter {
                     // print the game state into the console
                     // printGame(playersList);
                     // new Basic3DTest().create();
-                    create();
+                    //create();
                 }
             }
         });
@@ -109,7 +109,7 @@ public class MyClient extends ApplicationAdapter {
     private TextField inputField;
     private Label[][] boardLabels;
     private Stage stage;
-
+    @Override
     public void create() {
         // Set up the stage
         stage = new Stage(new ScreenViewport());
@@ -158,7 +158,7 @@ public class MyClient extends ApplicationAdapter {
         inputField = new TextField("", skin);
         table.add(inputField).colspan(10);
     }
-
+    @Override
     public void render() {
         // Update the game board
         String[][] board = new String[10][10];
