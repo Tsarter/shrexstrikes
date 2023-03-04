@@ -17,6 +17,9 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -128,22 +131,25 @@ public class testMyClient extends ApplicationAdapter {
         }
 
         // Handle input
-        if (input.isKeyPressed(Input.Keys.ENTER)) {
-            String input = inputField.getText();
-        }
-        if (input.toString().length() > 0) {
-            // Process the input
-            // ...
+        if (input.isKeyPressed(Input.Keys.ENTER) && client.isConnected()) {
+            String input_text = inputField.getText().toUpperCase();
 
-            // Clear the input field
+            Character direction = input_text.charAt(0);
+            client.sendUDP(direction);
             inputField.setText("");
+            System.out.println("new input: " + input_text);
         }
+        if (input.isKeyPressed(Input.Keys.ESCAPE)) {
+            client.close();
+            Gdx.app.exit();
+        }
+
 
         // Clear the screen and draw the UI
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
-        waitForUserInput();
+        // waitForUserInput();
     }
 
     public testMyClient() throws IOException {
@@ -164,18 +170,20 @@ public class testMyClient extends ApplicationAdapter {
 
     private void waitForUserInput() {
         if (client.isConnected()) {
-            new Thread(() -> {
-                Scanner scanner = new Scanner(System.in);
-
-                while (true) {
-                    if (scanner.hasNext()) {
-                        String input = scanner.next();
-                        System.out.println("new input" + input);
+            inputField.addListener(new InputListener() {
+                @Override
+                public boolean keyTyped(InputEvent event, char character) {
+                    if (character == '\n') { // check if the Enter key was pressed
+                        String input = inputField.getText();
+                        System.out.println("new input: " + input);
                         Character direction = input.charAt(0);
                         client.sendUDP(direction);
+                        inputField.setText(""); // clear the TextField for the next input
                     }
+                    return true;
                 }
-            }).start();
+            });
         }
-        }
+    }
+
 }
