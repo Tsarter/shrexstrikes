@@ -129,9 +129,9 @@ public class testMyClient extends ApplicationAdapter {
                 boardLabels[row][col].setText(board[row][col]);
             }
         }
-
+        System.out.println("Rendering... ");
         // Handle input
-        if (input.isKeyPressed(Input.Keys.ENTER) && client.isConnected()) {
+        if (input.isKeyPressed(Input.Keys.ENTER) && client.isConnected() && !inputField.getText().equals("")){
             String input_text = inputField.getText().toUpperCase();
 
             Character direction = input_text.charAt(0);
