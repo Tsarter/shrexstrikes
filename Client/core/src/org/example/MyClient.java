@@ -84,33 +84,14 @@ public class MyClient extends ApplicationAdapter {
             client.sendUDP(direction);
         }
     }
-
-    /**
-     * Prints the game state.
-     * The game is a 10x10 grid where players can move.
-     *
-     * @param players the list of players that are in the game.
-     */
-    public static void printGame(Player[] players) {
-        String[][] board = new String[10][10];
-        Arrays.stream(board).forEach(a -> Arrays.fill(a, "."));
-
-        for (Player player : players) {
-            board[player.y][player.x] = "O";
-        }
-
-        System.out.println("----------Current board----------");
-        for (String[] row : board) {
-            System.out.println(String.join("", row));
-        }
-        System.out.println("Enter direction to move in (NESW):");
-    }
     private Player[] players;
     private TextField inputField;
     private Label[][] boardLabels;
     private Stage stage;
     @Override
     public void create() {
+        // Create the window with width and height of 800 pixels
+        Gdx.graphics.setWindowedMode(800, 800);
         // Set up the stage
         stage = new Stage(new ScreenViewport());
         input.setInputProcessor(stage);
@@ -160,6 +141,8 @@ public class MyClient extends ApplicationAdapter {
     }
     @Override
     public void render() {
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         // Update the game board
         String[][] board = new String[10][10];
         Arrays.stream(board).forEach(a -> Arrays.fill(a, "."));

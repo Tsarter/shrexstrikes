@@ -10,7 +10,7 @@ public class Main {
         //new MyClient();
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("My Game");
-        config.setWindowedMode(640, 480);
+        config.setWindowedMode(800, 800);
         new Lwjgl3Application(new testMyClient(), config);
     }
 }
