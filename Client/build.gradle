@@ -89,6 +89,9 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         // https:\/\/mvnrepository.com\/artifact\/com.esotericsoftware\/kryonet
         implementation group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
 
     }
 }
