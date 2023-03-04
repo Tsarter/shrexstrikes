@@ -49,6 +49,7 @@ public class MyServer {
                     Character direction = (Character) object;  // get the character that they sent
 
                     player.move(direction);  // move the player
+                    System.out.println(player.x + " " + player.y);
 
                     sendState();  // send info about all players to all players
                 }

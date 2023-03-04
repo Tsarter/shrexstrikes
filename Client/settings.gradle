@@ -1,2 +1,2 @@
+include 'desktop', 'ios', 'html', 'core'
 rootProject.name = 'Client'
-
