@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.example;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -25,11 +25,11 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.math.Vector3;
 
 
 /**
@@ -37,36 +37,42 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
  * @author Xoppa
  */
 public class Basic3DTest implements ApplicationListener {
-    public PerspectiveCamera cam;
     public ModelBatch modelBatch;
     public Model model;
-    public Model model2;
+
     public ModelInstance instance;
-    public ModelInstance instance2;
+    public AssetManager assetManager;
+    public ModelInstance modelInstance;
+    public ModelInstance groundModelInstance;
+    private PerspectiveCamera camera;
+    public Vector3 cameraPosition;
+    public Vector3 cameraDirection;
+    private float cameraAngle;
+    public float cameraSpeed;
+    private InputMultiplexer inputMultiplexer;
 
     @Override
     public void create() {
-        Gdx.gl = Gdx.graphics.getGL20();
+        // load the 3D model of the map
+        ModelLoader loader = new ObjLoader();
+        Model mapModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\mapBasic.obj"));
+        groundModelInstance = new ModelInstance(mapModel);
+
+        // create a perspective camera to view the game world
+        camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cameraPosition = new Vector3(0, 1, 0);
+        cameraDirection = new Vector3(0, 0, -1);
+        cameraAngle = 0;
+        cameraSpeed = 1;
+
+        // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(10f, 10f, 10f);
-        cam.lookAt(0,0,0);
-        cam.near = 1f;
-        cam.far = 300f;
-        cam.update();
-
-
-        ModelBuilder modelBuilder = new ModelBuilder();
-        model = modelBuilder.createBox(5f, 5f, 5f,
-                new Material(ColorAttribute.createDiffuse(Color.RED)),
-                Usage.Position | Usage.Normal);
-        model2 = modelBuilder.createBox(5f, 5f, 5f,
-                new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-                Usage.Position | Usage.Normal);
-        instance = new ModelInstance(model);
-        instance2 = new ModelInstance(model2);
-        instance2.transform.translate(5f, -5f, 0f);
+        MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(myInputProcessor);
+        //inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -74,9 +80,12 @@ public class Basic3DTest implements ApplicationListener {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        modelBatch.begin(cam);
-        modelBatch.render(instance);
-        modelBatch.render(instance2);
+        camera.position.set(cameraPosition);
+        camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
+        camera.update();
+
+        modelBatch.begin(camera);
+        modelBatch.render(groundModelInstance);
         modelBatch.end();
     }
 
@@ -96,5 +105,63 @@ public class Basic3DTest implements ApplicationListener {
 
     @Override
     public void resume() {
+    }
+
+}
+class MyInputProcessor implements InputProcessor {
+    // Implement input event handling methods here...
+    private Basic3DTest basic3DTest;
+
+    public MyInputProcessor(Basic3DTest basic3DTest) {
+        this.basic3DTest = basic3DTest;
+    }
+    @Override
+    public boolean keyDown(int keycode) {
+        // update player movement based on key input
+        switch (keycode) {
+            case Input.Keys.W:
+                basic3DTest.cameraPosition.add(basic3DTest.cameraDirection.scl(basic3DTest.cameraSpeed));
+                break;
+            case Input.Keys.S:
+                basic3DTest.cameraPosition.sub(basic3DTest.cameraDirection.scl(basic3DTest.cameraSpeed));
+                break;
+            case Input.Keys.A:
+                basic3DTest.cameraDirection.rotate(Vector3.Y, 5);
+                break;
+            case Input.Keys.D:
+                basic3DTest.cameraDirection.rotate(Vector3.Y, -5);
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+    @Override
+    public boolean scrolled(float screenX, float screenY) {
+        return false;
     }
 }
