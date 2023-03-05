@@ -40,11 +40,12 @@ public class Basic3DTest implements ApplicationListener {
     public PerspectiveCamera cam;
     public ModelBatch modelBatch;
     public Model model;
+    public Model model2;
     public ModelInstance instance;
+    public ModelInstance instance2;
 
     @Override
     public void create() {
-        new Lwjgl3Application(this, new Lwjgl3ApplicationConfiguration());
         Gdx.gl = Gdx.graphics.getGL20();
         modelBatch = new ModelBatch();
 
@@ -58,9 +59,14 @@ public class Basic3DTest implements ApplicationListener {
 
         ModelBuilder modelBuilder = new ModelBuilder();
         model = modelBuilder.createBox(5f, 5f, 5f,
+                new Material(ColorAttribute.createDiffuse(Color.RED)),
+                Usage.Position | Usage.Normal);
+        model2 = modelBuilder.createBox(5f, 5f, 5f,
                 new Material(ColorAttribute.createDiffuse(Color.GREEN)),
                 Usage.Position | Usage.Normal);
         instance = new ModelInstance(model);
+        instance2 = new ModelInstance(model2);
+        instance2.transform.translate(5f, -5f, 0f);
     }
 
     @Override
@@ -70,6 +76,7 @@ public class Basic3DTest implements ApplicationListener {
 
         modelBatch.begin(cam);
         modelBatch.render(instance);
+        modelBatch.render(instance2);
         modelBatch.end();
     }
 
