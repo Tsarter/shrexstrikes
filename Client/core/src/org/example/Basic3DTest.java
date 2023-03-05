@@ -50,6 +50,7 @@ public class Basic3DTest implements ApplicationListener {
     private float cameraAngle;
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
+    private MyInputProcessor myInputProcessor;
 
     @Override
     public void create() {
@@ -63,12 +64,12 @@ public class Basic3DTest implements ApplicationListener {
         cameraPosition = new Vector3(0, 1, 0);
         cameraDirection = new Vector3(0, 0, -1);
         cameraAngle = 0;
-        cameraSpeed = 1;
+        cameraSpeed = 20;
 
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
-        MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+        myInputProcessor = new MyInputProcessor(this);
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
         //inputMultiplexer.addProcessor(stage);
@@ -79,6 +80,10 @@ public class Basic3DTest implements ApplicationListener {
     public void render() {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+        float delta = Gdx.graphics.getDeltaTime();
+        // Update player movement
+        myInputProcessor.updatePlayerMovement(delta);
 
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
@@ -111,34 +116,71 @@ public class Basic3DTest implements ApplicationListener {
 class MyInputProcessor implements InputProcessor {
     // Implement input event handling methods here...
     private Basic3DTest basic3DTest;
+    private boolean upPressed;
+    private boolean downPressed;
+    private boolean leftPressed;
+    private boolean rightPressed;
 
     public MyInputProcessor(Basic3DTest basic3DTest) {
         this.basic3DTest = basic3DTest;
     }
+
     @Override
     public boolean keyDown(int keycode) {
-        // update player movement based on key input
         switch (keycode) {
             case Input.Keys.W:
-                basic3DTest.cameraPosition.add(basic3DTest.cameraDirection.scl(basic3DTest.cameraSpeed));
+                upPressed = true;
                 break;
             case Input.Keys.S:
-                basic3DTest.cameraPosition.sub(basic3DTest.cameraDirection.scl(basic3DTest.cameraSpeed));
+                downPressed = true;
                 break;
             case Input.Keys.A:
-                basic3DTest.cameraDirection.rotate(Vector3.Y, 5);
+                leftPressed = true;
                 break;
             case Input.Keys.D:
-                basic3DTest.cameraDirection.rotate(Vector3.Y, -5);
+                rightPressed = true;
                 break;
             default:
                 break;
         }
-        return false;
+        return true;
     }
+
     @Override
     public boolean keyUp(int keycode) {
-        return false;
+        switch (keycode) {
+            case Input.Keys.W:
+                upPressed = false;
+                break;
+            case Input.Keys.S:
+                downPressed = false;
+                break;
+            case Input.Keys.A:
+                leftPressed = false;
+                break;
+            case Input.Keys.D:
+                rightPressed = false;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    public void updatePlayerMovement(float delta) {
+        float speed = basic3DTest.cameraSpeed * delta;
+        if (upPressed) {
+            basic3DTest.cameraPosition.add(basic3DTest.cameraDirection.nor().scl(speed));
+        }
+        if (downPressed) {
+            basic3DTest.cameraPosition.sub(basic3DTest.cameraDirection.nor().scl(speed));
+        }
+        if (leftPressed) {
+            basic3DTest.cameraDirection.rotate(Vector3.Y, speed * 5);
+        }
+        if (rightPressed) {
+            basic3DTest.cameraDirection.rotate(Vector3.Y, -speed * 5);
+        }
     }
     @Override
     public boolean keyTyped(char character) {
