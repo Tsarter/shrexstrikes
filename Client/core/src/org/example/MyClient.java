@@ -1,36 +1,26 @@
 package org.example;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.math.Vector3;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
-import java.util.Arrays;
+
 import java.util.Scanner;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import java.util.Arrays;
-
-import static com.badlogic.gdx.Gdx.input;
 
 
-public class MyClient extends ApplicationAdapter {
+
+public class MyClient implements ApplicationListener {
 
     private final Client client;
 
@@ -51,10 +41,6 @@ public class MyClient extends ApplicationAdapter {
                     // get the list of players
                     Player[] playersList = (Player[]) object;
 
-                    // print the game state into the console
-                    // printGame(playersList);
-                    // new Basic3DTest().create();
-                    //create();
                 }
             }
         });
@@ -67,15 +53,65 @@ public class MyClient extends ApplicationAdapter {
         client.start();
         client.connect(5000, "localhost", 3000, 3001);
 
+    }
+    public ModelBatch modelBatch;
+    public Model model;
+    public ModelInstance groundModelInstance;
+    private PerspectiveCamera camera;
+    public Vector3 cameraPosition;
+    public Vector3 cameraDirection;
+    private float cameraAngle;
+    public float cameraSpeed;
+    private InputMultiplexer inputMultiplexer;
+    private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+    @Override
+    public void create() {
+        // load the 3D model of the map
+        ModelLoader loader = new ObjLoader();
+        Model mapModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\mapBasic.obj"));
+        groundModelInstance = new ModelInstance(mapModel);
+
+        // create a perspective camera to view the game world
+        camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cameraPosition = new Vector3(0, 1, 0);
+        cameraDirection = new Vector3(0, 0, -1);
+        cameraAngle = 0;
+        cameraSpeed = 20;
+
+        // set up the model batch for rendering
+        modelBatch = new ModelBatch();
+
+        //myInputProcessor = new MyInputProcessor(this);
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(myInputProcessor);
+        //inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    @Override
+    public void render() {
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+        float delta = Gdx.graphics.getDeltaTime();
+        // Update player movement
+        myInputProcessor.updatePlayerMovement(delta);
+
+        camera.position.set(cameraPosition);
+        camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
+        camera.update();
+
+        modelBatch.begin(camera);
+        modelBatch.render(groundModelInstance);
+        modelBatch.end();
         /**
          * If this player inputs anything, send it to the server
          */
-        while (client.isConnected()) {
+        if (client.isConnected() && false) {
             // this is like input() in python.
             Scanner scanner = new Scanner(System.in);
             String input = scanner.next();
             Character direction = input.charAt(0);  // We only get the first character.
-            //render();
             /**
              * Send this movement to the server.
              * The server should move "my player" and then send the updated board to all players.
@@ -84,100 +120,23 @@ public class MyClient extends ApplicationAdapter {
             client.sendUDP(direction);
         }
     }
-    private Player[] players;
-    private TextField inputField;
-    private Label[][] boardLabels;
-    private Stage stage;
+
     @Override
-    public void create() {
-        // Create the window with width and height of 800 pixels
-        Gdx.graphics.setWindowedMode(800, 800);
-        // Set up the stage
-        stage = new Stage(new ScreenViewport());
-        input.setInputProcessor(stage);
-
-        // Create the game board
-        String[][] board = new String[10][10];
-        Arrays.stream(board).forEach(a -> Arrays.fill(a, "."));
-
-        for (Player player : players) {
-            board[player.y][player.x] = "O";
-        }
-
-        // Create the skin
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
-
-        // Create the UI components
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
-
-        Label boardLabel = new Label("Current board:", skin);
-        boardLabel.setFontScale(2f);
-        boardLabel.setAlignment(Align.center);
-        table.add(boardLabel).colspan(10).padBottom(10);
-        table.row();
-
-        boardLabels = new Label[10][10];
-        for (int row = 0; row < 10; row++) {
-            for (int col = 0; col < 10; col++) {
-                Label label = new Label(board[row][col], skin);
-                label.setFontScale(2f);
-                label.setAlignment(Align.center);
-                label.setColor(Color.WHITE);
-                table.add(label).width(50).height(50);
-                boardLabels[row][col] = label;
-            }
-            table.row();
-        }
-
-        Label promptLabel = new Label("Enter direction to move in (NESW):", skin);
-        promptLabel.setFontScale(2f);
-        table.add(promptLabel).colspan(10).padTop(10);
-        table.row();
-
-        inputField = new TextField("", skin);
-        table.add(inputField).colspan(10);
-    }
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        // Update the game board
-        String[][] board = new String[10][10];
-        Arrays.stream(board).forEach(a -> Arrays.fill(a, "."));
-
-        for (Player player : players) {
-            board[player.y][player.x] = "O";
-        }
-
-        // Update the board labels
-        for (int row = 0; row < 10; row++) {
-            for (int col = 0; col < 10; col++) {
-                boardLabels[row][col].setText(board[row][col]);
-            }
-        }
-
-        // Handle input
-        if (input.isKeyPressed(Input.Keys.ENTER)) {
-            String input = inputField.getText();
-        }
-        if (input.toString().length() > 0) {
-            // Process the input
-            // ...
-
-            // Clear the input field
-            inputField.setText("");
-        }
-
-        // Clear the screen and draw the UI
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.draw();
-    }
-
     public void dispose() {
-        stage.dispose();
+        modelBatch.dispose();
+        model.dispose();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
     }
 
 

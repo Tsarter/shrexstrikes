@@ -9,8 +9,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         //new MyClient();
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setTitle("My Game");
+        config.setTitle("ShrexStrikes");
         config.setWindowedMode(800, 800);
-        new Lwjgl3Application(new testMyClient(), config);
+        new Lwjgl3Application(new MyClient(), config);
     }
 }
