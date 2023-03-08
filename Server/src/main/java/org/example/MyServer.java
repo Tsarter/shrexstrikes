@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MyServer {
 
@@ -31,6 +32,7 @@ public class MyServer {
              * We want to make them a new player object to keep track of their coordinates
              */
             public void connected(Connection c) {
+
                 players.put(c.getRemoteAddressUDP(), new Player(0, 0));
                 // System.out.println(c.getRemoteAddressUDP().toString() + " connected");
 
@@ -44,11 +46,11 @@ public class MyServer {
 
 
                 // We check if we recieved a character (they want to tell the server, where they want to go).
-                if (object instanceof Character) {
+                if (object instanceof Map<?,?> ) {
                     Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent the character
-                    Character direction = (Character) object;  // get the character that they sent
+                    Map location = (Map) object;  // get the character that they sent
 
-                    player.move(direction);  // move the player
+                    player.move(location);  // move the player
                     System.out.println(player.x + " " + player.y);
 
                     sendState();  // send info about all players to all players

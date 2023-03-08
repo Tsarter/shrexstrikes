@@ -2,10 +2,13 @@ package org.example;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.esotericsoftware.kryonet.Client;
@@ -14,17 +17,17 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
-
-import com.badlogic.gdx.graphics.GL20;
-
 
 
 public class MyClient implements ApplicationListener {
 
     private final Client client;
-
+    private Player[] playersList;
     public MyClient() throws IOException {
+
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
 
@@ -39,7 +42,7 @@ public class MyClient implements ApplicationListener {
                 if (object instanceof Player[]) {
 
                     // get the list of players
-                    Player[] playersList = (Player[]) object;
+                    playersList = (Player[]) object;
 
                 }
             }
@@ -64,6 +67,8 @@ public class MyClient implements ApplicationListener {
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
     private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+
+    private ModelInstance playerModelInstance;
     @Override
     public void create() {
         // load the 3D model of the map
@@ -80,6 +85,34 @@ public class MyClient implements ApplicationListener {
 
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
+
+        // load the texture files
+        Texture bodyTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Body.png"));
+        Texture headLegsTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Head_Legs.png"));
+        // create materials that reference the texture files
+        Material bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
+        Material headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
+
+
+        // create a simple rectangle mesh for the player model
+        Mesh playerMesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.Normal(), VertexAttribute.TexCoords(0));
+        playerMesh.setVertices(new float[] {
+                -0.5f, 0, -0.5f, 0, 1, 0, 0, 0,
+                0.5f, 0, -0.5f, 0, 1, 0, 1, 0,
+                0.5f, 0,  0.5f, 0, 1, 0, 1, 1,
+                -0.5f, 0,  0.5f, 0, 1, 0, 0, 1,
+        });
+        playerMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
+
+        // create a new Model for the player model
+        Model playerModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek.obj"));
+        for (Mesh mesh : playerModel.meshes) {
+            mesh.scale(0.01f, 0.01f, 0.01f);
+        }
+        playerModelInstance = new ModelInstance(playerModel);
+        playerModelInstance.materials.get(1).set(bodyMaterial);
+        playerModelInstance.materials.get(0).set(headLegsMaterial);
+
 
         //myInputProcessor = new MyInputProcessor(this);
         inputMultiplexer = new InputMultiplexer();
@@ -101,24 +134,38 @@ public class MyClient implements ApplicationListener {
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.update();
 
+        // render the player model
+        // scale the player model
+        playerModelInstance.transform.setToTranslation(cameraPosition);
+        playerModelInstance.transform.rotate(Vector3.Y, cameraAngle);
+
+
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance);
-        modelBatch.end();
+        //modelBatch.render(playerModelInstance);
+
         /**
          * If this player inputs anything, send it to the server
          */
-        if (client.isConnected() && false) {
-            // this is like input() in python.
-            Scanner scanner = new Scanner(System.in);
-            String input = scanner.next();
-            Character direction = input.charAt(0);  // We only get the first character.
+        if (client.isConnected()) {
+            // render all other players
+            for (Player player : playersList) {
+                playerModelInstance.transform.setToTranslation(player.x, player.y, 1);
+                modelBatch.render(playerModelInstance);
+
+            }
+
             /**
              * Send this movement to the server.
              * The server should move "my player" and then send the updated board to all players.
              * So they know that this client moved aswell.
              */
-            client.sendUDP(direction);
+            Map<String, Integer> location = new HashMap<>();
+            location.put("x", (int) cameraPosition.x);
+            location.put("y", (int) cameraPosition.y);
+            client.sendUDP(location);
         }
+        modelBatch.end();
     }
 
     @Override

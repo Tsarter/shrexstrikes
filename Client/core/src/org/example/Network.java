@@ -3,6 +3,8 @@ package org.example;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
+import java.util.HashMap;
+
 public class Network {
 
     /**
@@ -13,6 +15,6 @@ public class Network {
         Kryo kryo = endPoint.getKryo();
         kryo.register(Player.class);
         kryo.register(Player[].class);
-        kryo.register(Character.class);
+        kryo.register(HashMap.class);
     }
 }
