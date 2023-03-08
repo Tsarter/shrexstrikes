@@ -51,7 +51,7 @@ public class MyServer {
                     Map location = (Map) object;  // get the character that they sent
 
                     player.move(location);  // move the player
-                    System.out.println(player.x + " " + player.y);
+                    System.out.println(player.x + " " + player.z);
 
                     sendState();  // send info about all players to all players
                 }

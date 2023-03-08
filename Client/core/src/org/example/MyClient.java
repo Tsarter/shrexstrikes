@@ -67,8 +67,10 @@ public class MyClient implements ApplicationListener {
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
     private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
-
     private ModelInstance playerModelInstance;
+    private Model playerModel;
+    private Material headLegsMaterial;
+    private Material bodyMaterial;
     @Override
     public void create() {
         // load the 3D model of the map
@@ -90,8 +92,8 @@ public class MyClient implements ApplicationListener {
         Texture bodyTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Body.png"));
         Texture headLegsTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Head_Legs.png"));
         // create materials that reference the texture files
-        Material bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
-        Material headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
+        bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
+        headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
 
 
         // create a simple rectangle mesh for the player model
@@ -105,7 +107,7 @@ public class MyClient implements ApplicationListener {
         playerMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
 
         // create a new Model for the player model
-        Model playerModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek.obj"));
+        playerModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek.obj"));
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
@@ -136,7 +138,7 @@ public class MyClient implements ApplicationListener {
 
         // render the player model
         // scale the player model
-        playerModelInstance.transform.setToTranslation(cameraPosition);
+        playerModelInstance.transform.translate(cameraPosition);
         playerModelInstance.transform.rotate(Vector3.Y, cameraAngle);
 
 
@@ -150,8 +152,19 @@ public class MyClient implements ApplicationListener {
         if (client.isConnected()) {
             // render all other players
             for (Player player : playersList) {
-                playerModelInstance.transform.setToTranslation(player.x, player.y, 1);
-                modelBatch.render(playerModelInstance);
+                // create a new instance of the player model for this player
+                ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
+                Vector3 playerPosition = new Vector3(player.x, 0, player.z);
+                // set the position and orientation of the player model instance
+                otherPlayerModelInstance.transform.translate(playerPosition);
+                otherPlayerModelInstance.transform.rotate(Vector3.Y, player.rotation);
+                System.out.println("Player position: " + playerPosition);
+                // set the material for each mesh in the player model instance
+                otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
+                otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
+
+                // render the player model instance
+                modelBatch.render(otherPlayerModelInstance);
 
             }
 
@@ -160,9 +173,11 @@ public class MyClient implements ApplicationListener {
              * The server should move "my player" and then send the updated board to all players.
              * So they know that this client moved aswell.
              */
-            Map<String, Integer> location = new HashMap<>();
-            location.put("x", (int) cameraPosition.x);
-            location.put("y", (int) cameraPosition.y);
+            Map<String, Float> location = new HashMap<>();
+            location.put("x",  cameraPosition.x);
+            location.put("z",  cameraPosition.z);
+            location.put("rotation",  cameraAngle);
+            System.out.println("Sending location: " + location);
             client.sendUDP(location);
         }
         modelBatch.end();

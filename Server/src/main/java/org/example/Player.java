@@ -3,10 +3,12 @@ package org.example;
 import java.util.Map;
 
 public class Player {
-    int x, y;
-    public Player(int x, int y) {
+    float x, z;
+    float rotation;
+    public Player(float x, float z) {
         this.x = x;
-        this.y = y;
+        this.z = z;
+        this.rotation = 0;
     }
 
     /**
@@ -14,7 +16,8 @@ public class Player {
      * @param
      */
     public void move(Map location) {
-        this.x = (int) location.get("x");
-        this.y = (int) location.get("y");
+        this.x = (float) location.get("x");
+        this.z = (float) location.get("z");
+        this.rotation = (float) location.get("rotation");
     }
 }
