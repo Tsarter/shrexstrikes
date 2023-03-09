@@ -34,7 +34,7 @@ public class MyServer {
             public void connected(Connection c) {
 
                 players.put(c.getRemoteAddressUDP(), new Player(0, 0));
-                // System.out.println(c.getRemoteAddressUDP().toString() + " connected");
+                System.out.println(c.getRemoteAddressUDP().toString() + " connected");
 
                 sendState();  // send info about all players to all players
             }
@@ -51,7 +51,6 @@ public class MyServer {
                     Map location = (Map) object;  // get the character that they sent
 
                     player.move(location);  // move the player
-                    System.out.println(player.x + " " + player.z);
 
                     sendState();  // send info about all players to all players
                 }

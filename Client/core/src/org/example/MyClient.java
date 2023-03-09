@@ -75,7 +75,7 @@ public class MyClient implements ApplicationListener {
     public void create() {
         // load the 3D model of the map
         ModelLoader loader = new ObjLoader();
-        Model mapModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\mapBasic.obj"));
+        Model mapModel = loader.loadModel(Gdx.files.internal("assets/mapBasic.obj"));
         groundModelInstance = new ModelInstance(mapModel);
 
         // create a perspective camera to view the game world
@@ -89,8 +89,8 @@ public class MyClient implements ApplicationListener {
         modelBatch = new ModelBatch();
 
         // load the texture files
-        Texture bodyTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Body.png"));
-        Texture headLegsTexture = new Texture(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek_Head_Legs.png"));
+        Texture bodyTexture = new Texture(Gdx.files.internal("assets/Shrek_Body.png"));
+        Texture headLegsTexture = new Texture(Gdx.files.internal("assets/Shrek_Head_Legs.png"));
         // create materials that reference the texture files
         bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
         headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
@@ -107,7 +107,7 @@ public class MyClient implements ApplicationListener {
         playerMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
 
         // create a new Model for the player model
-        playerModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek.obj"));
+        playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
@@ -192,6 +192,7 @@ public class MyClient implements ApplicationListener {
 
     @Override
     public void resize(int width, int height) {
+
     }
 
     @Override
