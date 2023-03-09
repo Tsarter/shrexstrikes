@@ -1,0 +1,6 @@
+
+Kuidas ja milliseid andmeid saadetakse?
+
+Iga mängija saadab render() funktsiooni ajal oma positsioon (x, y - koordinaadid) ja mis suunas ta vaatab (rotation) serverisse.
+Server saadab mängijale playerListi, kus sees on Player klassid.
+

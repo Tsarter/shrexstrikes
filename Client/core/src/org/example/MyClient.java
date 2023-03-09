@@ -138,8 +138,8 @@ public class MyClient implements ApplicationListener {
 
         // render the player model
         // scale the player model
-        playerModelInstance.transform.translate(cameraPosition);
-        playerModelInstance.transform.rotate(Vector3.Y, cameraAngle);
+        //playerModelInstance.transform.translate(cameraPosition);
+        //playerModelInstance.transform.rotate(Vector3.Y, cameraAngle);
 
 
         modelBatch.begin(camera);
@@ -147,7 +147,7 @@ public class MyClient implements ApplicationListener {
         //modelBatch.render(playerModelInstance);
 
         /**
-         * If this player inputs anything, send it to the server
+         * If player is connected to the server, render all other players.
          */
         if (client.isConnected()) {
             // render all other players
@@ -158,7 +158,6 @@ public class MyClient implements ApplicationListener {
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);
                 otherPlayerModelInstance.transform.rotate(Vector3.Y, player.rotation);
-                System.out.println("Player position: " + playerPosition);
                 // set the material for each mesh in the player model instance
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
@@ -176,7 +175,9 @@ public class MyClient implements ApplicationListener {
             Map<String, Float> location = new HashMap<>();
             location.put("x",  cameraPosition.x);
             location.put("z",  cameraPosition.z);
-            location.put("rotation",  cameraAngle);
+            // get the angle of the camera direction
+            float rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
+            location.put("rotation",  rotation);
             System.out.println("Sending location: " + location);
             client.sendUDP(location);
         }
