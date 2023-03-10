@@ -7,19 +7,18 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import org.example.screens.MenuScreen;
 
 import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 
 public class MyClient implements ApplicationListener {
@@ -71,8 +70,11 @@ public class MyClient implements ApplicationListener {
     private Model playerModel;
     private Material headLegsMaterial;
     private Material bodyMaterial;
+    private MenuScreen menuScreen;
+    private Game game;
     @Override
     public void create() {
+
         // load the 3D model of the map
         ModelLoader loader = new ObjLoader();
         Model mapModel = loader.loadModel(Gdx.files.internal("assets/mapBasic.obj"));
@@ -202,6 +204,4 @@ public class MyClient implements ApplicationListener {
     @Override
     public void resume() {
     }
-
-
 }
