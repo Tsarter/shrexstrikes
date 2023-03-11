@@ -24,12 +24,13 @@ import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
     private MyGame myGame;
-    public ShrexScreen(MyGame myGame) {
+    public ShrexScreen(MyGame myGame)
+    {
         this.myGame = myGame;
     }
     private final Client client;
     private Player[] playersList;
-    public MyClient() throws IOException {
+    public ShrexScreen() throws IOException {
 
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
