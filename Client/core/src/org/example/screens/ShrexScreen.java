@@ -1,4 +1,4 @@
-package org.example;
+package org.example.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -13,20 +13,22 @@ import com.badlogic.gdx.math.Vector3;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import org.example.screens.MenuScreen;
+import org.example.MyGame;
+import org.example.MyInputProcessor;
+import org.example.Network;
+import org.example.Player;
 
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class MyClient implements ApplicationListener {
+public class ShrexScreen implements ApplicationListener,Screen {
+    private MyGame myGame;
 
     private final Client client;
     private Player[] playersList;
-    public MyClient() throws IOException {
-
+    public ShrexScreen(MyGame myGame) throws IOException {
+        this.myGame = myGame;
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
 
@@ -65,7 +67,7 @@ public class MyClient implements ApplicationListener {
     private float cameraAngle;
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
-    // private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+    private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
     private ModelInstance playerModelInstance;
     private Model playerModel;
     private Material headLegsMaterial;
@@ -120,11 +122,19 @@ public class MyClient implements ApplicationListener {
 
         //myInputProcessor = new MyInputProcessor(this);
         inputMultiplexer = new InputMultiplexer();
-        //inputMultiplexer.addProcessor(myInputProcessor);
+        inputMultiplexer.addProcessor(myInputProcessor);
         //inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
+    /**
+     * Screen has its render(float delta) and applicationListener has its render()
+      * @param delta The time in seconds since the last render.
+     */
+    @Override
+    public void render(float delta) {
+        render();
+    }
     @Override
     public void render() {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -132,7 +142,7 @@ public class MyClient implements ApplicationListener {
 
         float delta = Gdx.graphics.getDeltaTime();
         // Update player movement
-       // myInputProcessor.updatePlayerMovement(delta);
+        myInputProcessor.updatePlayerMovement(delta);
 
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
@@ -180,7 +190,6 @@ public class MyClient implements ApplicationListener {
             // get the angle of the camera direction
             float rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
             location.put("rotation",  rotation);
-            System.out.println("Sending location: " + location);
             client.sendUDP(location);
         }
         modelBatch.end();
@@ -203,5 +212,11 @@ public class MyClient implements ApplicationListener {
 
     @Override
     public void resume() {
+    }
+    @Override
+    public void show() {
+    }
+    @Override
+    public void hide() {
     }
 }
