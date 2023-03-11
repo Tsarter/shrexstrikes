@@ -4,6 +4,8 @@ import com.badlogic.gdx.Game;
 import org.example.screens.MenuScreen;
 import org.example.screens.ShrexScreen;
 
+import java.io.IOException;
+
 public class MyGame extends Game {
     private MenuScreen menuScreen;
     private ShrexScreen shrexScreen;
@@ -11,7 +13,11 @@ public class MyGame extends Game {
     @Override
     public void create() {
         menuScreen = new MenuScreen(this);
-        shrexScreen = new ShrexScreen(this);
+        try {
+            shrexScreen = new ShrexScreen(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         setScreen(menuScreen);
     }
@@ -20,6 +26,7 @@ public class MyGame extends Game {
         setScreen(menuScreen);
     }
     public void showShrexScreen() {
+        shrexScreen.create();
         setScreen(shrexScreen);
     }
 

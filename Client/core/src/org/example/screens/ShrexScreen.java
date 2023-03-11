@@ -24,14 +24,11 @@ import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
     private MyGame myGame;
-    public ShrexScreen(MyGame myGame)
-    {
-        this.myGame = myGame;
-    }
+
     private final Client client;
     private Player[] playersList;
-    public ShrexScreen() throws IOException {
-
+    public ShrexScreen(MyGame myGame) throws IOException {
+        this.myGame = myGame;
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
 
@@ -130,6 +127,14 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
+    /**
+     * Screen has its render(float delta) and applicationListener has its render()
+      * @param delta The time in seconds since the last render.
+     */
+    @Override
+    public void render(float delta) {
+        render();
+    }
     @Override
     public void render() {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -185,7 +190,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
             // get the angle of the camera direction
             float rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
             location.put("rotation",  rotation);
-            System.out.println("Sending location: " + location);
             client.sendUDP(location);
         }
         modelBatch.end();
@@ -209,18 +213,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
     @Override
     public void resume() {
     }
-}
     @Override
     public void show() {
     }
-
-
     @Override
     public void hide() {
     }
-    @Override
-    public void render(float delta) {
-        render();
-    }
-
 }
