@@ -2,6 +2,7 @@ package org.example.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -19,7 +20,8 @@ public class MenuScreen implements Screen {
         this.myGame = myGame;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-        Skin skin = new Skin(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\skins\\neutralizer\\skin\\neutralizer-ui.json"));
+        TextureAtlas textureAtlas = new TextureAtlas(Gdx.files.internal("assets/uiskin.atlas"));
+        Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
 
         // Add actors to the stage, such as buttons and labels
         TextButton startButton = new TextButton("Start", skin);
@@ -27,6 +29,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Logic for starting the game
+                System.out.println("Start button clicked");
                 myGame.showShrexScreen();
             }
         });

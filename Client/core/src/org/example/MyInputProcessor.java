@@ -3,17 +3,18 @@ package org.example;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
+import org.example.screens.ShrexScreen;
 
-class MyInputProcessor implements InputProcessor {
+public class MyInputProcessor implements InputProcessor {
     // Implement input event handling methods here...
-    private MyClient myClient;
+    private ShrexScreen shrexScreen;
     private boolean upPressed;
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
 
-    public MyInputProcessor( MyClient myClient) {
-        this.myClient = myClient;
+    public MyInputProcessor(ShrexScreen shrexScreen) {
+        this.shrexScreen = shrexScreen;
     }
 
     @Override
@@ -59,18 +60,18 @@ class MyInputProcessor implements InputProcessor {
     }
 
     public void updatePlayerMovement(float delta) {
-        float speed = myClient.cameraSpeed * delta;
+        float speed = shrexScreen.cameraSpeed * delta;
         if (upPressed) {
-            myClient.cameraPosition.add(myClient.cameraDirection.nor().scl(speed));
+            shrexScreen.cameraPosition.add(shrexScreen.cameraDirection.nor().scl(speed));
         }
         if (downPressed) {
-            myClient.cameraPosition.sub(myClient.cameraDirection.nor().scl(speed));
+            shrexScreen.cameraPosition.sub(shrexScreen.cameraDirection.nor().scl(speed));
         }
         if (leftPressed) {
-            myClient.cameraDirection.rotate(Vector3.Y, speed * 5);
+            shrexScreen.cameraDirection.rotate(Vector3.Y, speed * 5);
         }
         if (rightPressed) {
-            myClient.cameraDirection.rotate(Vector3.Y, -speed * 5);
+            shrexScreen.cameraDirection.rotate(Vector3.Y, -speed * 5);
         }
     }
 

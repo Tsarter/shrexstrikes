@@ -65,7 +65,7 @@ public class MyClient implements ApplicationListener {
     private float cameraAngle;
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
-    private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+    // private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
     private ModelInstance playerModelInstance;
     private Model playerModel;
     private Material headLegsMaterial;
@@ -120,7 +120,7 @@ public class MyClient implements ApplicationListener {
 
         //myInputProcessor = new MyInputProcessor(this);
         inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(myInputProcessor);
+        //inputMultiplexer.addProcessor(myInputProcessor);
         //inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
@@ -132,7 +132,7 @@ public class MyClient implements ApplicationListener {
 
         float delta = Gdx.graphics.getDeltaTime();
         // Update player movement
-        myInputProcessor.updatePlayerMovement(delta);
+       // myInputProcessor.updatePlayerMovement(delta);
 
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
