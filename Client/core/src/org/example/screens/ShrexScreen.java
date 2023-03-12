@@ -128,6 +128,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // create a shadow batch for rendering shadows
         shadowBatch = new ModelBatch(new DepthShaderProvider());
+        // make the groundModelInstance green
+        Material groundMaterial = new Material();
+        groundMaterial.set(ColorAttribute.createAmbient(0.2f, 0.2f, 0.2f, 1f)); // ambient color
+        groundMaterial.set(ColorAttribute.createDiffuse(0.4f, 1, 0.4f, 1f)); // diffuse color
+        groundMaterial.set(ColorAttribute.createSpecular(0, 0, 0, 1)); // specular color
 
 
         // create a new Model for the player model
@@ -138,6 +143,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         playerModelInstance = new ModelInstance(playerModel);
         playerModelInstance.materials.get(1).set(bodyMaterial);
         playerModelInstance.materials.get(0).set(headLegsMaterial);
+        groundModelInstance.materials.get(3).set(groundMaterial);
 
 
         //myInputProcessor = new MyInputProcessor(this);
