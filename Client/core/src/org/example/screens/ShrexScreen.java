@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.utils.JsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -34,6 +36,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private final Client client;
     private Player[] playersList;
     public ShrexScreen(MyGame myGame) throws IOException {
+        System.loadLibrary("gdx-bullet");
         this.myGame = myGame;
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
@@ -82,6 +85,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private DirectionalShadowLight shadowLight;
     private ModelBatch shadowBatch;
     private Environment environment = new Environment();
+    private btCollisionWorld collisionWorld;
+
+    private btRigidBody mapBody;
+    private btRigidBody playerBody;
+
+
     @Override
     public void create() {
 
@@ -90,6 +99,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         ModelLoader loader = new ObjLoader();
         Model mapModel = loader.loadModel(Gdx.files.internal("assets/mapBasic.obj"));
         groundModelInstance = new ModelInstance(mapModel);
+
 
         // create a perspective camera to view the game world
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -145,7 +155,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         playerModelInstance.materials.get(0).set(headLegsMaterial);
         groundModelInstance.materials.get(3).set(groundMaterial);
 
-
+        // Initialize collsion between the map and the player
+        initializeCollision(mapModel, playerModel);
         //myInputProcessor = new MyInputProcessor(this);
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
@@ -229,6 +240,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowLight.end();
         modelBatch.end();
 
+        checkForCollison();
+
     }
 
     @Override
@@ -255,5 +268,64 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void hide() {
+    }
+
+    public void initializeCollision(Model mapModel, Model playerModel) {
+        btTriangleMesh triangleMapMesh = new btTriangleMesh();
+        btBvhTriangleMeshShape mapShape;
+
+        // create collisonWorld
+        btDefaultCollisionConfiguration collisionConfiguration = new btDefaultCollisionConfiguration();
+        btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfiguration);
+        btDbvtBroadphase broadphase = new btDbvtBroadphase();
+        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfiguration);
+        // create a collision shape for the map
+        for (Mesh mesh : mapModel.meshes) {
+            float[] vertices = new float[mesh.getNumVertices() * 3];
+            mesh.getVertices(vertices);
+            short[] indices = new short[mesh.getNumIndices()];
+            mesh.getIndices(indices);
+
+            for (int i = 0; i < indices.length; i += 3) {
+                Vector3 vertex1 = new Vector3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
+                Vector3 vertex2 = new Vector3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
+                Vector3 vertex3 = new Vector3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
+
+                triangleMapMesh.addTriangle(vertex1, vertex2, vertex3);
+            }
+        }
+        mapShape = new btBvhTriangleMeshShape(triangleMapMesh, true);
+        mapBody = new btRigidBody(0, null, mapShape);
+        collisionWorld.addCollisionObject(mapBody);
+
+        // create a collision shape for the player and add it to the collisionWorld
+        btCollisionShape playerShape = new btBoxShape(new Vector3(1, 2, 1)); // Example box shape for the player
+        playerBody = new btRigidBody(1, null, playerShape);
+        collisionWorld.addCollisionObject(playerBody);
+
+    }
+
+    public void checkForCollison () {
+
+        // check for collision with the map
+        collisionWorld.performDiscreteCollisionDetection();
+        int numManifolds = collisionWorld.getDispatcher().getNumManifolds();
+        for (int i = 0; i < numManifolds; i++) {
+            btPersistentManifold contactManifold = collisionWorld.getDispatcher().getManifoldByIndexInternal(i);
+            btCollisionObject obA = (btCollisionObject) contactManifold.getBody0();
+            btCollisionObject obB = (btCollisionObject) contactManifold.getBody1();
+
+            if (obA == playerBody && obB == mapBody || obA == mapBody && obB == playerBody) {
+                int numContacts = contactManifold.getNumContacts();
+                for (int j = 0; j < numContacts; j++) {
+                    btManifoldPoint pt = contactManifold.getContactPoint(j);
+                    if (pt.getDistance() < 0f) {
+                        // collision detected
+                        System.out.println("Collision detected");
+                    }
+                }
+            }
+        }
+
     }
 }
