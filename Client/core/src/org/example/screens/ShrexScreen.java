@@ -3,13 +3,18 @@ package org.example.screens;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+
+
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
+import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.JsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -72,12 +77,15 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Model playerModel;
     private Material headLegsMaterial;
     private Material bodyMaterial;
-    private MenuScreen menuScreen;
-    private Game game;
+
+    private DirectionalShadowLight shadowLight;
+    private ModelBatch shadowBatch;
+    private Environment environment = new Environment();
     @Override
     public void create() {
 
         // load the 3D model of the map
+        //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
         Model mapModel = loader.loadModel(Gdx.files.internal("assets/mapBasic.obj"));
         groundModelInstance = new ModelInstance(mapModel);
@@ -110,6 +118,17 @@ public class ShrexScreen implements ApplicationListener,Screen {
         });
         playerMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
 
+        // create a directional light for casting shadows
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+        shadowLight = new DirectionalShadowLight(1024, 1024, 60f, 60f, 1f, 300f);
+        shadowLight.set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f);
+        environment.add(shadowLight);
+        environment.shadowMap = shadowLight;
+
+        // create a shadow batch for rendering shadows
+        shadowBatch = new ModelBatch(new DepthShaderProvider());
+
+
         // create a new Model for the player model
         playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
         for (Mesh mesh : playerModel.meshes) {
@@ -137,6 +156,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void render() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -148,14 +168,16 @@ public class ShrexScreen implements ApplicationListener,Screen {
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.update();
 
-        // render the player model
-        // scale the player model
-        //playerModelInstance.transform.translate(cameraPosition);
-        //playerModelInstance.transform.rotate(Vector3.Y, cameraAngle);
-
-
+        // update the shadow map
+        shadowLight.begin(Vector3.Zero, camera.direction);
+        shadowBatch.begin(shadowLight.getCamera());
+        shadowBatch.render(groundModelInstance);
+        shadowBatch.render(playerModelInstance);
+        shadowBatch.end();
+        shadowLight.end();
+        // render the objects with shadows
         modelBatch.begin(camera);
-        modelBatch.render(groundModelInstance);
+        modelBatch.render(groundModelInstance, environment);
         //modelBatch.render(playerModelInstance);
 
         /**
@@ -175,7 +197,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
                 // render the player model instance
-                modelBatch.render(otherPlayerModelInstance);
+                modelBatch.render(otherPlayerModelInstance, environment);
 
             }
 
@@ -197,6 +219,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     @Override
     public void dispose() {
+        shadowBatch.dispose();
         modelBatch.dispose();
         model.dispose();
     }
