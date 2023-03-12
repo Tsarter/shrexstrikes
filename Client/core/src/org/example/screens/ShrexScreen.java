@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.JsonReader;
 import com.esotericsoftware.kryonet.Client;
@@ -120,7 +121,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // create a directional light for casting shadows
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        shadowLight = new DirectionalShadowLight(1024, 1024, 60f, 60f, 1f, 300f);
+        shadowLight = new DirectionalShadowLight(10024, 10024, 60f, 60f, 1f, 300f);
         shadowLight.set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f);
         environment.add(shadowLight);
         environment.shadowMap = shadowLight;
@@ -172,9 +173,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowLight.begin(Vector3.Zero, camera.direction);
         shadowBatch.begin(shadowLight.getCamera());
         shadowBatch.render(groundModelInstance);
+        // update the transform of the playerModelInstance
+        float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
+        playerModelInstance.transform.set(cameraPosition, new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
+
         shadowBatch.render(playerModelInstance);
-        shadowBatch.end();
-        shadowLight.end();
+
         // render the objects with shadows
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
@@ -198,6 +202,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
                 // render the player model instance
                 modelBatch.render(otherPlayerModelInstance, environment);
+                shadowBatch.render(otherPlayerModelInstance);
 
             }
 
@@ -214,7 +219,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
             location.put("rotation",  rotation);
             client.sendUDP(location);
         }
+        shadowBatch.end();
+        shadowLight.end();
         modelBatch.end();
+
     }
 
     @Override
