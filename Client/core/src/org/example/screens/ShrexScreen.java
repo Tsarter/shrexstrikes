@@ -15,8 +15,12 @@ import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.JsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -31,12 +35,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
+    final static short GROUND_FLAG = 1 << 8;
+    final static short OBJECT_FLAG = 1 << 9;
+    final static short ALL_FLAG = -1;
     private MyGame myGame;
 
     private final Client client;
     private Player[] playersList;
     public ShrexScreen(MyGame myGame) throws IOException {
-        System.loadLibrary("gdx-bullet");
         this.myGame = myGame;
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
@@ -67,6 +73,52 @@ public class ShrexScreen implements ApplicationListener,Screen {
         client.connect(5000, "localhost", 3000, 3001);
 
     }
+    class MyContactListener extends ContactListener {
+        @Override
+        public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
+            instances.get(userValue0).moving = false;
+            instances.get(userValue1).moving = false;
+            return true;
+        }
+    }
+    static class GameObject extends ModelInstance implements Disposable {
+        public final btCollisionObject body;
+        public boolean moving;
+
+        public GameObject (Model model, String node, btCollisionShape shape) {
+            super(model, node);
+            body = new btCollisionObject();
+            body.setCollisionShape(shape);
+        }
+
+        @Override
+        public void dispose () {
+            body.dispose();
+        }
+
+        static class Constructor implements Disposable {
+            public final Model model;
+            public final String node;
+            public final btCollisionShape shape;
+
+            public Constructor (Model model, String node, btCollisionShape shape) {
+                this.model = model;
+                this.node = node;
+                this.shape = shape;
+            }
+
+            public GameObject construct () {
+                return new GameObject(model, node, shape);
+            }
+
+            @Override
+            public void dispose () {
+                shape.dispose();
+            }
+        }
+    }
+    Array<GameObject> instances;
+    ArrayMap<String, GameObject.Constructor> constructors;
     public ModelBatch modelBatch;
     public Model model;
     public ModelInstance groundModelInstance;
@@ -93,7 +145,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     @Override
     public void create() {
-
+        Bullet.init();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
@@ -103,7 +155,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // create a perspective camera to view the game world
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cameraPosition = new Vector3(0, 1, 0);
+        cameraPosition = new Vector3(0, 3, 0);
         cameraDirection = new Vector3(0, 0, -1);
         cameraAngle = 0;
         cameraSpeed = 20;
@@ -240,7 +292,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowLight.end();
         modelBatch.end();
 
-        checkForCollison();
 
     }
 
@@ -305,27 +356,4 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     }
 
-    public void checkForCollison () {
-
-        // check for collision with the map
-        collisionWorld.performDiscreteCollisionDetection();
-        int numManifolds = collisionWorld.getDispatcher().getNumManifolds();
-        for (int i = 0; i < numManifolds; i++) {
-            btPersistentManifold contactManifold = collisionWorld.getDispatcher().getManifoldByIndexInternal(i);
-            btCollisionObject obA = (btCollisionObject) contactManifold.getBody0();
-            btCollisionObject obB = (btCollisionObject) contactManifold.getBody1();
-
-            if (obA == playerBody && obB == mapBody || obA == mapBody && obB == playerBody) {
-                int numContacts = contactManifold.getNumContacts();
-                for (int j = 0; j < numContacts; j++) {
-                    btManifoldPoint pt = contactManifold.getContactPoint(j);
-                    if (pt.getDistance() < 0f) {
-                        // collision detected
-                        System.out.println("Collision detected");
-                    }
-                }
-            }
-        }
-
-    }
 }
