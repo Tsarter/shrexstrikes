@@ -12,12 +12,14 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
@@ -36,7 +38,9 @@ import org.example.Network;
 import org.example.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
@@ -155,6 +159,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private btCollisionConfiguration collisionConfiguration;
     private btDispatcher dispatcher;
     private btBroadphaseInterface broadphase;
+    private List<BoundingBox> mapBounds;
+    private BoundingBox playerBounds;
 
     @Override
     public void create() {
@@ -214,6 +220,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
         playerModelInstance = new ModelInstance(playerModel);
+        playerModelInstance.transform.setToTranslation(0, 2, 0);
         playerModelInstance.materials.get(1).set(bodyMaterial);
         playerModelInstance.materials.get(0).set(headLegsMaterial);
         groundModelInstance.materials.get(3).set(groundMaterial);
@@ -224,19 +231,15 @@ public class ShrexScreen implements ApplicationListener,Screen {
         inputMultiplexer.addProcessor(myInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-        ModelBuilder mb = new ModelBuilder();
-        mb.begin();
-        mb.node().id = "map";
-        mb.part("ground", GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, groundMaterial).addMesh(mapModel.meshes.get(0));
+        playerBounds = new BoundingBox();
+        new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
 
-        contactListener = new MyContactListener();
-        GameObject obj = constructors.get("box").construct();
-        obj.moving = true;
-        obj.transform.setToTranslation(10f, 0, 0);
-        obj.body.setWorldTransform(obj.transform);
-        //obj.body.setUserValue(instances.size);
-        obj.body.setCollisionFlags(obj.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        instances.add(obj);
+        mapBounds = new ArrayList<BoundingBox>();
+        for (Node node : mapModel.nodes) {
+            BoundingBox box = new BoundingBox();
+            node.calculateBoundingBox(box);
+            mapBounds.add(box);
+        }
 
 
         // Initialize collsion between the map and the player
@@ -259,15 +262,17 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+
         float delta = Gdx.graphics.getDeltaTime();
         // Update player movement
-        myInputProcessor.updatePlayerMovement(delta);
 
-        collisionWorld.performDiscreteCollisionDetection();
 
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.update();
+
+
+        myInputProcessor.updatePlayerMovement(delta);
 
         // update the shadow map
         shadowLight.begin(Vector3.Zero, camera.direction);
@@ -282,21 +287,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // render the objects with shadows
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
-        //modelBatch.render(playerModelInstance);
 
-        // Update the transform of the player rigid body based on its current position and orientation
-        btTransform transform = new btTransform();
-        transform.setIdentity();
-        transform.setOrigin(cameraPosition);
-        transform.setRotation(new Quaternion(new Vector3(0, 1, 0), playerModelRotation));
-        playerBody.setWorldTransform(transform.inverse());
+        // Check for collisions again
+        Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
 
-        // Update the position of the player's collision shape
-        btCollisionShape playerShape = playerBody.getCollisionShape();
-        Vector3 playerScale = new Vector3(1f, 1f, 1f);
-        float playerMargin = 0.04f;
-        playerShape.setLocalScaling(playerScale);
-        playerShape.setMargin(playerMargin);
+
+
+
 
         /**
          * If player is connected to the server, render all other players.
@@ -307,6 +304,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
                 Vector3 playerPosition = new Vector3(player.x, 0, player.z);
+
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);
                 otherPlayerModelInstance.transform.rotate(Vector3.Y, player.rotation);
@@ -314,6 +312,18 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
+                playerBounds = new BoundingBox();
+                // playerModelInstance.calculateBoundingBox(playerBounds);
+                playerBounds.set(newPos, new Vector3(newPos.x + 1f, newPos.y + 1f, newPos.z + 1f));
+                for (BoundingBox bounds : mapBounds) {
+                    if (bounds.intersects(playerBounds)) {
+                        // The player has collided with an object in the map
+                        // Move the player back to their previous position or prevent further movement
+                        otherPlayerModelInstance.transform.setTranslation(new Vector3(player.x + 2f, 0, player.z));
+                        System.out.println("Collision detected");
+                        break;
+                    }
+                }
                 // render the player model instance
                 modelBatch.render(otherPlayerModelInstance, environment);
                 shadowBatch.render(otherPlayerModelInstance);
