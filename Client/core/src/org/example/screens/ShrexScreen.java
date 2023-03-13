@@ -13,11 +13,16 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.linearmath.btQuaternion;
+import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
@@ -73,13 +78,14 @@ public class ShrexScreen implements ApplicationListener,Screen {
         client.connect(5000, "localhost", 3000, 3001);
 
     }
+    // gets called when collision is detected
     class MyContactListener extends ContactListener {
         @Override
         public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-            instances.get(userValue0).moving = false;
-            instances.get(userValue1).moving = false;
+            System.out.println("Collision detected onContactAdded");
             return true;
         }
+
     }
     static class GameObject extends ModelInstance implements Disposable {
         public final btCollisionObject body;
@@ -117,8 +123,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
             }
         }
     }
-    Array<GameObject> instances;
-    ArrayMap<String, GameObject.Constructor> constructors;
+
+    MyContactListener contactListener;
     public ModelBatch modelBatch;
     public Model model;
     public ModelInstance groundModelInstance;
@@ -142,6 +148,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private btRigidBody mapBody;
     private btRigidBody playerBody;
 
+    private Model collisionModel;
+    Array<GameObject> instances;
+    ArrayMap<String, GameObject.Constructor> constructors;
+
+    private btCollisionConfiguration collisionConfiguration;
+    private btDispatcher dispatcher;
+    private btBroadphaseInterface broadphase;
 
     @Override
     public void create() {
@@ -155,7 +168,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // create a perspective camera to view the game world
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cameraPosition = new Vector3(0, 3, 0);
+        cameraPosition = new Vector3(0, 1, 0);
         cameraDirection = new Vector3(0, 0, -1);
         cameraAngle = 0;
         cameraSpeed = 20;
@@ -192,9 +205,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch = new ModelBatch(new DepthShaderProvider());
         // make the groundModelInstance green
         Material groundMaterial = new Material();
-        groundMaterial.set(ColorAttribute.createAmbient(0.2f, 0.2f, 0.2f, 1f)); // ambient color
         groundMaterial.set(ColorAttribute.createDiffuse(0.4f, 1, 0.4f, 1f)); // diffuse color
-        groundMaterial.set(ColorAttribute.createSpecular(0, 0, 0, 1)); // specular color
 
 
         // create a new Model for the player model
@@ -207,13 +218,31 @@ public class ShrexScreen implements ApplicationListener,Screen {
         playerModelInstance.materials.get(0).set(headLegsMaterial);
         groundModelInstance.materials.get(3).set(groundMaterial);
 
-        // Initialize collsion between the map and the player
-        initializeCollision(mapModel, playerModel);
-        //myInputProcessor = new MyInputProcessor(this);
+
+
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
-        //inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+        mb.node().id = "map";
+        mb.part("ground", GL20.GL_TRIANGLES, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal, groundMaterial).addMesh(mapModel.meshes.get(0));
+
+        contactListener = new MyContactListener();
+        GameObject obj = constructors.get("box").construct();
+        obj.moving = true;
+        obj.transform.setToTranslation(10f, 0, 0);
+        obj.body.setWorldTransform(obj.transform);
+        //obj.body.setUserValue(instances.size);
+        obj.body.setCollisionFlags(obj.body.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        instances.add(obj);
+
+
+        // Initialize collsion between the map and the player
+        //initializeCollision(mapModel, playerModel);
+
+        //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
     }
 
     /**
@@ -234,6 +263,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Update player movement
         myInputProcessor.updatePlayerMovement(delta);
 
+        collisionWorld.performDiscreteCollisionDetection();
+
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.update();
@@ -252,6 +283,20 @@ public class ShrexScreen implements ApplicationListener,Screen {
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
         //modelBatch.render(playerModelInstance);
+
+        // Update the transform of the player rigid body based on its current position and orientation
+        btTransform transform = new btTransform();
+        transform.setIdentity();
+        transform.setOrigin(cameraPosition);
+        transform.setRotation(new Quaternion(new Vector3(0, 1, 0), playerModelRotation));
+        playerBody.setWorldTransform(transform.inverse());
+
+        // Update the position of the player's collision shape
+        btCollisionShape playerShape = playerBody.getCollisionShape();
+        Vector3 playerScale = new Vector3(1f, 1f, 1f);
+        float playerMargin = 0.04f;
+        playerShape.setLocalScaling(playerScale);
+        playerShape.setMargin(playerMargin);
 
         /**
          * If player is connected to the server, render all other players.
@@ -300,6 +345,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.dispose();
         modelBatch.dispose();
         model.dispose();
+        contactListener.dispose();
+        playerModel.dispose();
+        collisionWorld.dispose();
+
     }
 
     @Override
@@ -322,37 +371,37 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
 
     public void initializeCollision(Model mapModel, Model playerModel) {
-        btTriangleMesh triangleMapMesh = new btTriangleMesh();
-        btBvhTriangleMeshShape mapShape;
-
-        // create collisonWorld
-        btDefaultCollisionConfiguration collisionConfiguration = new btDefaultCollisionConfiguration();
-        btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfiguration);
-        btDbvtBroadphase broadphase = new btDbvtBroadphase();
-        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfiguration);
-        // create a collision shape for the map
-        for (Mesh mesh : mapModel.meshes) {
-            float[] vertices = new float[mesh.getNumVertices() * 3];
-            mesh.getVertices(vertices);
-            short[] indices = new short[mesh.getNumIndices()];
-            mesh.getIndices(indices);
-
-            for (int i = 0; i < indices.length; i += 3) {
-                Vector3 vertex1 = new Vector3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
-                Vector3 vertex2 = new Vector3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
-                Vector3 vertex3 = new Vector3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
-
-                triangleMapMesh.addTriangle(vertex1, vertex2, vertex3);
-            }
-        }
-        mapShape = new btBvhTriangleMeshShape(triangleMapMesh, true);
-        mapBody = new btRigidBody(0, null, mapShape);
-        collisionWorld.addCollisionObject(mapBody);
-
-        // create a collision shape for the player and add it to the collisionWorld
-        btCollisionShape playerShape = new btBoxShape(new Vector3(1, 2, 1)); // Example box shape for the player
-        playerBody = new btRigidBody(1, null, playerShape);
-        collisionWorld.addCollisionObject(playerBody);
+//        btTriangleMesh triangleMapMesh = new btTriangleMesh();
+//        btBvhTriangleMeshShape mapShape;
+//
+//        // create collisonWorld
+//        collisionConfiguration = new btDefaultCollisionConfiguration();
+//        dispatcher = new btCollisionDispatcher(collisionConfiguration);
+//        broadphase = new btDbvtBroadphase();
+//        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfiguration);
+//        // create a collision shape for the map
+//        for (Mesh mesh : mapModel.meshes) {
+//            float[] vertices = new float[mesh.getNumVertices() * 3];
+//            mesh.getVertices(vertices);
+//            short[] indices = new short[mesh.getNumIndices()];
+//            mesh.getIndices(indices);
+//
+//            for (int i = 0; i < indices.length; i += 3) {
+//                Vector3 vertex1 = new Vector3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
+//                Vector3 vertex2 = new Vector3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
+//                Vector3 vertex3 = new Vector3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
+//
+//                triangleMapMesh.addTriangle(vertex1, vertex2, vertex3);
+//            }
+//        }
+//        mapShape = new btBvhTriangleMeshShape(triangleMapMesh, true);
+//        mapBody = new btRigidBody(0, null, mapShape);
+//        collisionWorld.addCollisionObject(mapBody, GROUND_FLAG, ALL_FLAG);
+//
+//        // create a collision shape for the player and add it to the collisionWorld
+//        btCollisionShape playerShape = new btBoxShape(new Vector3(1, 2, 1)); // Example box shape for the player
+//        playerBody = new btRigidBody(1, null, playerShape);
+//        collisionWorld.addCollisionObject(playerBody, OBJECT_FLAG, ALL_FLAG);
 
     }
 
