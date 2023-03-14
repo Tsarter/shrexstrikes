@@ -5,10 +5,12 @@ import java.util.Map;
 public class Player {
     float x, z;
     float rotation;
-    public Player(float x, float z) {
+    int id;
+    public Player(float x, float z, int id) {
         this.x = x;
         this.z = z;
         this.rotation = 0;
+        this.id = id;
     }
 
     /**

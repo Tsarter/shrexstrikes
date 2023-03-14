@@ -36,6 +36,7 @@ import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
+import org.example.messages.PlayerId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +56,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         this.myGame = myGame;
         client = new Client();  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
-
         // Add listener to tell the client, what to do after something is sent over the network
         client.addListener(new Listener() {
 
@@ -70,6 +70,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
                     playersList = (Player[]) object;
 
                 }
+                // we recieved the id of the player
+                if (object instanceof PlayerId) {
+                    PlayerId playerId = (PlayerId) object;
+                    // set the id of the player
+                    currentPlayerId = playerId.id;
+                }
+
             }
         });
 
@@ -161,6 +168,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private btBroadphaseInterface broadphase;
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
+    private int currentPlayerId;
 
     @Override
     public void create() {
@@ -264,34 +272,49 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         float delta = Gdx.graphics.getDeltaTime();
-        // Update player movement
 
+        // Save the player's and cameras position
+        Vector3 oldPos = playerModelInstance.transform.getTranslation(new Vector3());
+        Vector3 oldCamPos = camera.position.cpy();
 
         camera.position.set(cameraPosition);
-        camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
-        camera.update();
-
 
         myInputProcessor.updatePlayerMovement(delta);
 
-        // update the shadow map
-        shadowLight.begin(Vector3.Zero, camera.direction);
-        shadowBatch.begin(shadowLight.getCamera());
-        shadowBatch.render(groundModelInstance);
+
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
         playerModelInstance.transform.set(cameraPosition, new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
 
-        shadowBatch.render(playerModelInstance);
 
-        // render the objects with shadows
-        modelBatch.begin(camera);
-        modelBatch.render(groundModelInstance, environment);
 
-        // Check for collisions again
+        // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
+        playerBounds = new BoundingBox();
+        playerBounds.set(new Vector3(newPos.x - 0.6f, newPos.y, newPos.z - 0.6f), new Vector3(newPos.x + 0.6f, newPos.y + 1f, newPos.z + 0.6f));
 
-
+        // Check for collisions with the map
+        for (BoundingBox bounds : mapBounds) {
+            if (bounds.intersects(playerBounds)) {
+                // The player has collided with an object in the map
+                // Move the player back to their previous position or prevent further movement
+                playerModelInstance.transform.setTranslation(oldPos);
+                camera.position.set(oldCamPos);
+                cameraPosition.set(oldCamPos);
+                System.out.println("Collision detected");
+                break;
+            }
+        }
+        camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
+        camera.update();
+        // Render the player and the ground
+        shadowLight.begin(Vector3.Zero, camera.direction);
+        shadowBatch.begin(shadowLight.getCamera());
+        modelBatch.begin(camera);
+        shadowBatch.render(groundModelInstance);
+        modelBatch.render(groundModelInstance, environment);
+        modelBatch.render(playerModelInstance, environment);
+        shadowBatch.render(playerModelInstance);
 
 
 
@@ -301,6 +324,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         if (client.isConnected()) {
             // render all other players
             for (Player player : playersList) {
+                // don't render the player if they are the same as the current playerd
+                if (player.id != currentPlayerId) {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
                 Vector3 playerPosition = new Vector3(player.x, 0, player.z);
@@ -312,21 +337,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
-                playerBounds = new BoundingBox();
-                // playerModelInstance.calculateBoundingBox(playerBounds);
-                playerBounds.set(newPos, new Vector3(newPos.x + 1f, newPos.y + 1f, newPos.z + 1f));
-                for (BoundingBox bounds : mapBounds) {
-                    if (bounds.intersects(playerBounds)) {
-                        // The player has collided with an object in the map
-                        // Move the player back to their previous position or prevent further movement
-                        otherPlayerModelInstance.transform.setTranslation(new Vector3(player.x + 2f, 0, player.z));
-                        System.out.println("Collision detected");
-                        break;
-                    }
-                }
                 // render the player model instance
                 modelBatch.render(otherPlayerModelInstance, environment);
                 shadowBatch.render(otherPlayerModelInstance);
+                }
 
             }
 
