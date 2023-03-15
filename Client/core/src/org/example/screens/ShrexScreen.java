@@ -139,7 +139,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public ModelBatch modelBatch;
     public Model model;
     public ModelInstance groundModelInstance;
-    private PerspectiveCamera camera;
+    public PerspectiveCamera camera;
     public Vector3 cameraPosition;
     public Vector3 cameraDirection;
     private float cameraAngle;
@@ -154,18 +154,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private DirectionalShadowLight shadowLight;
     private ModelBatch shadowBatch;
     private Environment environment = new Environment();
-    private btCollisionWorld collisionWorld;
 
-    private btRigidBody mapBody;
-    private btRigidBody playerBody;
-
-    private Model collisionModel;
-    Array<GameObject> instances;
-    ArrayMap<String, GameObject.Constructor> constructors;
-
-    private btCollisionConfiguration collisionConfiguration;
-    private btDispatcher dispatcher;
-    private btBroadphaseInterface broadphase;
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
     private int currentPlayerId;
@@ -305,7 +294,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 break;
             }
         }
-        camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
+
+        float deltaX = -Gdx.input.getDeltaX() * 50f * Gdx.graphics.getDeltaTime();
+        cameraDirection.rotate(Vector3.Y, deltaX);
+        //camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
+        camera.direction.set(cameraDirection);
         camera.update();
         // Render the player and the ground
         shadowLight.begin(Vector3.Zero, camera.direction);
@@ -371,7 +364,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         model.dispose();
         contactListener.dispose();
         playerModel.dispose();
-        collisionWorld.dispose();
 
     }
 
