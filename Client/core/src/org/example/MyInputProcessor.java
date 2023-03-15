@@ -1,5 +1,6 @@
 package org.example;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
@@ -12,6 +13,8 @@ public class MyInputProcessor implements InputProcessor {
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
+
+    private float movementSpeed = 50f; // Change this value to adjust sensitivity
 
     public MyInputProcessor(ShrexScreen shrexScreen) {
         this.shrexScreen = shrexScreen;
@@ -68,10 +71,10 @@ public class MyInputProcessor implements InputProcessor {
             shrexScreen.cameraPosition.sub(shrexScreen.cameraDirection.nor().scl(speed));
         }
         if (leftPressed) {
-            shrexScreen.cameraDirection.rotate(Vector3.Y, speed * 5);
+            shrexScreen.cameraPosition.sub(shrexScreen.cameraDirection.cpy().crs(Vector3.Y).nor().scl(speed));
         }
         if (rightPressed) {
-            shrexScreen.cameraDirection.rotate(Vector3.Y, -speed * 5);
+            shrexScreen.cameraPosition.add(shrexScreen.cameraDirection.cpy().crs(Vector3.Y).nor().scl(speed));
         }
     }
 
@@ -82,6 +85,7 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
         return false;
     }
 
@@ -92,6 +96,11 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        // Get the mouse input and calculate the camera's new position
+        //float deltaX = -Gdx.input.getDeltaX() * movementSpeed * Gdx.graphics.getDeltaTime();
+        // float deltaY = -Gdx.input.getDeltaY() * movementSpeed * Gdx.graphics.getDeltaTime();
+        //shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
+
         return false;
     }
 
