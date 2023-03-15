@@ -1,13 +1,21 @@
 package org.example;
 
+
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import org.example.messages.PlayerId;
+import org.example.messages.MapBounds;
+import org.example.messages.PlayerBullet;
+import org.example.messages.PlayerHit;
+import org.example.Player;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MyServer {
@@ -24,6 +32,7 @@ public class MyServer {
     // Keep track of the next available player ID
     int nextPlayerId = 0;
 
+    private List<BoundingBox> mapBounds;
 
     public MyServer() throws IOException {
 
@@ -43,10 +52,11 @@ public class MyServer {
                 int playerId = nextPlayerId++;
                 playerIds.put(c.getRemoteAddressTCP().getAddress(), playerId);
 
-                // Send the player ID to the client
-                c.sendTCP(new PlayerId(playerId));
+                Player player = new Player(0, 0, playerId);
+                // Send the player to the client
+                c.sendTCP(player);
 
-                players.put(c.getRemoteAddressUDP(), new Player(0, 0, playerId));
+                players.put(c.getRemoteAddressUDP(), player);
 
                 System.out.println(c.getRemoteAddressUDP().toString() + " connected");
 
@@ -57,17 +67,53 @@ public class MyServer {
              * We received some data from one of the players.
              */
             public void received(Connection c, Object object) {
-
-
-                // We
-                if (object instanceof Map<?,?> ) {
-                    Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent the character
-                    Map location = (Map) object;  // get the character that they sent
-
-                    player.move(location);  // move the player
+                if (object instanceof Player ) {
+                    Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent their location
+                    Player playerClient = (Player) object;  // get the location that they sent
+                    if (player.id == playerClient.id) {
+                        // update the server's player object with the new location
+                        player.x = playerClient.x;
+                        player.z = playerClient.z;
+                        player.rotation = playerClient.rotation;
+                        player.boundingBox = playerClient.boundingBox;
+                    }
 
                     sendState();  // send info about all players to all players
                 }
+
+                else if (object instanceof PlayerBullet) {
+                    Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent the bullet
+                    PlayerBullet PlayerBullet = (PlayerBullet) object;  // get the bullet that they sent
+
+                    // iterate over all the players and check if the bullet intersects with any of them
+                    for (Player p : players.values()) {
+                        if (p.id != player.id && p.boundingBox != null) {
+                        Ray bulletRay = new Ray(PlayerBullet.getPosition(), PlayerBullet.getDirection());  // create a ray from the bullet
+                            if (Intersector.intersectRayBoundsFast(bulletRay, p.boundingBox)) {
+                                // check if there are any blocking objects between the player that fired the bullet and the player that was hit
+                                boolean hit = true;
+                                for (BoundingBox bb : mapBounds) {
+                                    if (Intersector.intersectRayBoundsFast(bulletRay, bb)) {
+                                        hit = false;
+                                        System.out.println("Player: " + p.id + " was hit by player: " + player.id + " but there was an object in the way.");
+                                        break;
+                                    }
+                                }
+                                if (hit) {
+                                    System.out.println("Player: " + p.id + " was hit by player: " + player.id);
+                                    // send a message to all players that the player was hit
+                                    server.sendToAllTCP(new PlayerHit(player.id, p.id));
+                                    break;
+                                }
+                            } else{
+                                System.out.println("Player missed");
+                            }
+                        }
+                    }
+                } else if (object instanceof MapBounds) {
+                    mapBounds = ((MapBounds) object).boundingBox;
+                }
+
             }
 
             /**
