@@ -123,6 +123,8 @@ public class MyClient implements ApplicationListener {
         //inputMultiplexer.addProcessor(myInputProcessor);
         //inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+
     }
 
     @Override
@@ -131,8 +133,6 @@ public class MyClient implements ApplicationListener {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         float delta = Gdx.graphics.getDeltaTime();
-        // Update player movement
-       // myInputProcessor.updatePlayerMovement(delta);
 
         camera.position.set(cameraPosition);
         camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);

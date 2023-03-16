@@ -17,6 +17,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Disposable;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -144,6 +146,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
+    private Stage stage;
+    private Image crosshair;
 
 
     @Override
@@ -232,6 +236,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //initializeCollision(mapModel, playerModel);
 
         //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
     }
 
     /**
@@ -240,14 +245,18 @@ public class ShrexScreen implements ApplicationListener,Screen {
      */
     @Override
     public void render(float delta) {
-        render();
-    }
-    @Override
-    public void render() {
+        // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+        render();
+        // Render the stage, with cursor
+        stage.act(delta);
+        stage.draw();
+    }
+    @Override
+    public void render() {
 
         float delta = Gdx.graphics.getDeltaTime();
 
@@ -368,9 +377,24 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        stage = new Stage();
+
+        // Create the crosshair image and center it on the screen
+        Texture texture = new Texture("assets/crosshair-icon.png");
+        crosshair = new Image(texture);
+        // size the crosshair to 50x50 pixels
+        crosshair.setSize(25, 25);
+        crosshair.setPosition(
+                Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
+
+        // Add the crosshair to the stage
+        stage.addActor(crosshair);
+
     }
     @Override
     public void hide() {
+        stage.dispose();
     }
     public void shootBullet() {
         // create a new bullet
