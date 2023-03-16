@@ -10,6 +10,7 @@ public class Player {
     int id;
     // Bounds of the player
     BoundingBox boundingBox;
+    public int health = 100;
 
     public Player() { }
     public Player(float x, float z, int id) {

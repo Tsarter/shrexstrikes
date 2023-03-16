@@ -8,6 +8,7 @@ public class Player {
     public float rotation;
 
     public  int id;
+    public int health = 100;
 
     public BoundingBox boundingBox;
 
