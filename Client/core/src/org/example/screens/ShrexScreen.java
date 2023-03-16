@@ -327,7 +327,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
-                // render the player model instance
+                // render the player model instance and its shadow
                 modelBatch.render(otherPlayerModelInstance, environment);
                 shadowBatch.render(otherPlayerModelInstance);
                 }
@@ -365,6 +365,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     @Override
     public void resize(int width, int height) {
+        // update the camera
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.update();
 
     }
 
