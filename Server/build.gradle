@@ -16,7 +16,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.esotericsoftware/kryonet
     implementation group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
-
+    implementation "com.badlogicgames.gdx:gdx-bullet:1.11.0"
+    implementation "com.badlogicgames.gdx:gdx:1.11.0"
+    implementation "com.badlogicgames.gdx:gdx-backend-headless:1.11.0"
 
 }
 

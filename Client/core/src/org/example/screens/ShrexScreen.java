@@ -8,27 +8,16 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 
 
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
-import com.badlogic.gdx.graphics.g3d.environment.ShadowMap;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
-import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.physics.bullet.linearmath.btQuaternion;
-import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.JsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -36,13 +25,12 @@ import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
-import org.example.messages.PlayerId;
+import org.example.messages.MapBounds;
+import org.example.messages.PlayerBullet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
     final static short GROUND_FLAG = 1 << 8;
@@ -52,6 +40,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     private final Client client;
     private Player[] playersList;
+    private Player player;
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
         client = new Client();  // initialize client
@@ -70,11 +59,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
                     playersList = (Player[]) object;
 
                 }
-                // we recieved the id of the player
-                if (object instanceof PlayerId) {
-                    PlayerId playerId = (PlayerId) object;
-                    // set the id of the player
-                    currentPlayerId = playerId.id;
+                // we recieved the server created player object
+                else if (object instanceof Player) {
+                    player = (Player) object;
                 }
 
             }
@@ -157,7 +144,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
-    private int currentPlayerId;
+
 
     @Override
     public void create() {
@@ -230,15 +217,17 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         playerBounds = new BoundingBox();
         new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
-
-        mapBounds = new ArrayList<BoundingBox>();
+        player.boundingBox = playerBounds;
+        mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
             BoundingBox box = new BoundingBox();
             node.calculateBoundingBox(box);
             mapBounds.add(box);
         }
-
-
+        MapBounds mapBoundsObject = new MapBounds();
+        mapBoundsObject.boundingBox = mapBounds;
+        client.sendTCP(mapBoundsObject);
+        client.sendTCP(player);
         // Initialize collsion between the map and the player
         //initializeCollision(mapModel, playerModel);
 
@@ -280,7 +269,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
         playerBounds = new BoundingBox();
-        playerBounds.set(new Vector3(newPos.x - 0.6f, newPos.y, newPos.z - 0.6f), new Vector3(newPos.x + 0.6f, newPos.y + 1f, newPos.z + 0.6f));
+        playerBounds.set(new Vector3(newPos.x - 0.6f, newPos.y - 0.3f, newPos.z - 0.6f), new Vector3(newPos.x + 0.6f, newPos.y + 0.3f, newPos.z + 0.6f));
 
         // Check for collisions with the map
         for (BoundingBox bounds : mapBounds) {
@@ -310,22 +299,21 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.render(playerModelInstance);
 
 
-
         /**
          * If player is connected to the server, render all other players.
          */
         if (client.isConnected()) {
             // render all other players
-            for (Player player : playersList) {
+            for (Player otherPlayer : playersList) {
                 // don't render the player if they are the same as the current playerd
-                if (player.id != currentPlayerId) {
+                if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
-                Vector3 playerPosition = new Vector3(player.x, 0, player.z);
+                Vector3 playerPosition = new Vector3(otherPlayer.x, 0, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);
-                otherPlayerModelInstance.transform.rotate(Vector3.Y, player.rotation);
+                otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation);
                 // set the material for each mesh in the player model instance
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
@@ -342,13 +330,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
              * The server should move "my player" and then send the updated board to all players.
              * So they know that this client moved aswell.
              */
-            Map<String, Float> location = new HashMap<>();
-            location.put("x",  cameraPosition.x);
-            location.put("z",  cameraPosition.z);
-            // get the angle of the camera direction
-            float rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
-            location.put("rotation",  rotation);
-            client.sendUDP(location);
+            player.x = cameraPosition.x;
+            player.z = cameraPosition.z;
+            player.rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
+            player.boundingBox = playerBounds;
+            client.sendUDP(player);
+
         }
         shadowBatch.end();
         shadowLight.end();
@@ -384,6 +371,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void hide() {
+    }
+    public void shootBullet() {
+        // create a new bullet
+        PlayerBullet bullet = new PlayerBullet();
+        bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, player.id);
+        client.sendUDP(bullet);
+
     }
 
     public void initializeCollision(Model mapModel, Model playerModel) {

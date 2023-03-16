@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
+import org.example.messages.PlayerBullet;
 import org.example.screens.ShrexScreen;
 
 public class MyInputProcessor implements InputProcessor {
@@ -85,7 +86,8 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-
+        // shoot bullet
+        shrexScreen.shootBullet();
         return false;
     }
 
