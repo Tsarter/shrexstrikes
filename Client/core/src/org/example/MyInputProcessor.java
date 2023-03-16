@@ -14,6 +14,7 @@ public class MyInputProcessor implements InputProcessor {
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
+    private boolean cursorCaptured = false;
 
     private float movementSpeed = 50f; // Change this value to adjust sensitivity
 
@@ -35,6 +36,15 @@ public class MyInputProcessor implements InputProcessor {
                 break;
             case Input.Keys.D:
                 rightPressed = true;
+                break;
+            case Input.Keys.ESCAPE:
+                if (cursorCaptured) {
+                    Gdx.input.setCursorCatched(false);
+                    cursorCaptured = false;
+                } else {
+                    Gdx.input.setCursorCatched(true);
+                    cursorCaptured = true;
+                }
                 break;
             default:
                 break;

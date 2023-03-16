@@ -3,6 +3,7 @@ package org.example.screens;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -17,6 +18,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Disposable;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -27,6 +31,7 @@ import org.example.Network;
 import org.example.Player;
 import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
+import org.example.messages.PlayerHit;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,6 +68,16 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 else if (object instanceof Player) {
                     player = (Player) object;
                 }
+                // we recieved playerHit
+                else if (object instanceof PlayerHit) {
+                    PlayerHit playerHit = (PlayerHit) object;
+                    // if the player that was hit is the current player
+                    if (playerHit.idOfPlayerHit == player.id) {
+                        // update the health
+                        player.health -= 10;
+                    }
+                }
+
 
             }
         });
@@ -144,6 +159,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
+    private Stage stage;
+    private Image crosshair;
+    private Label healthLabel;
 
 
     @Override
@@ -232,6 +250,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //initializeCollision(mapModel, playerModel);
 
         //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
     }
 
     /**
@@ -240,14 +259,20 @@ public class ShrexScreen implements ApplicationListener,Screen {
      */
     @Override
     public void render(float delta) {
-        render();
-    }
-    @Override
-    public void render() {
+        // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+        render();
+        // update healt
+        healthLabel.setText("Health: " + player.health);
+        // Render the stage, with cursor
+        stage.act(delta);
+        stage.draw();
+    }
+    @Override
+    public void render() {
 
         float delta = Gdx.graphics.getDeltaTime();
 
@@ -318,7 +343,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
                 otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
-                // render the player model instance
+                // render the player model instance and its shadow
                 modelBatch.render(otherPlayerModelInstance, environment);
                 shadowBatch.render(otherPlayerModelInstance);
                 }
@@ -356,6 +381,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     @Override
     public void resize(int width, int height) {
+        // update the camera
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.update();
 
     }
 
@@ -368,9 +397,31 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        stage = new Stage();
+        // Add text to the stage to display the player's health
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = new BitmapFont();
+        healthLabel = new Label("Health: " + player.health, labelStyle);
+
+        // Create the crosshair image and center it on the screen
+        Texture texture = new Texture("assets/crosshair-icon.png");
+        crosshair = new Image(texture);
+        // size the crosshair to 50x50 pixels
+        crosshair.setSize(25, 25);
+        crosshair.setPosition(
+                Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
+        healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        // Add the health label to the stage
+        stage.addActor(healthLabel);
+
+        // Add the crosshair to the stage
+        stage.addActor(crosshair);
+
     }
     @Override
     public void hide() {
+        stage.dispose();
     }
     public void shootBullet() {
         // create a new bullet

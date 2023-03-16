@@ -110,7 +110,7 @@ public class MyServer {
                                 if (hit) {
                                     System.out.println("Player: " + p.id + " was hit by player: " + player.id);
                                     // send a message to all players that the player was hit
-                                    server.sendToAllTCP(new PlayerHit(player.id, p.id));
+                                    server.sendToAllTCP(new PlayerHit(p.id, player.id));
                                     break;
                                 }
                             } else{
