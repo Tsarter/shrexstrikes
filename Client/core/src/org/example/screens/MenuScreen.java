@@ -36,6 +36,7 @@ public class MenuScreen implements Screen {
         // Add actors to the stage, such as buttons and labels
         TextButton startButton = new TextButton("Start", skin);
         TextButton settingsButton = new TextButton("Settings", skin);
+        TextButton payToWinButton = new TextButton("Enable 2x damage", skin);
 
         // Choose your map
         // more options: "Far Far Away", "Fairy Godmother's Cottage", "Poison Apple Inn", "Pied Piper's hideout", "Rumplestiltskin's Castle"
@@ -69,6 +70,36 @@ public class MenuScreen implements Screen {
                 System.out.println("Settings button clicked");
             }
         });
+        payToWinButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Open a internal browser to a payment page
+                System.out.println("Pay to win button clicked");
+                // Create a pop up
+                Dialog dialog = new Dialog("Double your damage", skin);
+                dialog.text("Doubling your damage will cost you 5 euros.");
+
+                dialog.key(com.badlogic.gdx.Input.Keys.ENTER, true);
+                dialog.key(com.badlogic.gdx.Input.Keys.ESCAPE, false);
+                // If the user clicks "yes", open the payment page
+                dialog.button("Yes", true);
+                dialog.button("!No", false);
+                dialog.show(stage);
+
+                dialog.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        if (actor.toString().equals("TextButton: Yes")) {
+                            Gdx.net.openURI("https://buy.stripe.com/test_bIY5ne4wi2FWbjW8ww");
+                            // change payToWinButton text to "Double damage enabled" and make it green
+                            payToWinButton.setText("2x damage enabled");
+                            payToWinButton.setColor(0, 1, 0, 1);
+
+                        }
+                    }
+                });
+            }
+        });
 
         // Add a ChangeListener to the mapSelectBox
         mapSelectBox.addListener(new ChangeListener() {
@@ -85,6 +116,8 @@ public class MenuScreen implements Screen {
         table.add(startButton).pad(10);
         table.row();
         table.add(settingsButton).pad(10);
+        table.row();
+        table.add(payToWinButton).pad(10);
         table.row();
         table.add(mapSelectBox).bottom().left().pad(10);
         table.row();
