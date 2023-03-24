@@ -26,10 +26,15 @@ For moving around use AWSD. For looking around use your mouse. Mouse gets captur
 ## How to manage the Server on Taltech server
 
 log into server using `ssh ubuntu@ip_address`
+
 push the Server.jar file to server `scp Server.jar user1@ip_address:gameServer/`
+
 run it in the background using nohup `nohup java -jar Server.jar &`
+
 check the output using nano or cat `nano nohup.out` or `cat nohup.out`
+
 kill the server by first getting the PID by `ps aux | grep Server.jar`
+
 then kill it by `kill id_of_the_process_aka_PID` 
 
 ## Allpool on näite projekti asjandused, pole otseselt seotud Shrex Strikes mänguga
