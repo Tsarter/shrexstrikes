@@ -1,6 +1,6 @@
-# SampleKryo
+# Shrex Strikes - java edition
 
-Näide kryoneti kasutamisest lihtsa mänguna, kus on multiplayeris võimalik ringi liikuda 10x10 ruudustikul. 
+3d Multiplayer game where the end goal is to get as many kills as possible.
 
 ## Käima panemine
 Intellij-s Get from VCS. Kopeeri gitlabist HTTP link. Clone.
@@ -9,12 +9,24 @@ Gradle pakub all paremal valikut ["Gradle build scripts found"](https://i.imgur.
 
 Vajuta "Load"
 
-Mingi .java faili peale minnes peaks tulema ka valik "Setup SDK". Programm on testitud java18-ga aga arvatavasti töötab ka teiste versioonidega. Seejärel saad käima panna `Server -> src -> Main -> java -> Main` ja siis `Client -> src -> Main -> java -> Main`. Järjekord on tähtis, kuna client tahab käimapanekul kohe ühenduda serveriga.
+Mingi .java faili peale minnes peaks tulema ka valik "Setup SDK". Programm on testitud java18-ga aga arvatavasti töötab ka teiste versioonidega. Seejärel saad käima panna `Client -> desktop -> src -> org.example -> DesktopLauncher `. Kui ühendus ei õnnestu, siis ilmselt on Taltechi server maas.
 
 [Nii](https://i.imgur.com/0ANqn39.png) on ka võimalik mitu clientit korraga tööle panna, et [samal ajal](https://i.imgur.com/3XYjNmh.png) kahes või rohkemas clientis korraga mängida. (mis on ka multiplayeri mõte)
 
+
 ## Mängu sisu
-Kirjuta clienti konsooli "NESW" ja liigud kaardil(board-il) ringi. Mäng töötab multiplayeris.
+In main menu choose your map, game mode, character, double damage, etc. 
+When you are ready, then click the play button. Then you will be forwarded to lobby,
+where you will need to wait for other players to join the game.
+
+For moving around use AWSD. For looking around use your mouse. Mouse gets captured when you use the ESC key.
+
+
+
+
+## Allpool on näite projekti asjandused, pole otseselt seotud Shrex Strikes mänguga
+
+
 
 ## Mis mängu kapoti all toimub?
 
