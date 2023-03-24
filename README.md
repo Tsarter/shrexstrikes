@@ -27,7 +27,7 @@ For moving around use AWSD. For looking around use your mouse. Mouse gets captur
 
 log into server using `ssh ubuntu@ip_address`
 
-push the Server.jar file to server `scp Server.jar user1@ip_address:gameServer/`
+push the Server.jar file to server `scp Server.jar ubuntu@ip_address:gameServer/`
 
 run it in the background using nohup `nohup java -jar Server.jar &`
 
