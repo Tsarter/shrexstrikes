@@ -38,6 +38,8 @@ kill the server by first getting the PID by `ps aux | grep Server.jar`
 
 then kill it by `kill id_of_the_process_aka_PID` 
 
+exit ssh by using `exit`
+
 ## Allpool on näite projekti asjandused, pole otseselt seotud Shrex Strikes mänguga
 
 
