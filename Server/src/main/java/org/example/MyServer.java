@@ -136,7 +136,7 @@ public class MyServer {
             }
         });
 
-        server.bind(3000, 3001);  // set ports for TCP, UDP. They must be equal with clients.
+        server.bind(8080, 8081);  // set ports for TCP, UDP. They must be equal with clients.
         server.start();  // start the server
     }
 

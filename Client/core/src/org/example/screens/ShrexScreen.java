@@ -88,7 +88,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
          * Ports should be the same as in the server.
          */
         client.start();
-        client.connect(5000, "localhost", 3000, 3001);
+        client.connect(5000, "193.40.156.227", 8080, 8081);
 
     }
     // gets called when collision is detected
@@ -320,7 +320,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         modelBatch.begin(camera);
         shadowBatch.render(groundModelInstance);
         modelBatch.render(groundModelInstance, environment);
-        modelBatch.render(playerModelInstance, environment);
+        modelBatch.render(playerModelInstance);
         shadowBatch.render(playerModelInstance);
 
 
