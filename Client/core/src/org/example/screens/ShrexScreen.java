@@ -174,8 +174,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
         ModelLoader mapLoader = new G3dModelLoader(new UBJsonReader());
-        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCity.g3db"));
+        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCityUglz.g3db"));
         groundModelInstance = new ModelInstance(mapModel);
+        groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
 
 
         // create a perspective camera to view the game world
@@ -184,7 +185,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         camera.position.set(cameraPosition);
         cameraDirection = new Vector3(0, 0, -1);
         camera.direction.set(cameraDirection);
-        camera.near = 0.1f;
+        camera.near = 0.2f;
         cameraAngle = 0;
         cameraSpeed = 6;
 
@@ -245,6 +246,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         player.boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
+            if (node.id.contains("Ground") || node.id.contains("Grass")) {
+                continue;
+            }
             BoundingBox box = new BoundingBox();
             node.calculateBoundingBox(box);
             mapBounds.add(box);
@@ -295,14 +299,14 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
-        playerModelInstance.transform.set(cameraPosition, new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
+        playerModelInstance.transform.set(new Vector3(cameraPosition.x, cameraPosition.y - 1f, cameraPosition.z), new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
 
 
 
         // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
         playerBounds = new BoundingBox();
-        playerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y - 0.3f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 0.3f, newPos.z + 0.1f));
+        playerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y + 0.5f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 0.7f, newPos.z + 0.1f));
 
         // Check for collisions with the map
         for (BoundingBox bounds : mapBounds) {
@@ -317,8 +321,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
             }
         }
 
-        float deltaX = -Gdx.input.getDeltaX() * 50f * Gdx.graphics.getDeltaTime();
-        cameraDirection.rotate(Vector3.Y, deltaX);
         //camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.direction.set(cameraDirection);
         camera.update();

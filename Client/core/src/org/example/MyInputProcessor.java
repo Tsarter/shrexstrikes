@@ -75,18 +75,29 @@ public class MyInputProcessor implements InputProcessor {
 
     public void updatePlayerMovement(float delta) {
         float speed = shrexScreen.cameraSpeed * delta;
+        float y = shrexScreen.cameraPosition.y;
+
+        // Get the camera direction vector in the xz plane
+        Vector3 cameraDirectionXZ = new Vector3(shrexScreen.cameraDirection.x, 0f, shrexScreen.cameraDirection.z).nor();
+
         if (upPressed) {
-            shrexScreen.cameraPosition.add(shrexScreen.cameraDirection.nor().scl(speed));
+            // Move in the direction of the camera direction vector in the xz plane
+            shrexScreen.cameraPosition.add(cameraDirectionXZ.scl(speed));
         }
         if (downPressed) {
-            shrexScreen.cameraPosition.sub(shrexScreen.cameraDirection.nor().scl(speed));
+            shrexScreen.cameraPosition.sub(cameraDirectionXZ.scl(speed));
         }
         if (leftPressed) {
-            shrexScreen.cameraPosition.sub(shrexScreen.cameraDirection.cpy().crs(Vector3.Y).nor().scl(speed));
+            // Get the perpendicular vector to the camera direction in the xz plane
+            Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
+            shrexScreen.cameraPosition.sub(cameraPerpendicularXZ.scl(speed));
         }
         if (rightPressed) {
-            shrexScreen.cameraPosition.add(shrexScreen.cameraDirection.cpy().crs(Vector3.Y).nor().scl(speed));
+            Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
+            shrexScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
         }
+
+        shrexScreen.cameraPosition.y = y;
     }
 
     @Override
@@ -109,15 +120,15 @@ public class MyInputProcessor implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         // Get the mouse input and calculate the camera's new position
-        //float deltaX = -Gdx.input.getDeltaX() * movementSpeed * Gdx.graphics.getDeltaTime();
-        // float deltaY = -Gdx.input.getDeltaY() * movementSpeed * Gdx.graphics.getDeltaTime();
-        //shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
-
         return false;
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        float deltaX = -Gdx.input.getDeltaX() * movementSpeed * Gdx.graphics.getDeltaTime();
+        float deltaY = -Gdx.input.getDeltaY() * movementSpeed * Gdx.graphics.getDeltaTime();
+        shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
+        shrexScreen.cameraDirection.rotate(shrexScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
         return false;
     }
 
