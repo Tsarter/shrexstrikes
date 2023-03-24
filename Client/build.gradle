@@ -39,30 +39,32 @@ allprojects {
 }
 
 project(":desktop") {
-    apply plugin: "java-library"
+    // apply plugin: "application"
+    apply plugin: "java"
 
 
     dependencies {
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
+        implementation  "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
 
     }
 }
 
 project(":ios") {
-    apply plugin: "java-library"
+    apply plugin: "java"
     apply plugin: "robovm"
 
 
     dependencies {
         implementation project(":core")
 
-        api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
-        api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
-        api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+        implementation "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+        implementation "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
+        implementation "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-ios"
 
 
     }
@@ -86,18 +88,16 @@ project(":ios") {
 //}
 
 project(":core") {
-    apply plugin: "java-library"
+    apply plugin: "java"
 
 
     dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
         // https:\/\/mvnrepository.com\/artifact\/com.esotericsoftware\/kryonet
         implementation group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         implementation "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
-        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-ios"
+
 
 
 
