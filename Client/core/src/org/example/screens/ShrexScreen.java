@@ -174,7 +174,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
         ModelLoader mapLoader = new G3dModelLoader(new UBJsonReader());
-        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCityUglz.g3db"));
+        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCity.g3db"));
         groundModelInstance = new ModelInstance(mapModel);
         groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
 
@@ -246,7 +246,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         player.boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
-            if (node.id.contains("Ground") || node.id.contains("Grass")) {
+            if (node.id.contains("Ground") || node.id.contains("Grass") || node.id.contains("Red") || node.id.contains("White")) {
                 continue;
             }
             BoundingBox box = new BoundingBox();
