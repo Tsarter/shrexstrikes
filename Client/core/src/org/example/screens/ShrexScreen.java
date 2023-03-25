@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
@@ -22,6 +23,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.UBJsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -170,16 +173,21 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
-        Model mapModel = loader.loadModel(Gdx.files.internal("assets/mapBasic.obj"));
+        ModelLoader mapLoader = new G3dModelLoader(new UBJsonReader());
+        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCity.g3db"));
         groundModelInstance = new ModelInstance(mapModel);
+        groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
 
 
         // create a perspective camera to view the game world
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cameraPosition = new Vector3(0, 1, 0);
+        camera.position.set(cameraPosition);
         cameraDirection = new Vector3(0, 0, -1);
+        camera.direction.set(cameraDirection);
+        camera.near = 0.2f;
         cameraAngle = 0;
-        cameraSpeed = 20;
+        cameraSpeed = 6;
 
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
@@ -222,7 +230,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
         playerModelInstance = new ModelInstance(playerModel);
-        playerModelInstance.transform.setToTranslation(0, 2, 0);
+        playerModelInstance.transform.setToTranslation(0, 1, 0);
         playerModelInstance.materials.get(1).set(bodyMaterial);
         playerModelInstance.materials.get(0).set(headLegsMaterial);
         groundModelInstance.materials.get(3).set(groundMaterial);
@@ -238,13 +246,16 @@ public class ShrexScreen implements ApplicationListener,Screen {
         player.boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
+            if (node.id.contains("Ground") || node.id.contains("Grass") || node.id.contains("Red") || node.id.contains("White")) {
+                continue;
+            }
             BoundingBox box = new BoundingBox();
             node.calculateBoundingBox(box);
             mapBounds.add(box);
         }
         MapBounds mapBoundsObject = new MapBounds();
         mapBoundsObject.boundingBox = mapBounds;
-        client.sendTCP(mapBoundsObject);
+        //client.sendTCP(mapBoundsObject);
         client.sendTCP(player);
         // Initialize collsion between the map and the player
         //initializeCollision(mapModel, playerModel);
@@ -280,21 +291,22 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Vector3 oldPos = playerModelInstance.transform.getTranslation(new Vector3());
         Vector3 oldCamPos = camera.position.cpy();
 
-        camera.position.set(cameraPosition);
+
 
         myInputProcessor.updatePlayerMovement(delta);
 
+        camera.position.set(cameraPosition);
 
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
-        playerModelInstance.transform.set(cameraPosition, new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
+        playerModelInstance.transform.set(new Vector3(cameraPosition.x, cameraPosition.y - 1f, cameraPosition.z), new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
 
 
 
         // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
         playerBounds = new BoundingBox();
-        playerBounds.set(new Vector3(newPos.x - 0.6f, newPos.y - 0.3f, newPos.z - 0.6f), new Vector3(newPos.x + 0.6f, newPos.y + 0.3f, newPos.z + 0.6f));
+        playerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y + 0.5f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 0.7f, newPos.z + 0.1f));
 
         // Check for collisions with the map
         for (BoundingBox bounds : mapBounds) {
@@ -309,8 +321,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
             }
         }
 
-        float deltaX = -Gdx.input.getDeltaX() * 50f * Gdx.graphics.getDeltaTime();
-        cameraDirection.rotate(Vector3.Y, deltaX);
         //camera.lookAt(cameraPosition.x + cameraDirection.x, cameraPosition.y + cameraDirection.y, cameraPosition.z + cameraDirection.z);
         camera.direction.set(cameraDirection);
         camera.update();
