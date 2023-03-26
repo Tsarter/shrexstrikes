@@ -19,6 +19,7 @@ public class MyInputProcessor implements InputProcessor {
     private float zoom;
     private boolean zoomingIn = false;
     private float movementSpeed = 50f; // Change this value to adjust sensitivity
+    private float rotationSpeed = 10f; // Change this value to adjust sensitivity
 
     public MyInputProcessor(ShrexScreen shrexScreen) {
         this.shrexScreen = shrexScreen;
@@ -138,7 +139,7 @@ public class MyInputProcessor implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         // Get the mouse input and calculate the camera's new position
-        float slowerMovement = movementSpeed / 4;
+        float slowerMovement = rotationSpeed / 2;
         float deltaX = -Gdx.input.getDeltaX() * slowerMovement * Gdx.graphics.getDeltaTime();
         float deltaY = -Gdx.input.getDeltaY() * slowerMovement * Gdx.graphics.getDeltaTime();
         shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
@@ -148,8 +149,8 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        float deltaX = -Gdx.input.getDeltaX() * movementSpeed * Gdx.graphics.getDeltaTime();
-        float deltaY = -Gdx.input.getDeltaY() * movementSpeed * Gdx.graphics.getDeltaTime();
+        float deltaX = -Gdx.input.getDeltaX() * rotationSpeed * Gdx.graphics.getDeltaTime();
+        float deltaY = -Gdx.input.getDeltaY() * rotationSpeed * Gdx.graphics.getDeltaTime();
         shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
         shrexScreen.cameraDirection.rotate(shrexScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
         return false;

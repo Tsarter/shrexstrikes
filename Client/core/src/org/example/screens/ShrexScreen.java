@@ -245,7 +245,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Gdx.input.setInputProcessor(inputMultiplexer);
 
         playerBounds = new BoundingBox();
-        new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
+        //new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
+        // set cylinder as player bounds
+        playerBounds.set(new Vector3(-0.1f, 0.3f, -0.1f), new Vector3(0.1f, 1, 0.1f));
         player.boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
