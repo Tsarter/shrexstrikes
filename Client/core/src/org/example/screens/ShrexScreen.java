@@ -166,6 +166,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Image crosshair;
     private Label healthLabel;
 
+    public float zoomOnRightClickAmount = 30;
+    public float zoom = 67;
+    public float fieldOfView = 67;
+
 
     @Override
     public void create() {
@@ -180,15 +184,14 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         // create a perspective camera to view the game world
-        camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cameraPosition = new Vector3(0, 1, 0);
+        camera = new PerspectiveCamera(zoom, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cameraPosition = new Vector3(0, 1.5f, 0);
         camera.position.set(cameraPosition);
         cameraDirection = new Vector3(0, 0, -1);
         camera.direction.set(cameraDirection);
         camera.near = 0.2f;
         cameraAngle = 0;
         cameraSpeed = 6;
-
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
@@ -344,7 +347,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
-                Vector3 playerPosition = new Vector3(otherPlayer.x, 0, otherPlayer.z);
+                Vector3 playerPosition = new Vector3(otherPlayer.x, 0.6f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);

@@ -16,10 +16,13 @@ public class MyInputProcessor implements InputProcessor {
     private boolean rightPressed;
     private boolean cursorCaptured = false;
 
+    private float zoom;
+    private boolean zoomingIn = false;
     private float movementSpeed = 50f; // Change this value to adjust sensitivity
 
     public MyInputProcessor(ShrexScreen shrexScreen) {
         this.shrexScreen = shrexScreen;
+        this.zoom = 67;
     }
 
     @Override
@@ -107,19 +110,39 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // shoot bullet
-        shrexScreen.shootBullet();
+        // Check if right mouse button is pressed
+        if (button == Input.Buttons.RIGHT && !zoomingIn) {
+            // Get a reference to the game's Camera object
+            zoom = 25;
+            shrexScreen.camera.fieldOfView = 25;
+            zoomingIn = true;
+        }
+        if (button == Input.Buttons.LEFT) {
+            // shoot bullet
+            shrexScreen.shootBullet();
+        }
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+
+        if (button == Input.Buttons.RIGHT  && zoomingIn) {
+            zoom = 67;
+            shrexScreen.camera.fieldOfView = 67;
+            zoomingIn = false;
+        }
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         // Get the mouse input and calculate the camera's new position
+        float slowerMovement = movementSpeed / 4;
+        float deltaX = -Gdx.input.getDeltaX() * slowerMovement * Gdx.graphics.getDeltaTime();
+        float deltaY = -Gdx.input.getDeltaY() * slowerMovement * Gdx.graphics.getDeltaTime();
+        shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
+        shrexScreen.cameraDirection.rotate(shrexScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
         return false;
     }
 
