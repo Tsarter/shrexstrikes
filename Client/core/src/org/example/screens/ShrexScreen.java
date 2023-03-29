@@ -88,10 +88,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
         /**
          * Connect the client to the server.
          * If server is on a local machine, "localhost" should be used as host.
-         * Ports should be the same as in the server.
+         * Ports should be the same as in the server.193.40.156.227
          */
         client.start();
-        client.connect(5000, "localhost", 8080, 8081);
+        client.connect(5000, "193.40.156.227", 8080, 8081);
 
     }
     // gets called when collision is detected
@@ -195,23 +195,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
-        // load the texture files
-        Texture bodyTexture = new Texture(Gdx.files.internal("assets/Shrek_Body.png"));
-        Texture headLegsTexture = new Texture(Gdx.files.internal("assets/Shrek_Head_Legs.png"));
-        // create materials that reference the texture files
-        bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
-        headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
-
-
-        // create a simple rectangle mesh for the player model
-        Mesh playerMesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.Normal(), VertexAttribute.TexCoords(0));
-        playerMesh.setVertices(new float[] {
-                -0.5f, 0, -0.5f, 0, 1, 0, 0, 0,
-                0.5f, 0, -0.5f, 0, 1, 0, 1, 0,
-                0.5f, 0,  0.5f, 0, 1, 0, 1, 1,
-                -0.5f, 0,  0.5f, 0, 1, 0, 0, 1,
-        });
-        playerMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
 
         // create a directional light for casting shadows
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -232,10 +215,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
-        playerModelInstance = new ModelInstance(playerModel);
-        playerModelInstance.transform.setToTranslation(0, 1, 0);
-        playerModelInstance.materials.get(1).set(bodyMaterial);
-        playerModelInstance.materials.get(0).set(headLegsMaterial);
+        // My custom ObjLoader (load fiona or shrex)
+        org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
+        playerModelInstance = objLoader.loadFiona();
         groundModelInstance.materials.get(3).set(groundMaterial);
 
 
@@ -284,7 +266,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         render();
         // update healt
         healthLabel.setText("Health: " + player.health);
-        // Render the stage, with cursor
+        // Render the crosshair
         stage.act(delta);
         stage.draw();
     }
@@ -296,8 +278,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Save the player's and cameras position
         Vector3 oldPos = playerModelInstance.transform.getTranslation(new Vector3());
         Vector3 oldCamPos = camera.position.cpy();
-
-
 
         myInputProcessor.updatePlayerMovement(delta);
 
@@ -349,15 +329,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 // don't render the player if they are the same as the current playerd
                 if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
-                ModelInstance otherPlayerModelInstance = new ModelInstance(playerModel);
+                org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
+                ModelInstance otherPlayerModelInstance = objLoader.loadFiona();
                 Vector3 playerPosition = new Vector3(otherPlayer.x, 0.6f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);
                 otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation);
-                // set the material for each mesh in the player model instance
-                otherPlayerModelInstance.materials.get(0).set(headLegsMaterial);
-                otherPlayerModelInstance.materials.get(1).set(bodyMaterial);
 
                 // render the player model instance and its shadow
                 modelBatch.render(otherPlayerModelInstance, environment);
