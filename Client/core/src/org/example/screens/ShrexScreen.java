@@ -51,7 +51,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Player player;
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
-        client = new Client();  // initialize client
+        client = new Client(50000, 50000);  // initialize client
         Network.register(client);  // register all the classes that are sent over the network
         // Add listener to tell the client, what to do after something is sent over the network
         client.addListener(new Listener() {
@@ -91,7 +91,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
          * Ports should be the same as in the server.
          */
         client.start();
-        client.connect(5000, "193.40.156.227", 8080, 8081);
+        client.connect(5000, "localhost", 8080, 8081);
 
     }
     // gets called when collision is detected
@@ -260,7 +260,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         }
         MapBounds mapBoundsObject = new MapBounds();
         mapBoundsObject.boundingBox = mapBounds;
-        //client.sendTCP(mapBoundsObject);
+
+        client.sendTCP(mapBoundsObject);
         client.sendTCP(player);
         // Initialize collsion between the map and the player
         //initializeCollision(mapModel, playerModel);
