@@ -318,7 +318,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         for (BoundingBox bounds : mapBounds) {
             if (bounds.intersects(playerBounds)) {
                 // The player has collided with an object in the map
-                // Move the player back to their previous position or prevent further movement
+                // Move the player back to their prevous position or prevent further movement
                 playerModelInstance.transform.setTranslation(oldPos);
                 camera.position.set(oldCamPos);
                 cameraPosition.set(oldCamPos);
