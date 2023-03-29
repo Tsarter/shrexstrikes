@@ -217,7 +217,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         }
         // My custom ObjLoader (load fiona or shrex)
         org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
-        playerModelInstance = objLoader.loadFiona();
+        playerModelInstance = objLoader.loadShrek();
         groundModelInstance.materials.get(3).set(groundMaterial);
 
 
@@ -330,7 +330,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
                 org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
-                ModelInstance otherPlayerModelInstance = objLoader.loadFiona();
+                ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
                 Vector3 playerPosition = new Vector3(otherPlayer.x, 0.6f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
