@@ -88,10 +88,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
         /**
          * Connect the client to the server.
          * If server is on a local machine, "localhost" should be used as host.
-         * Ports should be the same as in the server. 193.40.156.227
+         * Ports should be the same as in the server.
          */
         client.start();
-        client.connect(5000, "193.40.156.227", 8080, 8081);
+        client.connect(5000, "localhost", 8080, 8081);
 
     }
     // gets called when collision is detected
@@ -161,7 +161,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Environment environment = new Environment();
 
     private List<BoundingBox> mapBounds;
-    private BoundingBox ClientPlayerBounds;
+    private BoundingBox playerBounds;
     private Stage stage;
     private Image crosshair;
     private Label healthLabel;
@@ -243,12 +243,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
-        ClientPlayerBounds = new BoundingBox();
-        ClientPlayerBounds = new ModelInstance(playerModel).calculateBoundingBox(ClientPlayerBounds);
-        //
+
+        playerBounds = new BoundingBox();
+        //new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
         // set cylinder as player bounds
-        //playerBounds.set(new Vector3(-0.1f, 0.3f, -0.1f), new Vector3(0.1f, 1, 0.1f));
-        player.boundingBox = ClientPlayerBounds;
+        playerBounds.set(new Vector3(-0.1f, 0.3f, -0.1f), new Vector3(0.1f, 1, 0.1f));
+        player.boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
             if (node.id.contains("Ground") || node.id.contains("Grass") || node.id.contains("Red") || node.id.contains("White")) {
@@ -262,7 +262,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         mapBoundsObject.boundingBox = mapBounds;
 
         client.sendTCP(mapBoundsObject);
-        //client.sendTCP(player);
+        client.sendTCP(player);
         // Initialize collsion between the map and the player
         //initializeCollision(mapModel, playerModel);
 
@@ -311,12 +311,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
-        BoundingBox ClientPlayerBounds = new BoundingBox();
-        ClientPlayerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y + 0.5f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 1.1f, newPos.z + 0.1f));
-        // Move server player bounds to the new position
+        playerBounds = new BoundingBox();
+        playerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y + 0.5f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 0.7f, newPos.z + 0.1f));
+
         // Check for collisions with the map
         for (BoundingBox bounds : mapBounds) {
-            if (bounds.intersects(ClientPlayerBounds)) {
+            if (bounds.intersects(playerBounds)) {
                 // The player has collided with an object in the map
                 // Move the player back to their previous position or prevent further movement
                 playerModelInstance.transform.setTranslation(oldPos);
@@ -374,7 +374,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
             player.x = cameraPosition.x;
             player.z = cameraPosition.z;
             player.rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
-            player.boundingBox = ClientPlayerBounds;
+            player.boundingBox = playerBounds;
             client.sendUDP(player);
 
         }
