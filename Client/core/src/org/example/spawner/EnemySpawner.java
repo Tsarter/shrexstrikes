@@ -18,7 +18,7 @@ public class EnemySpawner {
         this.spawnTimer = 0;
     }
 
-    public void update(float delta) {
+    public void update(float delta, Vector3 playerPosition) {
         // Update spawn timer
         spawnTimer += delta;
 
@@ -30,7 +30,7 @@ public class EnemySpawner {
 
         // Update active enemies
         for (Enemy enemy : enemies) {
-            enemy.update(delta);
+            enemy.update(delta, playerPosition);
         }
     }
 

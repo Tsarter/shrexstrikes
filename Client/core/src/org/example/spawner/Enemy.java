@@ -13,10 +13,13 @@ public class Enemy extends ModelInstance {
         this.health = 100;
     }
 
-    public void update(float delta) {
-        // Move the enemy based on its velocity
+    public void update(float delta, Vector3 playerPosition) {
+        // Calculate the direction to the player
+        Vector3 direction = playerPosition.cpy().sub(transform.getTranslation(new Vector3())).nor();
+
+        // Move the enemy towards the player
         Vector3 position = transform.getTranslation(new Vector3());
-        position.add(velocity.cpy().scl(delta));
+        position.add(direction.scl(velocity).scl(delta));
         transform.setTranslation(position);
 
         // TODO: Implement enemy behavior, such as attacking
