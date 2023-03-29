@@ -37,7 +37,7 @@ public class MyServer {
 
     public MyServer() throws IOException {
 
-        server = new Server();  // initialize server
+        server = new Server(50000, 50000);  // initialize server
         Network.register(server);  // register all the classes that are sent over the network
 
 
