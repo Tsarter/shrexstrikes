@@ -103,3 +103,10 @@ Client iseenesest tegelikult teabki ainult seda, mida üks mängija teha tahab. 
 Serveril peaks olema ülevaade kogu mängust ja kõikidest mängijatest. Põhimõtteliselt tekib selline skeem, et iga client saadab enda kohta infot ja siis server kogub kõik kokku ja mõtleb, missugune peaks mingis hetkes mäng olema. Siis ta jagab seda clientitega.
 
 Serveril pole otseselt vaja midagi "joonistada", kuna see tulevikus jookseb kuskil konsoolis. Aga kui peate vajalikuks (näiteks debug-i jaoks) siis saab ka serveris mingit pilti enda jaoks teha.
+
+### Soundtracks
+"Welcome to Duloc" - 
+"All Star" - by Smash Mouth 
+"Fairy Godmother Song" - from Shrek 2
+"Livin' La Vida Loca" - by Ricky Martin (from the Shrek 2)
+"I'm a Believer" - by Smash Mouth (from the Shrek game)
