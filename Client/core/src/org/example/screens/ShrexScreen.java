@@ -331,7 +331,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 // create a new instance of the player model for this player
                 org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
                 ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
-                Vector3 playerPosition = new Vector3(otherPlayer.x, 0.6f, otherPlayer.z);
+                Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
                 otherPlayerModelInstance.transform.translate(playerPosition);

@@ -48,7 +48,12 @@ project(":desktop") {
         implementation  "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
-
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    }
+    jar {
+        manifest {
+            attributes 'Main-Class': 'org.example.DesktopLauncher'
+        }
     }
 }
 
@@ -99,7 +104,6 @@ project(":core") {
         implementation "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
 
 
-
-
     }
+
 }
