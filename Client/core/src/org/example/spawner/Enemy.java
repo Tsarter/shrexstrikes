@@ -1,37 +1,44 @@
 package org.example.spawner;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 
-public class Enemy extends ModelInstance {
-    private final Vector3 velocity;
+public class Enemy {
+    private float coordinateX;
+    private float coordinateY;
+    private float coordinateZ;
     private int health;
-
-    public Enemy(ModelInstance instance) {
-        super(instance);
-        this.velocity = new Vector3(0, 0, -1f);
-        this.health = 100;
+    private int id;
+    private int type;
+    private ModelInstance enemyInstance;
+    public Enemy(){}
+    public Enemy(ModelInstance enemyInstance) {
+        this.enemyInstance = enemyInstance;
+    }
+    public int getId() {
+        return id;
     }
 
-    public void update(float delta, Vector3 playerPosition) {
-        // Calculate the direction to the player
-        Vector3 direction = playerPosition.cpy().sub(transform.getTranslation(new Vector3())).nor();
+    public void update(Vector3 enemyPosition, float enemyDirection) {
 
-        // Move the enemy towards the player
-        Vector3 position = transform.getTranslation(new Vector3());
-        position.add(direction.scl(velocity).scl(delta));
-        transform.setTranslation(position);
+        enemyInstance.transform.translate(enemyPosition);
+        enemyInstance.transform.rotate(0, 1, 0, enemyDirection);
 
-        // TODO: Implement enemy behavior, such as attacking
-
-        // TODO: Implement collision detection and health management
-    }
-
-    public float getHealth() {
-        return health;
     }
 
     public void setHealth(int health) {
         this.health = health;
+    }
+    public ModelInstance getEnemyInstance() {
+        return enemyInstance;
+    }
+    public void loadEnemyInstance(ModelInstance enemyInstance) {
+        this.enemyInstance = enemyInstance;
+    }
+    public void loadShrexInstance() {
+        AssetManager manager = new AssetManager();
+        manager.load("shrex.obj", );
+        this.enemyInstance = new ModelInstance(EnemyAssets.shrex);
     }
 }
