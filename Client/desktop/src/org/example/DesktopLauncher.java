@@ -10,6 +10,8 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("Shrex");
+		config.setWindowIcon("assets/shrekimage.png");
+		config.setWindowedMode(1000, 900);
 		new Lwjgl3Application(new MyGame(), config);
 	}
 }
