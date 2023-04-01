@@ -2,6 +2,7 @@ package org.example.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -24,6 +25,8 @@ public class MenuScreen implements Screen {
     private MyGame myGame;
     private Skin skin;
 
+    private Music menuMusic;
+
     private Skin buttonSkin;
 
     private Texture backgroundTexture;
@@ -35,6 +38,10 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         Gdx.input.setInputProcessor(stage);
+
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        menuMusic.setVolume(0.6f);
+        menuMusic.setLooping(true);
 
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("assets/shrexstrikesbg.png"));
@@ -110,6 +117,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        menuMusic.play();
     }
 
     @Override
@@ -140,6 +148,8 @@ public class MenuScreen implements Screen {
 
     @Override
     public void dispose() {
+        menuMusic.stop();
+        menuMusic.dispose();
         stage.dispose();
         skin.dispose();
     }
