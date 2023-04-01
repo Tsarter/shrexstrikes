@@ -96,18 +96,14 @@ public class MenuScreen implements Screen {
 
         background.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-
         // Create start button
         TextButton startButton = new TextButton("Start", buttonStyle);
         startButton.setTransform(true);
         startButton.setScale(1.3f);
 
-
         TextButton settingsButton = new TextButton("Settings", buttonStyle);
         settingsButton.setTransform(true);
         settingsButton.setScale(0.6f);
-
-
 
 
         // Add UI elements to the table
@@ -171,6 +167,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
+        menuMusic.stop();
     }
 
     @Override
