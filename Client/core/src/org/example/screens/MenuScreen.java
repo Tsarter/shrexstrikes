@@ -9,12 +9,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+
 
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -31,6 +35,8 @@ public class MenuScreen implements Screen {
 
     private Texture backgroundTexture;
     private TextureRegionDrawable backgroundDrawable;
+
+    Skin slider = new Skin(Gdx.files.internal("assets/uiskin.json"));
 
 
     public MenuScreen(MyGame myGame) {
@@ -58,6 +64,23 @@ public class MenuScreen implements Screen {
         buttonStyle.font = customFont;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.up = new NinePatchDrawable(borderPatch);
+
+
+
+
+        Slider volumeSlider = new Slider(0f, 1f, 0.1f, false, slider);
+        volumeSlider.setValue(menuMusic.getVolume());
+        volumeSlider.addListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                // Update volume when slider value changes
+                menuMusic.setVolume(volumeSlider.getValue());
+                return true;
+            }
+        });
+
+        Label volumeLabel = new Label("Volume: ", slider);
+        //Label volumeLabel = new Label("Volume: " + volumeSlider.getValue(), slider);
 
 
         // Create title label
@@ -110,6 +133,10 @@ public class MenuScreen implements Screen {
         table.row();
         table.add(settingsButton).width((float) (settingsButton.getWidth() * 1.2)).padLeft(94);
         table.padBottom(30);
+        table.row();
+        table.add(volumeLabel).pad(3);
+        table.row();
+        table.add(volumeSlider).pad(3);
         stage.addActor(table);
 
     }
