@@ -14,6 +14,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import org.example.screens.MenuScreen;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.IOException;
 
@@ -90,6 +91,7 @@ public class MyClient implements ApplicationListener {
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
+
         // load the texture files
         Texture bodyTexture = new Texture(Gdx.files.internal("assets/Shrek_Body.png"));
         Texture headLegsTexture = new Texture(Gdx.files.internal("assets/Shrek_Head_Legs.png"));
@@ -125,12 +127,16 @@ public class MyClient implements ApplicationListener {
         Gdx.input.setInputProcessor(inputMultiplexer);
 
 
+
+
     }
 
     @Override
     public void render() {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
+
+
 
         float delta = Gdx.graphics.getDeltaTime();
 
