@@ -13,5 +13,5 @@ public class Assets {
     {
         manager.dispose();
     }
-}
+
 }

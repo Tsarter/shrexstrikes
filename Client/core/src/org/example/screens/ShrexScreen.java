@@ -91,7 +91,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
          * Ports should be the same as in the server.193.40.156.227
          */
         client.start();
-        client.connect(5000, "193.40.156.227", 8080, 8081);
+        client.connect(5000, "localhost", 8080, 8081);
 
     }
     // gets called when collision is detected

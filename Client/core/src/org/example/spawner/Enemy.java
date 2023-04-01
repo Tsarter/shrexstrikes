@@ -37,8 +37,8 @@ public class Enemy {
         this.enemyInstance = enemyInstance;
     }
     public void loadShrexInstance() {
-        AssetManager manager = new AssetManager();
-        manager.load("shrex.obj", );
-        this.enemyInstance = new ModelInstance(EnemyAssets.shrex);
+        /*AssetManager manager = new AssetManager();
+        manager.load("shrex.obj", ModelInstance.class);
+        manager.finishLoading();*/
     }
 }

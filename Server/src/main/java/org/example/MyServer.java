@@ -12,12 +12,15 @@ import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
 import org.example.messages.PlayerHit;
 import org.example.Player;
+import org.example.spawner.EnemySpawner;
+import org.example.tasks.EnemySpawnerTask;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 public class MyServer {
 
@@ -32,7 +35,7 @@ public class MyServer {
     Map<InetAddress, Integer> playerIds = new HashMap<>();
     // Keep track of the next available player ID
     int nextPlayerId = 0;
-
+    private Timer timer;
     private List<BoundingBox> mapBounds;
 
     public MyServer() throws IOException {
@@ -138,6 +141,17 @@ public class MyServer {
 
         server.bind(8080, 8081);  // set ports for TCP, UDP. They must be equal with clients.
         server.start();  // start the server
+
+        // Initialize the timer
+        timer = new Timer();
+
+        // Schedule the enemy spawner task to run every 5 seconds
+        EnemySpawner spawner = new EnemySpawner();
+        Thread timerThread = new Thread(() -> {
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new EnemySpawnerTask(spawner), 0, 5000);
+        });
+        timerThread.start();
     }
 
     /**

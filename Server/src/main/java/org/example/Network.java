@@ -2,6 +2,7 @@ package org.example;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
+import org.example.messages.Enemies;
 import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
 import org.example.messages.PlayerHit;
@@ -26,5 +27,6 @@ public class Network {
         kryo.register(ArrayList.class);
         kryo.register(com.badlogic.gdx.math.collision.BoundingBox.class);
         kryo.register(com.badlogic.gdx.math.Vector3.class);
+        kryo.register(Enemies.class);
     }
 }
