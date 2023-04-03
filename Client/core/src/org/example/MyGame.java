@@ -1,6 +1,8 @@
 package org.example;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import org.example.screens.MenuScreen;
 import org.example.screens.ShrexScreen;
 
@@ -20,6 +22,8 @@ public class MyGame extends Game {
         }
 
         setScreen(menuScreen);
+
+
     }
 
     public void showMenuScreen() {

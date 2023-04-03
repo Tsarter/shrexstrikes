@@ -10,7 +10,7 @@ public class Main {
         //new MyClient();
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("ShrexStrikes");
-        config.setWindowedMode(800, 800);
+        config.setWindowedMode(1000, 900);
         new Lwjgl3Application(new MyGame(), config);
     }
 }

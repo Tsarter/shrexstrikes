@@ -5,6 +5,7 @@ sourceSets.main.resources.srcDirs = ["../assets"]
 project.ext.mainClassName = "org.example.DesktopLauncher"
 project.ext.assetsDir = new File("../assets")
 
+
 import org.gradle.internal.os.OperatingSystem
 
 task run(dependsOn: classes, type: JavaExec) {
