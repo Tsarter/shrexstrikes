@@ -8,10 +8,13 @@ public class EnemySpawnerTask extends TimerTask {
     EnemySpawner spawner;
 
     public EnemySpawnerTask(EnemySpawner spawner) {
+        this.spawner = spawner;
     }
 
     @Override
     public void run() {
+
         spawner.spawnEnemy();
+
     }
 }

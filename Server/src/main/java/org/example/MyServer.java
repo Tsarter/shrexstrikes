@@ -13,6 +13,7 @@ import org.example.messages.PlayerBullet;
 import org.example.messages.PlayerHit;
 import org.example.Player;
 import org.example.spawner.EnemySpawner;
+import org.example.tasks.EnemyLocationUpdateTask;
 import org.example.tasks.EnemySpawnerTask;
 
 import java.io.IOException;
@@ -37,7 +38,8 @@ public class MyServer {
     int nextPlayerId = 0;
     private Timer timer;
     private List<BoundingBox> mapBounds;
-
+    private Player testPlayer;
+    private EnemySpawner spawner;
     public MyServer() throws IOException {
 
         server = new Server(50000, 50000);  // initialize server
@@ -74,6 +76,8 @@ public class MyServer {
                 if (object instanceof Player ) {
                     Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent their location
                     Player playerClient = (Player) object;  // get the location that they sent
+                    testPlayer = playerClient;
+                    spawner.setPlayer(testPlayer);
                     if (player.id == playerClient.id) {
                         // update the server's player object with the new location
                         player.x = playerClient.x;
@@ -144,14 +148,20 @@ public class MyServer {
 
         // Initialize the timer
         timer = new Timer();
-
         // Schedule the enemy spawner task to run every 5 seconds
-        EnemySpawner spawner = new EnemySpawner();
+        spawner = new EnemySpawner();
         Thread timerThread = new Thread(() -> {
             timer = new Timer();
-            timer.scheduleAtFixedRate(new EnemySpawnerTask(spawner), 0, 5000);
+            timer.scheduleAtFixedRate(new EnemySpawnerTask(spawner), 0, 10000);
+        });
+        // Schedule the enemies location update task to run every 1 second
+        Thread timerThread2 = new Thread(() -> {
+            timer = new Timer();
+            int period = 1000;
+            timer.scheduleAtFixedRate(new EnemyLocationUpdateTask(spawner, period), 0, period);
         });
         timerThread.start();
+        timerThread2.start();
     }
 
     /**

@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import java.util.Map;
 
 public class Player {
-    float x, z;
-    float rotation;
+    public float x, y, z;
+    public float rotation;
     int id;
     // Bounds of the player
     BoundingBox boundingBox;
@@ -18,6 +18,8 @@ public class Player {
         this.z = z;
         this.rotation = 0;
         this.id = id;
+        // set height to default 1, for now
+        this.y = 1;
     }
 
     /**

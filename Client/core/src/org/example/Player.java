@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 
 public class Player {
 
-    public float x, z;
+    public float x, y, z;
     public float rotation;
 
     public  int id;

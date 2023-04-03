@@ -12,31 +12,38 @@ public class EnemySpawner {
 
     private final Array<Enemy> enemies;
 
+    private Player player;
     private float spawnTimer;
+    private int idCounter;
 
     public EnemySpawner() {
         this.enemies = new Array<Enemy>();
     }
 
-    public void update(Player player) {
-
-        // Update active enemies
-        for (Enemy enemy : enemies) {
-            enemy.update(delta, playerPosition);
-        }
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public void spawnEnemy() {
-        // Generate a random position for the enemy
-        float x = MathUtils.random(-10f, 10f);
-        float y = MathUtils.random(-10f, 10f);
-        float z = MathUtils.random(-10f, 10f);
-        Enemy enemy = new Enemy(new ModelInstance(new Model()));
+        if (enemies.size < 1) {
+            idCounter++;
+            // Generate a random position for the enemy
+            float x = MathUtils.random(-10f, 10f);
+            float y = 1;
+            float z = MathUtils.random(-10f, 10f);
+            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter);
 
-        // Add the enemy to the list of active enemies
-        enemies.add(enemy);
+            // Add the enemy to the list of active enemies
+            enemies.add(enemy);
+        }
     }
-
+    public void updateEnemyPositsions(float period) {
+        // Just wonky
+        float delta = period;
+        for (Enemy enemy : enemies) {
+            enemy.update(player, delta);
+        }
+    }
     public Array<Enemy> getEnemies() {
         return enemies;
     }

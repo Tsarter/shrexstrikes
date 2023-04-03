@@ -1,30 +1,49 @@
 package org.example.spawner;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import org.example.Player;
 
 public class Enemy extends ModelInstance {
     private final Vector3 velocity;
     private int health;
+    private int id;
 
-    public Enemy(ModelInstance instance) {
+
+    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id) {
         super(instance);
         this.velocity = new Vector3(0, 0, -1f);
         this.health = 100;
+        this.id = id;
+        this.transform.translate(position);
+        this.transform.rotate(0, 1, 0, orientation);
     }
 
-    public void update(float delta, Vector3 playerPosition) {
-        // Calculate the direction to the player
-        Vector3 direction = playerPosition.cpy().sub(transform.getTranslation(new Vector3())).nor();
+    public void update(Player player, float delta) {
+        if (player != null) {
+            // Get the position of the player
+            Vector3 playerPosition = new Vector3(player.x, player.y, player.z);
 
-        // Move the enemy towards the player
-        Vector3 position = transform.getTranslation(new Vector3());
-        position.add(direction.scl(velocity).scl(delta));
-        transform.setTranslation(position);
+            // rotate the enemy towards the player ignore the y axis
+            Vector3 direction = playerPosition.cpy().sub(this.transform.getTranslation(new Vector3())).nor();
+            System.out.println("Direction: " + direction);
+            Quaternion rotation = new Quaternion().setFromCross(direction, Vector3.Y);
 
-        // TODO: Implement enemy behavior, such as attacking
+            this.transform.rotate(rotation);
+            // Move the enemy towards the player
+            this.transform.translate(velocity.cpy().scl(delta / 1000));
+            // Rotate the enemy towards the player
 
-        // TODO: Implement collision detection and health management
+
+
+            // print the position of the enemy
+            System.out.println(this.transform.getTranslation(new Vector3()));
+            System.out.println("PlayerPosition" + playerPosition);
+            // TODO: Implement enemy behavior, such as attacking
+
+            // TODO: Implement collision detection and health management
+        }
     }
 
     public float getHealth() {
