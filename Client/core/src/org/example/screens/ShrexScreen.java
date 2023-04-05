@@ -32,13 +32,17 @@ import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
+import org.example.messages.Enemies;
 import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
 import org.example.messages.PlayerHit;
+import org.example.spawner.Enemy;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ShrexScreen implements ApplicationListener,Screen {
     final static short GROUND_FLAG = 1 << 8;
@@ -49,6 +53,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private final Client client;
     private Player[] playersList;
     private Player player;
+    private HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
+    private boolean gameStarted = false;
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
         client = new Client(50000, 50000);  // initialize client
@@ -78,6 +84,20 @@ public class ShrexScreen implements ApplicationListener,Screen {
                     if (playerHit.idOfPlayerHit == player.id) {
                         // update the health
                         player.health -= 10;
+                    }
+                }
+                else if (object instanceof Enemies) {
+                    if (gameStarted) {
+                        System.out.println("Enemies received");
+                        Enemies enemiesInfo = (Enemies) object;
+                        for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
+                            if (enemies.containsKey(entry.getKey())) {
+                                enemies.get(entry.getKey()).update(entry.getValue());
+                            } else {
+                                enemies.put(entry.getKey(), new Enemy(entry.getValue()));
+                            }
+
+                        }
                     }
                 }
 
@@ -209,18 +229,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Material groundMaterial = new Material();
         groundMaterial.set(ColorAttribute.createDiffuse(0.4f, 1, 0.4f, 1f)); // diffuse color
 
-
-        // create a new Model for the player model
-        playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
-        for (Mesh mesh : playerModel.meshes) {
-            mesh.scale(0.01f, 0.01f, 0.01f);
-        }
         // My custom ObjLoader (load fiona or shrex)
         org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
         playerModelInstance = objLoader.loadShrek();
-        groundModelInstance.materials.get(3).set(groundMaterial);
-
-
 
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
@@ -250,6 +261,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
+        gameStarted = true;
     }
 
     /**
@@ -319,7 +331,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
         modelBatch.render(playerModelInstance);
         shadowBatch.render(playerModelInstance);
 
-
+        // Render enemies
+        for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
+            Enemy enemy = entry.getValue();
+            modelBatch.render(enemy.enemyInstance, environment);
+            shadowBatch.render(enemy.enemyInstance);
+        }
         /**
          * If player is connected to the server, render all other players.
          */

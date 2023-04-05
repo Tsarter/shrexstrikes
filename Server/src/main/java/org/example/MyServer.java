@@ -8,10 +8,12 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import org.example.messages.Enemies;
 import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
 import org.example.messages.PlayerHit;
 import org.example.Player;
+import org.example.spawner.Enemy;
 import org.example.spawner.EnemySpawner;
 import org.example.tasks.EnemyLocationUpdateTask;
 import org.example.tasks.EnemySpawnerTask;
@@ -158,7 +160,7 @@ public class MyServer {
         Thread timerThread2 = new Thread(() -> {
             timer = new Timer();
             int period = 1000;
-            timer.scheduleAtFixedRate(new EnemyLocationUpdateTask(spawner, period), 0, period);
+            timer.scheduleAtFixedRate(new EnemyLocationUpdateTask(this, spawner, period), 0, period);
         });
         timerThread.start();
         timerThread2.start();
@@ -174,5 +176,29 @@ public class MyServer {
 
         // send this array to all of the connected clients
         server.sendToAllUDP(playersList);
+    }
+    /*
+      * Gets called every 1 second from EnemyLocationUpdateTask
+     */
+    public void sendEnemies() {
+        // Create a player array from the hashmap values
+        HashMap enemies = new HashMap();
+        for (Enemy e : spawner.getEnemies()) {
+            HashMap enemyInfo = new HashMap();
+            enemyInfo.put("x", e.x);
+            enemyInfo.put("y", e.y);
+            enemyInfo.put("z", e.z);
+            enemyInfo.put("rotation", e.rotation);
+            enemyInfo.put("type", e.type);
+            enemyInfo.put("id", e.id);
+            enemyInfo.put("health", e.health);
+            enemies.put(e.id, enemyInfo);
+        }
+        if (enemies.size() > 0) {
+            System.out.println("Sending enemies: " + enemies.toString());
+            Enemies enemiesObject = new Enemies(enemies);
+            // send this array to all of the connected clients
+            server.sendToAllUDP(enemiesObject);
+        }
     }
 }

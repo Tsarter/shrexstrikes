@@ -14,7 +14,7 @@ import java.util.List;
 public class ObjLoader {
     ModelLoader loader = new com.badlogic.gdx.graphics.g3d.loader.ObjLoader();
     public ModelInstance loadShrek() {
-        Model playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
+        Model playerModel = loader.loadModel(Gdx.files.internal("C:\\Users\\Tanel\\Documents\\AA_PROJECTS\\AA TalTech stuff\\ShrexStrikes\\Client\\assets\\Shrek.obj"));
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }

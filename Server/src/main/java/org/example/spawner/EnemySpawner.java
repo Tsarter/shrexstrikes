@@ -28,9 +28,9 @@ public class EnemySpawner {
         if (enemies.size < 1) {
             idCounter++;
             // Generate a random position for the enemy
-            float x = MathUtils.random(-10f, 10f);
+            float x = 0;
             float y = 1;
-            float z = MathUtils.random(-10f, 10f);
+            float z = 0;
             Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter);
 
             // Add the enemy to the list of active enemies
