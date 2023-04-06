@@ -150,6 +150,8 @@ public class MenuScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+        // Load assets in the background
+        myGame.getAssetManager().update(20);
     }
 
     @Override
