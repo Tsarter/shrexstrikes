@@ -178,7 +178,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //ModelLoader loader = new ObjLoader();
         ModelLoader loader = new ObjLoader();
         ModelLoader mapLoader = new G3dModelLoader(new UBJsonReader());
-        Model mapModel = mapLoader.loadModel(Gdx.files.internal("assets/maps/City/MediEvalCity.g3db"));
+        Model mapModel = myGame.getAssetManager().get("assets/maps/City/MediEvalCity.g3db");
         groundModelInstance = new ModelInstance(mapModel);
         groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
 
@@ -211,12 +211,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         // create a new Model for the player model
-        playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
-        for (Mesh mesh : playerModel.meshes) {
-            mesh.scale(0.01f, 0.01f, 0.01f);
-        }
         // My custom ObjLoader (load fiona or shrex)
-        org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
+        org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
         playerModelInstance = objLoader.loadShrek();
         groundModelInstance.materials.get(3).set(groundMaterial);
 
@@ -329,7 +325,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 // don't render the player if they are the same as the current playerd
                 if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
-                org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader();
+                org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
                 ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
                 Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
 

@@ -8,19 +8,25 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import org.example.MyGame;
 
 import java.util.List;
 
 public class ObjLoader {
     ModelLoader loader = new com.badlogic.gdx.graphics.g3d.loader.ObjLoader();
+    MyGame game;
+    public ObjLoader(MyGame game) {
+        this.game = game;
+    }
     public ModelInstance loadShrek() {
-        Model playerModel = loader.loadModel(Gdx.files.internal("assets/Shrek.obj"));
+
+        Model playerModel = game.getAssetManager().get("assets/Shrek.obj");
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
         // load the texture files
-        Texture bodyTexture = new Texture(Gdx.files.internal("assets/Shrek_Body.png"));
-        Texture headLegsTexture = new Texture(Gdx.files.internal("assets/Shrek_Head_Legs.png"));
+        Texture bodyTexture = game.getAssetManager().get("assets/Shrek_Body.png");
+        Texture headLegsTexture = game.getAssetManager().get("assets/Shrek_Head_Legs.png");
         // create materials that reference the texture files
         Material bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
         Material headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
