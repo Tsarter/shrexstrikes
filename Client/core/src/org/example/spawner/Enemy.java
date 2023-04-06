@@ -1,10 +1,14 @@
 package org.example.spawner;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.math.Vector3;
 import org.example.MyGame;
-import org.example.loader.ObjLoader;
+
 import java.util.HashMap;
 
 public class Enemy {
@@ -15,18 +19,18 @@ public class Enemy {
     private int health;
     private int id;
     private int type;
-    public ModelInstance enemyInstance;
+    private ModelInstance enemyInstance;
     public Enemy(){}
-    public Enemy(MyGame game ,HashMap<String, ?> info) {
+    public Enemy(ModelInstance enemyInstance ,HashMap<String, ?> info) {
         this.id = (int) info.get("id");
         this.health = (int) info.get("health");
         this.coordinateX = (float) info.get("x");
         this.coordinateY = (float) info.get("y");
         this.coordinateZ = (float) info.get("z");
         this.rotation = (float) info.get("rotation");
-        org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(game);
-        this.enemyInstance = objLoader.loadShrek();
+        this.enemyInstance = enemyInstance;
         enemyInstance.transform.translate(coordinateX, 1, coordinateZ);
+
     }
     public int getId() {
         return id;

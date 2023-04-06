@@ -1,17 +1,14 @@
 package org.example.screens;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
-import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
@@ -23,9 +20,6 @@ import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.UBJsonReader;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -33,6 +27,7 @@ import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
+import org.example.loader.ObjLoaderCustom;
 import org.example.messages.Enemies;
 import org.example.messages.MapBounds;
 import org.example.messages.PlayerBullet;
@@ -56,6 +51,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Player player;
     private HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
     private boolean gameStarted = false;
+    private ModelInstance templateEnemyModelInstance;
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
         client = new Client(50000, 50000);  // initialize client
@@ -87,20 +83,24 @@ public class ShrexScreen implements ApplicationListener,Screen {
                         player.health -= 10;
                     }
                 }
-/*                else if (object instanceof Enemies) {
-                    if (gameStarted) {
-                        System.out.println("Enemies received");
-                        Enemies enemiesInfo = (Enemies) object;
-                        for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
-                            if (enemies.containsKey(entry.getKey())) {
-                                enemies.get(entry.getKey()).update(entry.getValue());
-                            } else {
-                                enemies.put(entry.getKey(), new Enemy(myGame, entry.getValue()));
-                            }
+                else if (object instanceof Enemies) {
 
+                        if (gameStarted) {
+                            System.out.println("Enemies received");
+                            Enemies enemiesInfo = (Enemies) object;
+                            for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
+                                if (enemies.containsKey(entry.getKey())) {
+                                    enemies.get(entry.getKey()).update(entry.getValue());
+                                } else if (templateEnemyModelInstance != null){
+                                    Model model = new Model();
+                                    ModelInstance enemyInstance = templateEnemyModelInstance.copy();
+                                    enemies.put(entry.getKey(), new Enemy(enemyInstance, entry.getValue()));
+                                }
+
+                            }
                         }
-                    }
-                }*/
+
+                }
 
 
             }
@@ -124,42 +124,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         }
 
     }
-    static class GameObject extends ModelInstance implements Disposable {
-        public final btCollisionObject body;
-        public boolean moving;
 
-        public GameObject (Model model, String node, btCollisionShape shape) {
-            super(model, node);
-            body = new btCollisionObject();
-            body.setCollisionShape(shape);
-        }
-
-        @Override
-        public void dispose () {
-            body.dispose();
-        }
-
-        static class Constructor implements Disposable {
-            public final Model model;
-            public final String node;
-            public final btCollisionShape shape;
-
-            public Constructor (Model model, String node, btCollisionShape shape) {
-                this.model = model;
-                this.node = node;
-                this.shape = shape;
-            }
-
-            public GameObject construct () {
-                return new GameObject(model, node, shape);
-            }
-
-            @Override
-            public void dispose () {
-                shape.dispose();
-            }
-        }
-    }
 
     MyContactListener contactListener;
     public ModelBatch modelBatch;
@@ -196,9 +161,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public void create() {
         Bullet.init();
         // load the 3D model of the map
-        //ModelLoader loader = new ObjLoader();
+        //ModelLoader loader = new ObjLoaderCustom();
         ModelLoader loader = new ObjLoader();
-        ModelLoader mapLoader = new G3dModelLoader(new UBJsonReader());
         Model mapModel = myGame.getAssetManager().get("assets/maps/City/MediEvalCity.g3db");
         groundModelInstance = new ModelInstance(mapModel);
         groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
@@ -233,11 +197,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         // create a new Model for the player model
-        // My custom ObjLoader (load fiona or shrex)
-        org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
+        // My custom ObjLoaderCustom (load fiona or shrex)
+        ObjLoaderCustom objLoaderCustom = new ObjLoaderCustom(myGame);
         // Load shrex model
-        playerModelInstance = objLoader.loadShrek();
-
+        playerModelInstance = objLoaderCustom.loadShrek();
+        templateEnemyModelInstance = playerModelInstance.copy();
         // Load all the walking shrek frames
         /*ModelInstance[] animationFrames = new ModelInstance[260];
         for (int i = 1; i < 250; i++) {
@@ -351,12 +315,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Render enemies
         for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
-            org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
-            ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
-            otherPlayerModelInstance.transform.translate(new Vector3(0, 0f, 0));
-            otherPlayerModelInstance.transform.rotate(Vector3.Y, 10);
-            modelBatch.render(otherPlayerModelInstance, environment);
-            shadowBatch.render(otherPlayerModelInstance);
         }
         /**
          * If player is connected to the server, render all other players.
@@ -367,8 +325,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 // don't render the player if they are the same as the current playerd
                 if (player.id != otherPlayer.id) {
                 // create a new instance of the player model for this player
-                org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
-                ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
+                ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
                 Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance

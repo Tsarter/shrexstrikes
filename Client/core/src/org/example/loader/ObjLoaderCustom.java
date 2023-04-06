@@ -10,12 +10,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import org.example.MyGame;
 
-import java.util.List;
-
-public class ObjLoader {
+public class ObjLoaderCustom {
     ModelLoader loader = new com.badlogic.gdx.graphics.g3d.loader.ObjLoader();
     MyGame game;
-    public ObjLoader(MyGame game) {
+    public ObjLoaderCustom(MyGame game) {
         this.game = game;
     }
     public ModelInstance loadShrek() {
