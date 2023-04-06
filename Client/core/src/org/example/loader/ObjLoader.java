@@ -20,7 +20,7 @@ public class ObjLoader {
     }
     public ModelInstance loadShrek() {
 
-        Model playerModel = game.getAssetManager().get("assets/Shrek.obj");
+        Model playerModel = game.getAssetManager().get("assets/characters/Shrek/Shrek.obj", Model.class);
         for (Mesh mesh : playerModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }

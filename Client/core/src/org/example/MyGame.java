@@ -23,24 +23,24 @@ public class MyGame extends Game {
         assetManager = new AssetManager();
         menuScreen = new MenuScreen(this);
         loadingScreen = new LoadingScreen(this);
-
-        Gdx.app.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                // Asynchronously load the map
-                assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
-                assetManager.load("assets/Shrek_Body.png", Texture.class);
-                assetManager.load("assets/Shrek_Head_Legs.png", Texture.class);
-                assetManager.load("assets/characters/Fiona/fiona.obj", Model.class);
-                assetManager.load("assets/Shrek.obj", Model.class);
-                setScreen(menuScreen);
-            }
-        });
         try {
             shrexScreen = new ShrexScreen(this);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                // Asynchronously load the map
+                assetManager.load("assets/Shrek_Body.png", Texture.class);
+                assetManager.load("assets/Shrek_Head_Legs.png", Texture.class);
+                assetManager.load("assets/characters/Fiona/fiona.obj", Model.class);
+                assetManager.load("assets/Shrek.obj", Model.class);
+                assetManager.load("assets/characters/Shrek/Shrek.obj", Model.class);
+                assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
+                setScreen(menuScreen);
+            }
+        });
     }
 
     public void showMenuScreen() {
@@ -62,22 +62,7 @@ public class MyGame extends Game {
     // ...
     @Override
     public void render() {
-        if (!initialized) {
-            if (Gdx.graphics.getWidth() > 0 && Gdx.graphics.getHeight() > 0) {
-                // The OpenGL context has been initialized
-                Lwjgl3Application app = (Lwjgl3Application) Gdx.app;
-                app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        app.getApplicationListener().create();
-                    }
-                });
-                initialized = true;
-            }
-        } else {
-            // Call the super.render() method to render the game
-            super.render();
-        }
+        super.render();
     }
     public AssetManager getAssetManager() {
         return assetManager;

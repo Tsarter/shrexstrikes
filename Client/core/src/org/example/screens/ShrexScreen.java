@@ -1,6 +1,7 @@
 package org.example.screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -86,7 +87,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                         player.health -= 10;
                     }
                 }
-                else if (object instanceof Enemies) {
+/*                else if (object instanceof Enemies) {
                     if (gameStarted) {
                         System.out.println("Enemies received");
                         Enemies enemiesInfo = (Enemies) object;
@@ -94,12 +95,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
                             if (enemies.containsKey(entry.getKey())) {
                                 enemies.get(entry.getKey()).update(entry.getValue());
                             } else {
-                                enemies.put(entry.getKey(), new Enemy(entry.getValue()));
+                                enemies.put(entry.getKey(), new Enemy(myGame, entry.getValue()));
                             }
 
                         }
                     }
-                }
+                }*/
 
 
             }
@@ -210,6 +211,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         cameraDirection = new Vector3(0, 0, -1);
         camera.direction.set(cameraDirection);
         camera.near = 0.2f;
+        camera.far = 100f;
         cameraAngle = 0;
         cameraSpeed = 6;
         // set up the model batch for rendering
@@ -233,8 +235,18 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // create a new Model for the player model
         // My custom ObjLoader (load fiona or shrex)
         org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
+        // Load shrex model
         playerModelInstance = objLoader.loadShrek();
 
+        // Load all the walking shrek frames
+        /*ModelInstance[] animationFrames = new ModelInstance[260];
+        for (int i = 1; i < 250; i++) {
+            String counter = "00000" + String.valueOf(i);
+            int counterMaxLength = 6;
+            counter = counter.substring(counter.length() - counterMaxLength);
+            Model model = loader.loadModel(Gdx.files.internal("assets/characters/WalkingShrek/walkingShrek_" + counter + ".obj"));
+            animationFrames[i] = new ModelInstance(playerModel);
+        }*/
 
 
 
@@ -339,8 +351,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Render enemies
         for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
-            modelBatch.render(enemy.enemyInstance, environment);
-            shadowBatch.render(enemy.enemyInstance);
+            org.example.loader.ObjLoader objLoader = new org.example.loader.ObjLoader(myGame);
+            ModelInstance otherPlayerModelInstance = objLoader.loadShrek();
+            otherPlayerModelInstance.transform.translate(new Vector3(0, 0f, 0));
+            otherPlayerModelInstance.transform.rotate(Vector3.Y, 10);
+            modelBatch.render(otherPlayerModelInstance, environment);
+            shadowBatch.render(otherPlayerModelInstance);
         }
         /**
          * If player is connected to the server, render all other players.
@@ -381,7 +397,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.end();
         shadowLight.end();
         modelBatch.end();
-
+        int k = 9;
 
     }
 
@@ -401,6 +417,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
         camera.update();
+        // use orthographic projection for the crosshair
+
 
     }
 
