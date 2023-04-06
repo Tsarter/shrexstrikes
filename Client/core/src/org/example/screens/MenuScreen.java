@@ -2,18 +2,23 @@ package org.example.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+
 
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -24,10 +29,14 @@ public class MenuScreen implements Screen {
     private MyGame myGame;
     private Skin skin;
 
+    private Music menuMusic;
+
     private Skin buttonSkin;
 
     private Texture backgroundTexture;
     private TextureRegionDrawable backgroundDrawable;
+
+    Skin slider = new Skin(Gdx.files.internal("assets/uiskin.json"));
 
 
     public MenuScreen(MyGame myGame) {
@@ -35,6 +44,10 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         Gdx.input.setInputProcessor(stage);
+
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        menuMusic.setVolume(0.6f);
+        menuMusic.setLooping(true);
 
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("assets/shrexstrikesbg.png"));
@@ -53,6 +66,23 @@ public class MenuScreen implements Screen {
         buttonStyle.up = new NinePatchDrawable(borderPatch);
 
 
+
+
+        Slider volumeSlider = new Slider(0f, 1f, 0.1f, false, slider);
+        volumeSlider.setValue(menuMusic.getVolume());
+        volumeSlider.addListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                // Update volume when slider value changes
+                menuMusic.setVolume(volumeSlider.getValue());
+                return true;
+            }
+        });
+
+        Label volumeLabel = new Label("Volume: ", slider);
+        //Label volumeLabel = new Label("Volume: " + volumeSlider.getValue(), slider);
+
+
         // Create title label
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
@@ -66,18 +96,14 @@ public class MenuScreen implements Screen {
 
         background.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-
         // Create start button
         TextButton startButton = new TextButton("Start", buttonStyle);
         startButton.setTransform(true);
         startButton.setScale(1.3f);
 
-
         TextButton settingsButton = new TextButton("Settings", buttonStyle);
         settingsButton.setTransform(true);
         settingsButton.setScale(0.6f);
-
-
 
 
         // Add UI elements to the table
@@ -103,6 +129,10 @@ public class MenuScreen implements Screen {
         table.row();
         table.add(settingsButton).width((float) (settingsButton.getWidth() * 1.2)).padLeft(94);
         table.padBottom(30);
+        table.row();
+        table.add(volumeLabel).pad(3);
+        table.row();
+        table.add(volumeSlider).pad(3);
         stage.addActor(table);
 
     }
@@ -110,6 +140,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        menuMusic.play();
     }
 
     @Override
@@ -136,10 +167,13 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
+        menuMusic.stop();
     }
 
     @Override
     public void dispose() {
+        menuMusic.stop();
+        menuMusic.dispose();
         stage.dispose();
         skin.dispose();
     }
