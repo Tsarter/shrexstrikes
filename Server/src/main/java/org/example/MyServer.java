@@ -194,7 +194,7 @@ public class MyServer {
             enemyInfo.put("health", e.health);
             enemies.put(e.id, enemyInfo);
         }
-        if (enemies.size() > 0) {
+        if (enemies.size() > 0 && server.getConnections().length > 0) {
             System.out.println("Sending enemies: " + enemies.toString());
             Enemies enemiesObject = new Enemies(enemies);
             // send this array to all of the connected clients

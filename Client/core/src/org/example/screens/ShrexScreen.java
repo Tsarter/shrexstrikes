@@ -267,7 +267,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public void render() {
 
         float delta = Gdx.graphics.getDeltaTime();
-
         // Save the player's and cameras position
         Vector3 oldPos = playerModelInstance.transform.getTranslation(new Vector3());
         Vector3 oldCamPos = camera.position.cpy();
@@ -315,6 +314,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Render enemies
         for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
+            ModelInstance enemyModelInstance = enemy.getEnemyInstance();
+            enemyModelInstance.transform.setToRotation(Vector3.Y, enemy.rotation);
+            enemyModelInstance.transform.translate(enemy.X, enemy.Y, enemy.Z);
+            modelBatch.render(enemyModelInstance, environment);
+            shadowBatch.render(enemyModelInstance);
         }
         /**
          * If player is connected to the server, render all other players.

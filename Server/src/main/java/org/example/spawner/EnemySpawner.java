@@ -29,7 +29,7 @@ public class EnemySpawner {
             idCounter++;
             // Generate a random position for the enemy
             float x = 0;
-            float y = 1;
+            float y = 0.8f;
             float z = 0;
             Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter);
 

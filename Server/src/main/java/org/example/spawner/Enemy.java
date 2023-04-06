@@ -20,6 +20,10 @@ public class Enemy extends ModelInstance {
         this.velocity = new Vector3(1f, 0, 1f);
         this.health = 100;
         this.id = id;
+        this.x = position.x;
+        this.y = position.y;
+        this.z = position.z;
+        this.rotation = orientation;
         this.transform.translate(position);
         this.transform.rotate(0, 1, 0, orientation);
     }
@@ -30,16 +34,9 @@ public class Enemy extends ModelInstance {
             Vector3 playerPosition = new Vector3(player.x, player.y, player.z);
 
             // rotate the enemy towards the player ignore the y axis
-            float rotation = (float) Math.atan2(playerPosition.x - this.transform.getTranslation(new Vector3()).x, playerPosition.z - this.transform.getTranslation(new Vector3()).z);
-            System.out.println("Rotation" + rotation);
-
-            // Move the enemy towards the player
-            // this.transform.translate(velocity.scl(delta / 1000f));
-
-            // print the position of the enemy
-            System.out.println("EnemyPosition" + this.transform.getTranslation(new Vector3()));
-            System.out.println("enemyRotation" + this.transform.getRotation(new Quaternion()));
-            System.out.println("PlayerPosition" + playerPosition);
+            rotation = (float) Math.atan2(playerPosition.x - this.transform.getTranslation(new Vector3()).x, playerPosition.z - this.transform.getTranslation(new Vector3()).z);
+            // Rad to degrees
+            rotation = (float) Math.toDegrees(rotation);
             // TODO: Implement enemy behavior, such as attacking
 
             // TODO: Implement collision detection and health management
