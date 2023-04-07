@@ -49,7 +49,7 @@ public class GameClient  {
                         }
                         if (game.gameType == MyGame.GameType.ONEvONE &&
                                 game.gameState != MyGame.GameState.GAME) {
-                            if (game.getPlayersList().length == 1) {
+                            if (game.getPlayersList().length == 2) {
                                 game.showShrexScreen();
                             }
                         }
