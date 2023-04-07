@@ -26,6 +26,7 @@ For moving around use AWSD. For looking around use your mouse. Mouse gets captur
 ## How to manage the Server on Taltech server
 
 ssh to the server and delete the old file `ssh ubuntu 193.40.156.227`
+
 push the Server.jar file to server `scp Server.jar ubuntu@ip_address:gameServer/`
 
 log into server using `ssh ubuntu@ip_address`
