@@ -46,108 +46,13 @@ import static com.badlogic.gdx.math.MathUtils.lerp;
 public class ShrexScreen implements ApplicationListener,Screen {
     private MyGame myGame;
 
-    private final Client client;
-    private Player[] playersList;
-    private Player player;
-    private HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
+
+    public HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
     private boolean gameStarted = false;
     private ModelInstance templateEnemyModelInstance;
     private List<Enemy> enemiesToHide = new ArrayList<Enemy>();
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
-        client = new Client(50000, 50000);  // initialize client
-        Network.register(client);  // register all the classes that are sent over the network
-        // Add listener to tell the client, what to do after something is sent over the network
-        client.addListener(new Listener() {
-
-            /**
-             * We recieved something from the server.
-             * In this case, it is probably a list of all players.
-             */
-            public void received(Connection connection, Object object) {
-                if (object instanceof Player[]) {
-
-                    // get the list of players
-                    playersList = (Player[]) object;
-
-                }
-                // we recieved the server created player object
-                else if (object instanceof Player) {
-                    player = (Player) object;
-                }
-                // we recieved playerHit
-                else if (object instanceof PlayerHit) {
-                    PlayerHit playerHit = (PlayerHit) object;
-                    // if the player that was hit is the current player
-                    if (playerHit.idOfPlayerHit == player.id) {
-                        Pulse pulse = new Pulse();
-                        crosshair.addAction(pulse.Action(crosshair));
-                        // update the health
-                        player.health -= 10;
-                    }
-                }
-                else if (object instanceof Enemies) {
-
-                        if (gameStarted) {
-                            System.out.println("Enemies received");
-                            Enemies enemiesInfo = (Enemies) object;
-                            for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
-                                //if the health is 0, we hide the enemy
-                                if ((int) entry.getValue().get("health") <= 0) {
-                                    if (enemies.containsKey(entry.getKey())) {
-                                        Enemy enemy = enemies.get(entry.getKey());
-                                        enemy.hide(); // moves enemy outside the map
-                                        enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
-                                        // Then we wait for a new render() loop
-                                    }
-                                }
-                                else if (enemies.containsKey(entry.getKey())) {
-                                    enemies.get(entry.getKey()).update(entry.getValue());
-                                } else if (templateEnemyModelInstance != null){
-                                    ModelInstance enemyInstance = templateEnemyModelInstance.copy();
-                                    enemies.put(entry.getKey(), new Enemy(enemyInstance, entry.getValue()));
-                                }
-
-                            }
-                        }
-
-                }
-                else if (object instanceof EnemyHit) {
-                    EnemyHit enemyHit = (EnemyHit) object;
-                    // Add animation to the crosshair
-                    Pulse pulse = new Pulse();
-                    crosshair.addAction(pulse.Action(crosshair));
-                    if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
-                        System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
-                    }
-                    if (enemyHit.isDead) {
-                        System.out.println("Enemy is dead, id: " + enemyHit.idOfEnemyHit);
-                        Enemy enemy = enemies.get(enemyHit.idOfEnemyHit);
-                        enemy.hide(); // moves enemy outside the map
-                        enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
-
-                    }
-                    // TODO: Animation for enemy hit
-                }
-                else if (object instanceof GameStarted) {
-                    gameStarted = true;
-                }
-                else if (object instanceof GameOver) {
-                    // myGame.setScreen(new GameOverScreen(myGame));
-                    //TODO: implement game over screen
-                }
-
-
-            }
-        });
-
-        /**
-         * Connect the client to the server.
-         * If server is on a local machine, "localhost" should be used as host.
-         * Ports should be the same as in the server.193.40.156.227
-         */
-        client.start();
-        client.connect(5000, "localhost", 8080, 8081);
 
     }
     // gets called when collision is detected
@@ -173,9 +78,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private InputMultiplexer inputMultiplexer;
     private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
     private ModelInstance playerModelInstance;
-    private Model playerModel;
-    private Material headLegsMaterial;
-    private Material bodyMaterial;
 
     private DirectionalShadowLight shadowLight;
     private ModelBatch shadowBatch;
@@ -187,9 +89,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private Image crosshair;
     private Label healthLabel;
 
-    public float zoomOnRightClickAmount = 30;
     public float zoom = 67;
-    public float fieldOfView = 67;
 
     Map<Integer, Float> previousRotations = new HashMap<Integer, Float>();
     @Override
@@ -257,7 +157,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         //new ModelInstance(playerModel).calculateBoundingBox(playerBounds);
         // set cylinder as player bounds
         playerBounds.set(new Vector3(-0.1f, 0.3f, -0.1f), new Vector3(0.1f, 1, 0.1f));
-        player.boundingBox = playerBounds;
+        myGame.getPlayer().boundingBox = playerBounds;
         mapBounds = new ArrayList<>();
         for (Node node : mapModel.nodes) {
             if (node.id.contains("Ground") || node.id.contains("Grass") || node.id.contains("Red") || node.id.contains("White")) {
@@ -270,8 +170,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         MapBounds mapBoundsObject = new MapBounds();
         mapBoundsObject.boundingBox = mapBounds;
 
-        client.sendTCP(mapBoundsObject);
-        client.sendTCP(player);
+        myGame.getClient().sendTCP(mapBoundsObject);
+        myGame.getClient().sendTCP(myGame.getPlayer());
         // Initialize collsion between the map and the player
         //initializeCollision(mapModel, playerModel);
 
@@ -293,7 +193,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         render();
         // update healt
-        healthLabel.setText("Health: " + player.health);
+        healthLabel.setText("Health: " + myGame.getPlayer().health);
         // Render the crosshair
         // Define the duration and scale of the animation
         float duration = 0.5f;
@@ -371,11 +271,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
         /**
          * If player is connected to the server, render all other players.
          */
-        if (client.isConnected()) {
+        if (myGame.getClient().isConnected()) {
             // render all other players
-            for (Player otherPlayer : playersList) {
+            for (Player otherPlayer : myGame.getPlayers()) {
                 // don't render the player if they are the same as the current playerd
-                if (player.id != otherPlayer.id) {
+                if (myGame.getPlayer().id != otherPlayer.id) {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
                 Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
@@ -395,11 +295,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
              * The server should move "my player" and then send the updated board to all players.
              * So they know that this client moved aswell.
              */
-            player.x = cameraPosition.x;
-            player.z = cameraPosition.z;
-            player.rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
-            player.boundingBox = playerBounds;
-            client.sendUDP(player);
+            myGame.getPlayer().x = cameraPosition.x;
+            myGame.getPlayer().z = cameraPosition.z;
+            myGame.getPlayer().rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
+            myGame.getPlayer().boundingBox = playerBounds;
+            myGame.getClient().sendUDP(myGame.getPlayer());
 
         }
         // Render the enemy far away, then stop rendering it.
@@ -421,7 +321,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         modelBatch.dispose();
         model.dispose();
         contactListener.dispose();
-        playerModel.dispose();
 
     }
 
@@ -449,7 +348,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
-        healthLabel = new Label("Health: " + player.health, labelStyle);
+        healthLabel = new Label("Health: " + myGame.getPlayer().health, labelStyle);
 
         // Create the crosshair image and center it on the screen
         Texture texture = new Texture("assets/crosshair-icon.png");
@@ -474,44 +373,55 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public void shootBullet() {
         // create a new bullet
         PlayerBullet bullet = new PlayerBullet();
-        bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, player.id);
-        client.sendUDP(bullet);
+        bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, myGame.getPlayer().id);
+        myGame.getClient().sendUDP(bullet);
 
     }
+    public void handleIncomingPlayerHit(PlayerHit playerHit) {
+        if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
+            Pulse pulse = new Pulse();
+            crosshair.addAction(pulse.Action(crosshair));
+            // update the health
+            myGame.getPlayer().health -= 10;
+        }
+    }
+    public void handleIncomingEnemies(Enemies enemiesInfo){
 
-    public void initializeCollision(Model mapModel, Model playerModel) {
-//        btTriangleMesh triangleMapMesh = new btTriangleMesh();
-//        btBvhTriangleMeshShape mapShape;
-//
-//        // create collisonWorld
-//        collisionConfiguration = new btDefaultCollisionConfiguration();
-//        dispatcher = new btCollisionDispatcher(collisionConfiguration);
-//        broadphase = new btDbvtBroadphase();
-//        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfiguration);
-//        // create a collision shape for the map
-//        for (Mesh mesh : mapModel.meshes) {
-//            float[] vertices = new float[mesh.getNumVertices() * 3];
-//            mesh.getVertices(vertices);
-//            short[] indices = new short[mesh.getNumIndices()];
-//            mesh.getIndices(indices);
-//
-//            for (int i = 0; i < indices.length; i += 3) {
-//                Vector3 vertex1 = new Vector3(vertices[indices[i] * 3], vertices[indices[i] * 3 + 1], vertices[indices[i] * 3 + 2]);
-//                Vector3 vertex2 = new Vector3(vertices[indices[i + 1] * 3], vertices[indices[i + 1] * 3 + 1], vertices[indices[i + 1] * 3 + 2]);
-//                Vector3 vertex3 = new Vector3(vertices[indices[i + 2] * 3], vertices[indices[i + 2] * 3 + 1], vertices[indices[i + 2] * 3 + 2]);
-//
-//                triangleMapMesh.addTriangle(vertex1, vertex2, vertex3);
-//            }
-//        }
-//        mapShape = new btBvhTriangleMeshShape(triangleMapMesh, true);
-//        mapBody = new btRigidBody(0, null, mapShape);
-//        collisionWorld.addCollisionObject(mapBody, GROUND_FLAG, ALL_FLAG);
-//
-//        // create a collision shape for the player and add it to the collisionWorld
-//        btCollisionShape playerShape = new btBoxShape(new Vector3(1, 2, 1)); // Example box shape for the player
-//        playerBody = new btRigidBody(1, null, playerShape);
-//        collisionWorld.addCollisionObject(playerBody, OBJECT_FLAG, ALL_FLAG);
+            System.out.println("Enemies received");
+            for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
+                //if the health is 0, we hide the enemy
+                if ((int) entry.getValue().get("health") <= 0) {
+                    if (enemies.containsKey(entry.getKey())) {
+                        Enemy enemy = enemies.get(entry.getKey());
+                        enemy.hide(); // moves enemy outside the map
+                        enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+                        // Then we wait for a new render() loop
+                    }
+                }
+                else if (enemies.containsKey(entry.getKey())) {
+                    enemies.get(entry.getKey()).update(entry.getValue());
+                } else if (templateEnemyModelInstance != null){
+                    ModelInstance enemyInstance = templateEnemyModelInstance.copy();
+                    enemies.put(entry.getKey(), new Enemy(enemyInstance, entry.getValue()));
+                }
 
+            }
+
+    }
+    public void handleIncomingEnemyHit(EnemyHit enemyHit){
+        // Add animation to the crosshair
+        Pulse pulse = new Pulse();
+        crosshair.addAction(pulse.Action(crosshair));
+        if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
+            System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
+        }
+        if (enemyHit.isDead) {
+            System.out.println("Enemy is dead, id: " + enemyHit.idOfEnemyHit);
+            Enemy enemy = enemies.get(enemyHit.idOfEnemyHit);
+            enemy.hide(); // moves enemy outside the map
+            enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+
+        }
     }
 
 }

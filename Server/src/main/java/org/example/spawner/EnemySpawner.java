@@ -40,7 +40,6 @@ public class EnemySpawner {
         }
     }
     public void updateEnemyPositsions(float period) {
-        // Just wonky
         float delta = period;
         for (Enemy enemy : enemies) {
             enemy.update(player, delta);

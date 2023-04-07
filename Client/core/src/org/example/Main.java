@@ -7,7 +7,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        //new MyClient();
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("ShrexStrikes");
         config.setWindowedMode(1000, 900);
