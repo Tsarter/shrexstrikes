@@ -25,13 +25,14 @@ public class EnemySpawner {
     }
 
     public void spawnEnemy() {
-        if (enemies.size < 1) {
+        if (enemies.size < 10) {
             idCounter++;
             // Generate a random position for the enemy
-            float x = 0;
-            float y = 0.8f;
-            float z = 0;
-            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter);
+            float x = MathUtils.random(-10f, 20f);
+            float y = 0.7f;
+            float z = MathUtils.random(-10f, 20f);
+            float speed = MathUtils.random(0.5f, 2f);
+            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed);
 
             // Add the enemy to the list of active enemies
             enemies.add(enemy);

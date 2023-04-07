@@ -317,19 +317,17 @@ public class ShrexScreen implements ApplicationListener,Screen {
         for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
             ModelInstance enemyModelInstance = enemy.getEnemyInstance();
-
             // Rotate the enemy model smoothly
             float previousRotation = previousRotations.getOrDefault(enemy.id, 0f);            //float rotationDelta = enemy.rotation - previousRotation;
             float currentRotation = lerp(previousRotation, enemy.rotation, 0.2f);
-            enemyModelInstance.transform.rotate(Vector3.Y, currentRotation - previousRotation);
             previousRotations.put(enemy.id, currentRotation);
             // Smoothly update enemy position
             Vector3 currentPosition = enemyModelInstance.transform.getTranslation(new Vector3());
             Vector3 targetPosition = new Vector3(enemy.X, enemy.Y, enemy.Z);
-            //Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);
-            // use delta to smooth out the movement
-            Vector3 newPosition =
-            enemyModelInstance.transform.setTranslation(newPosition);
+            Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);
+            // Translate the enemy model to the new position and rotate it
+            enemyModelInstance.transform.setToTranslation(newPosition);
+            enemyModelInstance.transform.rotate(Vector3.Y, currentRotation);
             modelBatch.render(enemyModelInstance, environment);
             shadowBatch.render(enemyModelInstance);
         }

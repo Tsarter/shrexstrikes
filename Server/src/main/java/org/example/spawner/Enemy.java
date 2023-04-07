@@ -15,11 +15,13 @@ public class Enemy extends ModelInstance {
     public float rotation;
     public String type;
     private Vector3 position = new Vector3();
+    private float speed = 1f;
 
-    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id) {
+    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed) {
         super(instance);
         this.velocity = new Vector3(1f, 0, 1f);
         this.health = 100;
+        this.speed = speed;
         this.id = id;
         this.x = position.x;
         this.y = position.y;
@@ -43,12 +45,12 @@ public class Enemy extends ModelInstance {
             // Rad to degrees
             rotation = (float) Math.toDegrees(rotation);
             // Move the enemy towards the player
-            float speed = 2.0f; // example speed value
+
             Vector3 enemyPosition = new Vector3(this.position);
             Vector3 direction = playerPosition.cpy().sub(enemyPosition).nor();
-            enemyPosition.add(direction.scl(1));
+            enemyPosition.add(direction.scl(speed));
             this.position = enemyPosition;
-            this.position.y = 0.8f;
+            //this.position.y = 0.6f;
             this.x = enemyPosition.x;
             this.y = position.y;
             this.z = enemyPosition.z;
