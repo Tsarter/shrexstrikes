@@ -49,7 +49,6 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // use orthographic camera to fix the text within the screen
         spriteBatch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
     }
 
