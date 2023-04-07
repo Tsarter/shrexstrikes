@@ -35,7 +35,7 @@ run it in the background using nohup `nohup java -jar Server.jar &`
 
 check the output using nano or cat `nano nohup.out` or `cat nohup.out`
 
-kill the server by first getting the PID by `ps aux | grep Server.jar`
+kill the server by first getting the PID by `ps aux | grep Server-1.0.jar`
 
 then kill it by `kill id_of_the_process_aka_PID` 
 
