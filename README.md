@@ -25,8 +25,9 @@ For moving around use AWSD. For looking around use your mouse. Mouse gets captur
 
 ## How to manage the Server on Taltech server
 
+ssh to the server and delete the old file `ssh ubuntu 193.40.156.227`
 
-push the Server.jar file to server `scp Server.jar ubuntu@ip_address:gameServer/`
+push the Server.jar file to server `scp Server-1.0.jar ubuntu@193.40.156.227:gameServer/`
 
 log into server using `ssh ubuntu@ip_address`
 
@@ -34,7 +35,7 @@ run it in the background using nohup `nohup java -jar Server.jar &`
 
 check the output using nano or cat `nano nohup.out` or `cat nohup.out`
 
-kill the server by first getting the PID by `ps aux | grep Server.jar`
+kill the server by first getting the PID by `ps aux | grep Server-1.0.jar`
 
 then kill it by `kill id_of_the_process_aka_PID` 
 
