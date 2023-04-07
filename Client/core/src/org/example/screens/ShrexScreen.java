@@ -278,10 +278,11 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 if (myGame.getPlayer().id != otherPlayer.id) {
                 // create a new instance of the player model for this player
                 ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
-                Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
+                Vector3 playerPosition = new Vector3(otherPlayer.x, otherPlayer.y - 0.4f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
-                otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation).translate(playerPosition);
+                otherPlayerModelInstance.transform.setToTranslation(playerPosition);
+                otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation);
 
                 // render the player model instance and its shadow
                 modelBatch.render(otherPlayerModelInstance, environment);
@@ -379,10 +380,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     public void handleIncomingPlayerHit(PlayerHit playerHit) {
         if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
-            Pulse pulse = new Pulse();
-            crosshair.addAction(pulse.Action(crosshair));
             // update the health
             myGame.getPlayer().health -= 10;
+        }
+        if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
+            // Animates the crosshair when the player hits an enemy
+            Pulse pulse = new Pulse();
+            crosshair.addAction(pulse.Action(crosshair));
         }
     }
     public void handleIncomingEnemies(Enemies enemiesInfo){

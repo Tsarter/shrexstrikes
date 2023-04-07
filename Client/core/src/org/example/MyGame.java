@@ -93,23 +93,25 @@ public class MyGame extends Game {
         setScreen(menuScreen);
     }
     public void showShrexScreen() {
-        if (assetManager.update()) {
-            // All assets have been loaded, show the shrexScreen
+        // Some thing with libgdx that I don't understand, everything needs to be on the main thread or smt.
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
-                    // All assets have been loaded, show the shrexScreen
-                    if (gameState != GameState.GAME) {
-                        shrexScreen.create();
-                        setScreen(shrexScreen);
-                        gameState = GameState.GAME;
+                    if (assetManager.update()) {
+                        // All assets have been loaded, show the shrexScreen
+                        // All assets have been loaded, show the shrexScreen
+                        if (gameState != GameState.GAME) {
+                            shrexScreen.create();
+                            setScreen(shrexScreen);
+                            gameState = GameState.GAME;
+                        }
+                    } else {
+                        // Assets are still loading, show a loading screen or progress bar
+                        setScreen(loadingScreen);
                     }
                 }
             });
-        } else {
-            // Assets are still loading, show a loading screen or progress bar
-            setScreen(loadingScreen);
-        }
+
     }
 
     public void showLobbyScreen() {
