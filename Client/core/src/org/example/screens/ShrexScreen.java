@@ -80,6 +80,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
                     PlayerHit playerHit = (PlayerHit) object;
                     // if the player that was hit is the current player
                     if (playerHit.idOfPlayerHit == player.id) {
+                        Pulse pulse = new Pulse();
+                        crosshair.addAction(pulse.Action(crosshair));
                         // update the health
                         player.health -= 10;
                     }
@@ -114,7 +116,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
                     EnemyHit enemyHit = (EnemyHit) object;
                     // Add animation to the crosshair
                     Pulse pulse = new Pulse();
-
                     crosshair.addAction(pulse.Action(crosshair));
                     if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
                         System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
