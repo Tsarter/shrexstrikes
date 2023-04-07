@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.badlogic.gdx.math.MathUtils.lerp;
+
 public class ShrexScreen implements ApplicationListener,Screen {
     final static short GROUND_FLAG = 1 << 8;
     final static short OBJECT_FLAG = 1 << 9;
@@ -156,7 +158,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public float zoom = 67;
     public float fieldOfView = 67;
 
-
+    Map<Integer, Float> previousRotations = new HashMap<Integer, Float>();
     @Override
     public void create() {
         Bullet.init();
@@ -315,8 +317,19 @@ public class ShrexScreen implements ApplicationListener,Screen {
         for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
             Enemy enemy = entry.getValue();
             ModelInstance enemyModelInstance = enemy.getEnemyInstance();
-            enemyModelInstance.transform.setToRotation(Vector3.Y, enemy.rotation);
-            enemyModelInstance.transform.translate(enemy.X, enemy.Y, enemy.Z);
+
+            // Rotate the enemy model smoothly
+            float previousRotation = previousRotations.getOrDefault(enemy.id, 0f);            //float rotationDelta = enemy.rotation - previousRotation;
+            float currentRotation = lerp(previousRotation, enemy.rotation, 0.2f);
+            enemyModelInstance.transform.rotate(Vector3.Y, currentRotation - previousRotation);
+            previousRotations.put(enemy.id, currentRotation);
+            // Smoothly update enemy position
+            Vector3 currentPosition = enemyModelInstance.transform.getTranslation(new Vector3());
+            Vector3 targetPosition = new Vector3(enemy.X, enemy.Y, enemy.Z);
+            //Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);
+            // use delta to smooth out the movement
+            Vector3 newPosition =
+            enemyModelInstance.transform.setTranslation(newPosition);
             modelBatch.render(enemyModelInstance, environment);
             shadowBatch.render(enemyModelInstance);
         }
@@ -333,8 +346,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 Vector3 playerPosition = new Vector3(otherPlayer.x, -0.4f, otherPlayer.z);
 
                 // set the position and orientation of the player model instance
-                otherPlayerModelInstance.transform.translate(playerPosition);
-                otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation);
+                otherPlayerModelInstance.transform.rotate(Vector3.Y, otherPlayer.rotation).translate(playerPosition);
 
                 // render the player model instance and its shadow
                 modelBatch.render(otherPlayerModelInstance, environment);

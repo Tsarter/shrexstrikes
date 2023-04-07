@@ -139,6 +139,7 @@ public class MyServer {
              */
             public void disconnected(Connection c) {
                 players.remove(c.getRemoteAddressUDP());
+                spawner.removePlayer();
                 // System.out.println(c.getRemoteAddressUDP().toString()  + " disconnected");
 
                 sendState();  // send info about all players to all players

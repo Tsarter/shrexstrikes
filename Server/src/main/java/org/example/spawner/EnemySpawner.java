@@ -55,4 +55,7 @@ public class EnemySpawner {
     public void removeAllEnemies() {
         enemies.clear();
     }
+    public void removePlayer() {
+        player = null;
+    }
 }

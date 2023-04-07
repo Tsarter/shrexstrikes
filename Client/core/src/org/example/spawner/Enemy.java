@@ -64,27 +64,4 @@ public class Enemy {
     public void loadEnemyInstance(ModelInstance enemyInstance) {
         this.enemyInstance = enemyInstance;
     }
-    public void loadShrexInstance() {
-        /*AssetManager manager = new AssetManager();
-        manager.load("shrex.obj", ModelInstance.class);
-        manager.finishLoading();*/
-    }
-    private void rotateEnemy() {
-        float targetRotation = rotation;
-        float enemyRotation = enemyInstance.transform.getRotation(new Quaternion()).getAngleAround(Vector3.Y);
-        float rotationDiff = targetRotation - enemyRotation;
-        float rotationSpeed = 5f * Gdx.graphics.getDeltaTime();
-        if (Math.abs(rotationDiff) > 180f) {
-            rotationDiff -= 360f * Math.signum(rotationDiff);
-        }
-        if (MathUtils.isEqual(enemyRotation, targetRotation, 0.4f)) {
-            return; // stop rotating if already facing target within 0.1 degrees
-        }
-        float rotationAmount = rotationSpeed * Math.signum(rotationDiff);
-        if (Math.abs(rotationAmount) > Math.abs(rotationDiff)) {
-            rotationAmount = rotationDiff;
-        }
-        enemyRotation += rotationAmount;
-        enemyInstance.transform.setToRotation(Vector3.Y, enemyRotation);
-    }
 }
