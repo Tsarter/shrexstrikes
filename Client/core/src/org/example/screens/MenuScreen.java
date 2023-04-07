@@ -21,8 +21,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 
 
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
+
+import java.util.Arrays;
 
 public class MenuScreen implements Screen {
     private Stage stage;
@@ -35,6 +38,7 @@ public class MenuScreen implements Screen {
 
     private Texture backgroundTexture;
     private TextureRegionDrawable backgroundDrawable;
+    private SelectBox<String> gameTypeSelectBox;
 
     Skin slider = new Skin(Gdx.files.internal("assets/uiskin.json"));
 
@@ -65,6 +69,24 @@ public class MenuScreen implements Screen {
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.up = new NinePatchDrawable(borderPatch);
 
+        // Style mode select box
+        SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
+        BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        smallerFont.getData().setScale(0.5f);
+        selectBoxStyle.font = smallerFont;
+        selectBoxStyle.fontColor = Color.WHITE;
+        selectBoxStyle.background = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.listStyle = new List.ListStyle();
+        selectBoxStyle.listStyle.font = smallerFont;
+        selectBoxStyle.listStyle.fontColorSelected = Color.WHITE;
+        selectBoxStyle.listStyle.fontColorUnselected = Color.WHITE;
+        selectBoxStyle.listStyle.selection = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle = new ScrollPane.ScrollPaneStyle();
+        selectBoxStyle.scrollStyle.background = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle.vScrollKnob = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle.vScroll = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle.hScrollKnob = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle.hScroll = new NinePatchDrawable(borderPatch);
 
 
 
@@ -101,19 +123,28 @@ public class MenuScreen implements Screen {
         startButton.setTransform(true);
         startButton.setScale(1.3f);
 
+        // Create the game type selection widget
+        gameTypeSelectBox = new SelectBox<>(selectBoxStyle);
+        Array<String> gameTypes = new Array();
+        for (MyGame.GameType gameType : MyGame.GameType.values()) {
+            gameTypes.add(gameType.toString());
+        }
+        gameTypeSelectBox.setItems(gameTypes);
+        gameTypeSelectBox.setSelectedIndex(0);
+
+
         TextButton settingsButton = new TextButton("Settings", buttonStyle);
         settingsButton.setTransform(true);
         settingsButton.setScale(0.6f);
 
 
         // Add UI elements to the table
-
-
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Logic for starting the game
-                myGame.showShrexScreen();
+                myGame.gameType = MyGame.GameType.valueOf(gameTypeSelectBox.getSelected());
+                myGame.showLobbyScreen();
             }
         });
 
@@ -122,7 +153,10 @@ public class MenuScreen implements Screen {
         Table table = new Table();
         table.setFillParent(true);
         table.setBackground(backgroundDrawable);
-        table.add(background);
+        //table.add(background);
+        table.row();
+        table.padTop(500f);
+        table.add(gameTypeSelectBox).padBottom(50f).row();
         table.row();
         table.add(startButton).width((float) (startButton.getWidth() * 1.2)).padRight(50);
         table.padBottom(-10);

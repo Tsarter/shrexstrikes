@@ -2,9 +2,7 @@ package org.example;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
-import org.example.messages.MapBounds;
-import org.example.messages.PlayerBullet;
-import org.example.messages.PlayerHit;
+import org.example.messages.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,5 +24,9 @@ public class Network {
         kryo.register(ArrayList.class);
         kryo.register(com.badlogic.gdx.math.collision.BoundingBox.class);
         kryo.register(com.badlogic.gdx.math.Vector3.class);
+        kryo.register(Enemies.class);
+        kryo.register(EnemyHit.class);
+        kryo.register(GameOver.class);
+        kryo.register(GameStarted.class);
     }
 }
