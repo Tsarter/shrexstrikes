@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -69,12 +70,18 @@ public class MenuScreen implements Screen {
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.up = new NinePatchDrawable(borderPatch);
 
-        // Style mode select box
+        // Style select box
         SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
         BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         smallerFont.getData().setScale(0.5f);
         selectBoxStyle.font = smallerFont;
         selectBoxStyle.fontColor = Color.WHITE;
+        Pixmap pixmap = new Pixmap(128, 128, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.BLACK);
+        pixmap.fill();
+        Texture selectBoxtexture = new Texture(pixmap);
+        pixmap.dispose();
+        NinePatch selectBoxPatch = new NinePatch(selectBoxtexture, 12, 12, 12, 12);
         selectBoxStyle.background = new NinePatchDrawable(borderPatch);
         selectBoxStyle.listStyle = new List.ListStyle();
         selectBoxStyle.listStyle.font = smallerFont;
@@ -82,7 +89,7 @@ public class MenuScreen implements Screen {
         selectBoxStyle.listStyle.fontColorUnselected = Color.WHITE;
         selectBoxStyle.listStyle.selection = new NinePatchDrawable(borderPatch);
         selectBoxStyle.scrollStyle = new ScrollPane.ScrollPaneStyle();
-        selectBoxStyle.scrollStyle.background = new NinePatchDrawable(borderPatch);
+        selectBoxStyle.scrollStyle.background = new NinePatchDrawable(selectBoxPatch);
         selectBoxStyle.scrollStyle.vScrollKnob = new NinePatchDrawable(borderPatch);
         selectBoxStyle.scrollStyle.vScroll = new NinePatchDrawable(borderPatch);
         selectBoxStyle.scrollStyle.hScrollKnob = new NinePatchDrawable(borderPatch);
