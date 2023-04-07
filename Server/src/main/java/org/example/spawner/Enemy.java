@@ -45,7 +45,7 @@ public class Enemy extends ModelInstance {
             rotation = (float) Math.toDegrees(rotation);
             // Move the enemy towards the player
 
-            Vector3 enemyPosition = new Vector3(this.position);
+            Vector3 enemyPosition = new Vector3(this.x, this.y, this.z);
             Vector3 direction = playerPosition.cpy().sub(enemyPosition).nor();
             enemyPosition.add(direction.scl(speed));
             this.position = enemyPosition;
