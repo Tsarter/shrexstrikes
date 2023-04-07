@@ -17,7 +17,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.esotericsoftware.kryonet.Client;
@@ -27,6 +30,7 @@ import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
+import org.example.animations.Pulse;
 import org.example.loader.ObjLoaderCustom;
 import org.example.messages.*;
 import org.example.spawner.Enemy;
@@ -108,6 +112,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 }
                 else if (object instanceof EnemyHit) {
                     EnemyHit enemyHit = (EnemyHit) object;
+                    // Add animation to the crosshair
+                    Pulse pulse = new Pulse();
+
+                    crosshair.addAction(pulse.Action(crosshair));
                     if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
                         System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
                     }
@@ -286,6 +294,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
         // update healt
         healthLabel.setText("Health: " + player.health);
         // Render the crosshair
+        // Define the duration and scale of the animation
+        float duration = 0.5f;
+        float scale = 1.5f;
+
         stage.act(delta);
         stage.draw();
     }
