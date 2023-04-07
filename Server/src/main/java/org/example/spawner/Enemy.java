@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.example.Player;
 
 public class Enemy extends ModelInstance {
-    private final Vector3 velocity;
+
     public int health;
     public int id;
     public float x;
@@ -19,7 +19,6 @@ public class Enemy extends ModelInstance {
 
     public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed) {
         super(instance);
-        this.velocity = new Vector3(1f, 0, 1f);
         this.health = 100;
         this.speed = speed;
         this.id = id;

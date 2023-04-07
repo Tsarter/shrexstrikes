@@ -25,8 +25,7 @@ public class Enemy {
     public int id;
     public int type;
     private ModelInstance enemyInstance;
-    float rotationSpeed = 20.0f;
-    float movementSpeed = 2.0f;
+
     public Enemy(){}
     public Enemy(ModelInstance enemyInstance ,HashMap<String, ?> info) {
         this.id = (int) info.get("id");
@@ -41,7 +40,7 @@ public class Enemy {
 
         this.enemyInstance = enemyInstance;
 
-        enemyInstance.transform.translate(X, 1, Y);
+        enemyInstance.transform.setToTranslation(X, 1, Y);
 
     }
     public int getId() {

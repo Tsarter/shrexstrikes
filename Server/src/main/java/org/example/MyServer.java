@@ -20,10 +20,7 @@ import org.example.tasks.EnemySpawnerTask;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
+import java.util.*;
 
 public class MyServer {
 
@@ -42,6 +39,9 @@ public class MyServer {
     private List<BoundingBox> mapBounds;
     private Player testPlayer;
     private EnemySpawner spawner;
+    private TimerTask enemySpawnerTask;
+    private TimerTask enemyLocationUpdateTask;
+    private boolean tasksStarted = false;
     public MyServer() throws IOException {
 
         server = new Server(50000, 50000);  // initialize server
@@ -69,6 +69,13 @@ public class MyServer {
                 System.out.println(c.getRemoteAddressUDP().toString() + " connected");
 
                 sendState();  // send info about all players to all players
+
+                // Start the tasks if they haven't been started yet
+                if (!tasksStarted) {
+                    // Start the tasks
+                    scheduleTasks();
+                    tasksStarted = true;
+                }
             }
 
             /**
@@ -140,9 +147,16 @@ public class MyServer {
             public void disconnected(Connection c) {
                 players.remove(c.getRemoteAddressUDP());
                 spawner.removePlayer();
+                spawner.removeAllEnemies();
                 // System.out.println(c.getRemoteAddressUDP().toString()  + " disconnected");
 
                 sendState();  // send info about all players to all players
+                // Stop the tasks if all players have disconnected
+                if (players.isEmpty()) {
+                    // Cancel the tasks
+                    cancelTasks();
+                    tasksStarted = false;
+                }
             }
         });
 
@@ -165,6 +179,7 @@ public class MyServer {
         });
         timerThread.start();
         timerThread2.start();
+
     }
 
     /**
@@ -202,4 +217,20 @@ public class MyServer {
             server.sendToAllUDP(enemiesObject);
         }
     }
+    private void scheduleTasks() {
+        // Schedule the enemy spawner task to run every 5 seconds
+        spawner = new EnemySpawner();
+        enemySpawnerTask = new EnemySpawnerTask(spawner);
+        timer.scheduleAtFixedRate(enemySpawnerTask, 0, 5000);
+
+        // Schedule the enemies location update task to run every 1 second
+        int period = 1000;
+        enemyLocationUpdateTask = new EnemyLocationUpdateTask(this, spawner, period);
+        timer.scheduleAtFixedRate(enemyLocationUpdateTask, 0, period);
+    }
+    private void cancelTasks() {
+        enemySpawnerTask.cancel();
+        enemyLocationUpdateTask.cancel();
+    }
+
 }
