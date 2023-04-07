@@ -43,7 +43,7 @@ public class MyServer {
     private TimerTask enemyLocationUpdateTask;
     private boolean tasksStarted = false;
     public MyServer() throws IOException {
-
+        timer = new Timer();
         server = new Server(50000, 50000);  // initialize server
         Network.register(server);  // register all the classes that are sent over the network
 
@@ -156,6 +156,7 @@ public class MyServer {
                     // Cancel the tasks
                     cancelTasks();
                     tasksStarted = false;
+                    //timer.cancel();
                 }
             }
         });
@@ -163,22 +164,6 @@ public class MyServer {
         server.bind(8080, 8081);  // set ports for TCP, UDP. They must be equal with clients.
         server.start();  // start the server
 
-        // Initialize the timer
-        timer = new Timer();
-        // Schedule the enemy spawner task to run every 5 seconds
-        spawner = new EnemySpawner();
-        Thread timerThread = new Thread(() -> {
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new EnemySpawnerTask(spawner), 0, 10000);
-        });
-        // Schedule the enemies location update task to run every 1 second
-        Thread timerThread2 = new Thread(() -> {
-            timer = new Timer();
-            int period = 1000;
-            timer.scheduleAtFixedRate(new EnemyLocationUpdateTask(this, spawner, period), 0, period);
-        });
-        timerThread.start();
-        timerThread2.start();
 
     }
 
@@ -221,12 +206,12 @@ public class MyServer {
         // Schedule the enemy spawner task to run every 5 seconds
         spawner = new EnemySpawner();
         enemySpawnerTask = new EnemySpawnerTask(spawner);
-        timer.scheduleAtFixedRate(enemySpawnerTask, 0, 5000);
+        timer.scheduleAtFixedRate(enemySpawnerTask, 5000, 5000);
 
         // Schedule the enemies location update task to run every 1 second
         int period = 1000;
         enemyLocationUpdateTask = new EnemyLocationUpdateTask(this, spawner, period);
-        timer.scheduleAtFixedRate(enemyLocationUpdateTask, 0, period);
+        timer.scheduleAtFixedRate(enemyLocationUpdateTask, 6000, period);
     }
     private void cancelTasks() {
         enemySpawnerTask.cancel();
