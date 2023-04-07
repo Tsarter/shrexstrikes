@@ -28,10 +28,7 @@ import org.example.MyInputProcessor;
 import org.example.Network;
 import org.example.Player;
 import org.example.loader.ObjLoaderCustom;
-import org.example.messages.Enemies;
-import org.example.messages.MapBounds;
-import org.example.messages.PlayerBullet;
-import org.example.messages.PlayerHit;
+import org.example.messages.*;
 import org.example.spawner.Enemy;
 
 import java.io.IOException;
@@ -43,9 +40,6 @@ import java.util.Map;
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
 public class ShrexScreen implements ApplicationListener,Screen {
-    final static short GROUND_FLAG = 1 << 8;
-    final static short OBJECT_FLAG = 1 << 9;
-    final static short ALL_FLAG = -1;
     private MyGame myGame;
 
     private final Client client;
@@ -54,6 +48,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
     private boolean gameStarted = false;
     private ModelInstance templateEnemyModelInstance;
+    private List<Enemy> enemiesToHide = new ArrayList<Enemy>();
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
         client = new Client(50000, 50000);  // initialize client
@@ -91,10 +86,18 @@ public class ShrexScreen implements ApplicationListener,Screen {
                             System.out.println("Enemies received");
                             Enemies enemiesInfo = (Enemies) object;
                             for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
-                                if (enemies.containsKey(entry.getKey())) {
+                                //if the health is 0, we hide the enemy
+                                if ((int) entry.getValue().get("health") <= 0) {
+                                    if (enemies.containsKey(entry.getKey())) {
+                                        Enemy enemy = enemies.get(entry.getKey());
+                                        enemy.hide(); // moves enemy outside the map
+                                        enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+                                        // Then we wait for a new render() loop
+                                    }
+                                }
+                                else if (enemies.containsKey(entry.getKey())) {
                                     enemies.get(entry.getKey()).update(entry.getValue());
                                 } else if (templateEnemyModelInstance != null){
-                                    Model model = new Model();
                                     ModelInstance enemyInstance = templateEnemyModelInstance.copy();
                                     enemies.put(entry.getKey(), new Enemy(enemyInstance, entry.getValue()));
                                 }
@@ -102,6 +105,27 @@ public class ShrexScreen implements ApplicationListener,Screen {
                             }
                         }
 
+                }
+                else if (object instanceof EnemyHit) {
+                    EnemyHit enemyHit = (EnemyHit) object;
+                    if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
+                        System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
+                    }
+                    if (enemyHit.isDead) {
+                        System.out.println("Enemy is dead, id: " + enemyHit.idOfEnemyHit);
+                        Enemy enemy = enemies.get(enemyHit.idOfEnemyHit);
+                        enemy.hide(); // moves enemy outside the map
+                        enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+
+                    }
+                    // TODO: Animation for enemy hit
+                }
+                else if (object instanceof GameStarted) {
+                    gameStarted = true;
+                }
+                else if (object instanceof GameOver) {
+                    // myGame.setScreen(new GameOverScreen(myGame));
+                    //TODO: implement game over screen
                 }
 
 
@@ -321,7 +345,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
             float previousRotation = previousRotations.getOrDefault(enemy.id, 0f);            //float rotationDelta = enemy.rotation - previousRotation;
             float currentRotation = lerp(previousRotation, enemy.rotation, 0.2f);
             previousRotations.put(enemy.id, currentRotation);
-            // Smoothly update enemy position
+            // Smoothly update enemy dposition
             Vector3 currentPosition = enemyModelInstance.transform.getTranslation(new Vector3());
             Vector3 targetPosition = new Vector3(enemy.X, enemy.Y, enemy.Z);
             Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);
@@ -365,10 +389,16 @@ public class ShrexScreen implements ApplicationListener,Screen {
             client.sendUDP(player);
 
         }
+        // Render the enemy far away, then stop rendering it.
+        for (Enemy enemy: enemiesToHide) {
+            modelBatch.render(enemy.getEnemyInstance(), environment);
+            shadowBatch.render(enemy.getEnemyInstance());
+            enemies.remove(enemy.id);
+        }
+        enemiesToHide.clear();
         shadowBatch.end();
         shadowLight.end();
         modelBatch.end();
-        int k = 9;
 
     }
 

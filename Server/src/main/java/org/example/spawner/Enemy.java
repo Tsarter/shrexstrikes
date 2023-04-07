@@ -3,6 +3,7 @@ package org.example.spawner;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import org.example.Player;
 
 public class Enemy extends ModelInstance {
@@ -16,7 +17,8 @@ public class Enemy extends ModelInstance {
     public String type;
     private Vector3 position = new Vector3();
     private float speed = 1f;
-
+    private BoundingBox boundingBox;
+    private Vector3 boundsSize = new Vector3(0.4f, 0.5f, 0.4f);
     public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed) {
         super(instance);
         this.health = 100;
@@ -28,6 +30,8 @@ public class Enemy extends ModelInstance {
         this.rotation = orientation;
         this.transform.translate(position);
         this.transform.rotate(0, 1, 0, orientation);
+        this.boundingBox = new BoundingBox(new Vector3(this.x - boundsSize.x, this.y - boundsSize.y, this.z - boundsSize.z),
+                new Vector3(this.x + boundsSize.x, this.y + boundsSize.y, this.z + boundsSize.z));
     }
 
     public void update(Player player, float delta) {
@@ -53,10 +57,12 @@ public class Enemy extends ModelInstance {
             this.x = enemyPosition.x;
             this.y = position.y;
             this.z = enemyPosition.z;
-            System.out.println("Player position: " + playerPosition);
+            // Update the bounding box
+            this.boundingBox = new BoundingBox(new Vector3(this.x - boundsSize.x, this.y - boundsSize.y, this.z - boundsSize.z),
+                    new Vector3(this.x + boundsSize.x, this.y + boundsSize.y, this.z + boundsSize.z));
+
             // TODO: Implement enemy behavior, such as attacking
 
-            // TODO: Implement collision detection and health management
         }
     }
 
@@ -66,5 +72,8 @@ public class Enemy extends ModelInstance {
 
     public void setHealth(int health) {
         this.health = health;
+    }
+    public BoundingBox getBoundingBox() {
+        return boundingBox;
     }
 }

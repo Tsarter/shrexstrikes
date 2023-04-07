@@ -8,10 +8,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import org.example.messages.Enemies;
-import org.example.messages.MapBounds;
-import org.example.messages.PlayerBullet;
-import org.example.messages.PlayerHit;
+import org.example.messages.*;
 import org.example.Player;
 import org.example.spawner.Enemy;
 import org.example.spawner.EnemySpawner;
@@ -134,6 +131,45 @@ public class MyServer {
                             }
                         }
                     }
+                    // Check if the bullet hit any enemies
+                    for (Enemy e : spawner.getEnemies()) {
+                        if (e.getBoundingBox() != null) {
+                            Ray bulletRay = new Ray(playerBullet.getPosition(), playerBullet.getDirection());  // create a ray from the bullet
+                            if (Intersector.intersectRayBoundsFast(bulletRay, e.getBoundingBox())) {
+                                // check if there are any blocking objects between the player that fired the bullet and the enemy that was hit
+                                boolean hit = true;
+                                // get the distance from the player that fired the bullet to the enemy that was hit
+                                float distance = playerBullet.getPosition().dst(e.getBoundingBox().getCenter(new com.badlogic.gdx.math.Vector3()));
+                                Vector3 intersection = new Vector3();
+                                for (BoundingBox bb : mapBounds) {
+                                    if (Intersector.intersectRayBounds(bulletRay, bb, intersection)){
+                                        // Object might be after the enemy that was hit, so check the distance
+                                        if (intersection.dst(playerBullet.getPosition()) < distance) {
+                                            hit = false;
+                                            System.out.println("Object between target and player.");
+                                            break;
+                                        }
+                                    }
+
+                                }
+                                if (hit) {
+                                    System.out.println("Enemy: " + e.id + " was hit by player: " + player.id);
+                                    // send a message to all players that the enemy was hit
+                                    int damage = 10;
+                                    spawner.reduceHealth(e, damage);
+                                    if (e.health <= 0) {
+                                        server.sendToAllTCP(new EnemyHit(e.id, player.id, damage, true));
+                                        spawner.removeEnemy(e);
+                                        break;
+                                    }
+                                    server.sendToAllUDP(new EnemyHit(e.id, player.id, damage, false));
+                                    break;
+                                }
+                            } else{
+                                System.out.println("Player missed");
+                            }
+                        }
+                    }
                 } else if (object instanceof MapBounds) {
                     mapBounds = ((MapBounds) object).boundingBox;
                 }
@@ -193,11 +229,12 @@ public class MyServer {
             enemyInfo.put("type", e.type);
             enemyInfo.put("id", e.id);
             enemyInfo.put("health", e.health);
+            System.out.println("Enemy: " + e.id + " health: " + e.health);
             enemies.put(e.id, enemyInfo);
         }
         if (enemies.size() > 0 && server.getConnections().length > 0) {
-            System.out.println("Sending enemies: " + enemies.toString());
             Enemies enemiesObject = new Enemies(enemies);
+            System.out.println("Sending enemies, total: " + enemies.size());
             // send this array to all of the connected clients
             server.sendToAllUDP(enemiesObject);
         }

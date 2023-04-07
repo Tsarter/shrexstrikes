@@ -14,7 +14,7 @@ public class EnemySpawner {
 
     private Player player;
     private float spawnTimer;
-    private int idCounter;
+    private static int idCounter;
 
     public EnemySpawner() {
         this.enemies = new Array<Enemy>();
@@ -25,12 +25,13 @@ public class EnemySpawner {
     }
 
     public void spawnEnemy() {
-        if (enemies.size < 3) {
-            idCounter++;
+        if (enemies.size < 5) {
+            idCounter = idCounter + 1;
+            System.out.println("Spawning enemy with id: " + idCounter);
             // Generate a random position for the enemy
-            float x = MathUtils.random(-10f, 50f);
+            float x = MathUtils.random(-10f, 10f);
             float y = 0.7f;
-            float z = MathUtils.random(-10f, 50f);
+            float z = MathUtils.random(-10f, 10f);
             float speed = MathUtils.random(0.5f, 2f);
             Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed);
 
@@ -58,5 +59,8 @@ public class EnemySpawner {
     }
     public void removePlayer() {
         player = null;
+    }
+    public void reduceHealth(Enemy enemy, int damage) {
+        enemy.health -= damage;
     }
 }

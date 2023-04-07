@@ -52,6 +52,7 @@ public class Enemy {
         X = (float) info.get("x");
         Y = (float) info.get("y");
         Z = (float) info.get("z");
+        health = (int) info.get("health");
     }
 
     public void setHealth(int health) {
@@ -60,7 +61,11 @@ public class Enemy {
     public ModelInstance getEnemyInstance() {
         return enemyInstance;
     }
+    public void hide() {
+        enemyInstance.transform.setToTranslation(1000, 0, 0);
+    }
     public void loadEnemyInstance(ModelInstance enemyInstance) {
         this.enemyInstance = enemyInstance;
     }
 }
+
