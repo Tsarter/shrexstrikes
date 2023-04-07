@@ -29,9 +29,9 @@ public class EnemySpawner {
             idCounter = idCounter + 1;
             System.out.println("Spawning enemy with id: " + idCounter);
             // Generate a random position for the enemy
-            float x = MathUtils.random(-10f, 10f);
+            float x = MathUtils.random(-50f, 50f);
             float y = 0.7f;
-            float z = MathUtils.random(-10f, 10f);
+            float z = MathUtils.random(-50f, 50f);
             float speed = MathUtils.random(0.5f, 2f);
             Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed);
 
