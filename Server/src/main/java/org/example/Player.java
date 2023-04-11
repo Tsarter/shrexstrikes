@@ -7,7 +7,7 @@ import java.util.Map;
 public class Player {
     public float x, y, z;
     public float rotation;
-    int id;
+    public int id;
     // Bounds of the player
     BoundingBox boundingBox;
     public int health = 100;

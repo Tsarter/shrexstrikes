@@ -7,10 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
-import org.example.screens.LoadingScreen;
-import org.example.screens.LobbyScreen;
-import org.example.screens.MenuScreen;
-import org.example.screens.ShrexScreen;
+import org.example.screens.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +34,7 @@ public class MyGame extends Game {
     public ShrexScreen shrexScreen;
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
+    public DeathScreen deathScreen;
     private AssetManager assetManager;
     private Player[] playersList;
     private Player player;
@@ -69,6 +67,7 @@ public class MyGame extends Game {
         menuScreen = new MenuScreen(this);
         loadingScreen = new LoadingScreen(this);
         lobbyScreen = new LobbyScreen(this);
+        deathScreen = new DeathScreen(this);
         try {
             shrexScreen = new ShrexScreen(this);
         } catch (IOException e) {
@@ -120,7 +119,14 @@ public class MyGame extends Game {
         gameState = GameState.LOBBY;
 
     }
+    public void showDeathScreen() {
+        setScreen(deathScreen);
+    }
     public void leaveLobby() {
+        client.close();
+        showMenuScreen();
+    }
+    public void leaveGame() {
         client.close();
         showMenuScreen();
     }

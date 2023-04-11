@@ -123,7 +123,7 @@ public class MyServer {
                                 if (hit) {
                                     System.out.println("Player: " + p.id + " was hit by player: " + player.id);
                                     // send a message to all players that the player was hit
-                                    server.sendToAllTCP(new PlayerHit(p.id, player.id));
+                                    server.sendToAllTCP(new PlayerHit(p.id, player.id, 10));
                                     break;
                                 }
                             } else{
@@ -241,9 +241,9 @@ public class MyServer {
     }
     private void scheduleTasks() {
         // Schedule the enemy spawner task to run every 5 seconds
-        spawner = new EnemySpawner();
+        spawner = new EnemySpawner(server);
         enemySpawnerTask = new EnemySpawnerTask(spawner);
-        timer.scheduleAtFixedRate(enemySpawnerTask, 5000, 5000);
+        timer.scheduleAtFixedRate(enemySpawnerTask, 5000, 2000);
 
         // Schedule the enemies location update task to run every 1 second
         int period = 1000;

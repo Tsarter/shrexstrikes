@@ -338,6 +338,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     @Override
     public void pause() {
+        System.out.println("Paused");
     }
 
     @Override
@@ -369,7 +370,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
     }
     @Override
     public void hide() {
-        stage.dispose();
+        healthLabel.remove();
+        crosshair.remove();
+        //stage.dispose();
+
     }
     public void shootBullet() {
         // create a new bullet
@@ -378,15 +382,24 @@ public class ShrexScreen implements ApplicationListener,Screen {
         myGame.getClient().sendUDP(bullet);
 
     }
+    public void handleDeath() {
+        // Show death screen, when player dies
+        myGame.showDeathScreen();
+    }
     public void handleIncomingPlayerHit(PlayerHit playerHit) {
         if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
             // update the health
-            myGame.getPlayer().health -= 10;
-        }
-        if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
+            myGame.getPlayer().health -= playerHit.damage;
+        } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
             // Animates the crosshair when the player hits an enemy
             Pulse pulse = new Pulse();
             crosshair.addAction(pulse.Action(crosshair));
+        } else if (playerHit.idOfPlayerWhoHit == -1) {
+            // Hit by zombie enemy, not real player
+            myGame.getPlayer().health -= playerHit.damage;
+        }
+        if (myGame.getPlayer().health <= 0) {
+            handleDeath();
         }
     }
     public void handleIncomingEnemies(Enemies enemiesInfo){

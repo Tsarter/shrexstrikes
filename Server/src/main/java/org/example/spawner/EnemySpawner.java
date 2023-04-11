@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.esotericsoftware.kryonet.Server;
 import org.example.Player;
 
 import java.util.TimerTask;
@@ -15,9 +16,11 @@ public class EnemySpawner {
     private Player player;
     private float spawnTimer;
     private static int idCounter;
+    private Server server;
 
-    public EnemySpawner() {
+    public EnemySpawner(Server server) {
         this.enemies = new Array<Enemy>();
+        this.server = server;
     }
 
     public void setPlayer(Player player) {
@@ -25,15 +28,15 @@ public class EnemySpawner {
     }
 
     public void spawnEnemy() {
-        if (enemies.size < 5) {
+        if (enemies.size < 25) {
             idCounter = idCounter + 1;
             System.out.println("Spawning enemy with id: " + idCounter);
             // Generate a random position for the enemy
             float x = MathUtils.random(-50f, 50f);
-            float y = 0.7f;
+            float y = 0.4f;
             float z = MathUtils.random(-50f, 50f);
             float speed = MathUtils.random(0.5f, 2f);
-            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed);
+            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed, server);
 
             // Add the enemy to the list of active enemies
             enemies.add(enemy);

@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.esotericsoftware.kryonet.Server;
 import org.example.Player;
+import org.example.messages.PlayerHit;
 
 public class Enemy extends ModelInstance {
 
@@ -14,15 +16,19 @@ public class Enemy extends ModelInstance {
     public float y;
     public float z;
     public float rotation;
+    public int damage;
     public String type;
     private Vector3 position = new Vector3();
     private float speed = 1f;
     private BoundingBox boundingBox;
-    private Vector3 boundsSize = new Vector3(0.4f, 0.5f, 0.4f);
-    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed) {
+    private Vector3 boundsSize = new Vector3(0.4f, 1f, 0.4f);
+    private Server server;
+    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed, Server server) {
         super(instance);
+        this.server = server;
         this.health = 100;
         this.speed = speed;
+        this.damage = 5;
         this.id = id;
         this.x = position.x;
         this.y = position.y;
@@ -36,8 +42,11 @@ public class Enemy extends ModelInstance {
 
     public void update(Player player, float delta) {
         if (player != null) {
-            // if the enemy is close to the player, stop moving
+            // if the enemy is close to the player, deal damage to the player and stop moving
             if (Math.abs(player.x - this.x) < 1 && Math.abs(player.z - this.z) < 1) {
+                player.health -= damage;
+                PlayerHit playerHit = new PlayerHit(player.id, -1, damage);
+                server.sendToAllTCP(playerHit);
                 return;
             }
             // Get the position of the player
@@ -53,7 +62,7 @@ public class Enemy extends ModelInstance {
             Vector3 direction = playerPosition.cpy().sub(enemyPosition).nor();
             enemyPosition.add(direction.scl(speed));
             this.position = enemyPosition;
-            //this.position.y = 0.6f;
+            this.position.y = 0.6f;
             this.x = enemyPosition.x;
             this.y = position.y;
             this.z = enemyPosition.z;

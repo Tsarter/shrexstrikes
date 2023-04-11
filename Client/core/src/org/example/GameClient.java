@@ -111,7 +111,7 @@ public class GameClient  {
              * Ports should be the same as in the server.193.40.156.227 / localhost
              */
             game.getClient().start();
-            game.getClient().connect(5000, "193.40.156.227", 8080, 8081);
+            game.getClient().connect(5000, "localhost", 8080, 8081);
 
         } catch (IOException e) {
             e.printStackTrace();
