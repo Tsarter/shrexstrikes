@@ -47,25 +47,25 @@ public class GameClient  {
                         if (game.gameState == MyGame.GameState.LOBBY) {
                             game.lobbyScreen.updateLobby();
                         }
-                        if (game.gameType == MyGame.GameType.ONEvONE &&
+                        if (game.gameMode == GameMode.GameModes.PVP &&
                                 game.gameState != MyGame.GameState.GAME) {
                             if (game.getPlayersList().length == 2) {
                                 game.showShrexScreen();
                             }
                         }
-                        if (game.gameType == MyGame.GameType.TWOvTWO &&
+                        /*if (game.gameMode == MyGame.GameType.TWOvTWO &&
                                 game.gameState != MyGame.GameState.GAME) {
                             if (game.getPlayersList().length == 4) {
                                 game.showShrexScreen();
                             }
-                        }
-                        if (game.gameType == MyGame.GameType.ZOMBIES &&
+                        }*/
+                        if (game.gameMode == GameMode.GameModes.ZOMBIES &&
                                 game.gameState != MyGame.GameState.GAME) {
                             if (game.getPlayersList().length == 1) {
                                 game.showShrexScreen();
                             }
                         }
-                        if (game.gameType == MyGame.GameType.TESTING &&
+                        if (game.gameMode == GameMode.GameModes.TESTING &&
                                 game.gameState != MyGame.GameState.GAME) {
                             if (game.getPlayersList().length == 1) {
                                 game.showShrexScreen();
@@ -75,6 +75,7 @@ public class GameClient  {
                     // we recieved the server created player object
                     else if (object instanceof Player) {
                         game.setPlayer((Player) object);
+                        game.getClient().sendTCP(new GameMode(game.getPlayer().id, game.gameMode));
                     }
                     // we recieved playerHit
                     else if (object instanceof PlayerHit) {
@@ -83,7 +84,7 @@ public class GameClient  {
                         game.shrexScreen.handleIncomingPlayerHit(playerHit);
                     }
                     else if (object instanceof Enemies) {
-                        if (game.gameType == MyGame.GameType.ZOMBIES) {
+                        if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                             Enemies enemiesInfo = (Enemies) object;
                             game.shrexScreen.handleIncomingEnemies(enemiesInfo);
                         }
@@ -92,13 +93,6 @@ public class GameClient  {
                     else if (object instanceof EnemyHit) {
                         EnemyHit enemyHit = (EnemyHit) object;
                         game.shrexScreen.handleIncomingEnemyHit(enemyHit);
-                    }
-                    else if (object instanceof GameStarted) {
-                        // gameStarted = true;
-                    }
-                    else if (object instanceof GameOver) {
-                        // myGame.setScreen(new GameOverScreen(myGame));
-                        //TODO: implement game over screen
                     }
 
 

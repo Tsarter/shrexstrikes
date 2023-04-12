@@ -1,11 +1,11 @@
-package org.example.spawner;
+package org.example.gameSession.rooms.zombies.spawner;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.esotericsoftware.kryonet.Server;
 import org.example.Player;
+import org.example.gameSession.rooms.ZombiesRoom;
 import org.example.messages.PlayerHit;
 
 public class Enemy extends ModelInstance {
@@ -23,9 +23,11 @@ public class Enemy extends ModelInstance {
     private BoundingBox boundingBox;
     private Vector3 boundsSize = new Vector3(0.4f, 1f, 0.4f);
     private Server server;
-    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed, Server server) {
+    private ZombiesRoom zombiesRoom;
+    public Enemy(ModelInstance instance, Vector3 position, float orientation, int id, float speed, ZombiesRoom zombiesRoom) {
         super(instance);
-        this.server = server;
+        this.zombiesRoom = zombiesRoom;
+        this.server = zombiesRoom.server;
         this.health = 100;
         this.speed = speed;
         this.damage = 5;
@@ -81,6 +83,12 @@ public class Enemy extends ModelInstance {
 
     public void setHealth(int health) {
         this.health = health;
+    }
+    public void dealDamage(int damage) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            zombiesRoom.zombieKilled();
+        }
     }
     public BoundingBox getBoundingBox() {
         return boundingBox;

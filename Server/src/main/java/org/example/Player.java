@@ -9,7 +9,7 @@ public class Player {
     public float rotation;
     public int id;
     // Bounds of the player
-    BoundingBox boundingBox;
+    public BoundingBox boundingBox;
     public int health = 100;
 
     public Player() { }

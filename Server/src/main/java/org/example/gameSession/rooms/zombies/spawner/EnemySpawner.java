@@ -1,4 +1,4 @@
-package org.example.spawner;
+package org.example.gameSession.rooms.zombies.spawner;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.MathUtils;
@@ -6,8 +6,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Server;
 import org.example.Player;
-
-import java.util.TimerTask;
 
 public class EnemySpawner {
 
@@ -36,10 +34,10 @@ public class EnemySpawner {
             float y = 0.4f;
             float z = MathUtils.random(-50f, 50f);
             float speed = MathUtils.random(0.5f, 2f);
-            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed, server);
+            //Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed, server);
 
             // Add the enemy to the list of active enemies
-            enemies.add(enemy);
+            //enemies.add(enemy);
         }
     }
     public void updateEnemyPositsions(float period) {

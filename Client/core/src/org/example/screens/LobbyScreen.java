@@ -34,7 +34,7 @@ public class LobbyScreen implements Screen {
         // create UI elements
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
-        title = new Label(String.valueOf(game.gameType), skin);
+        title = new Label(String.valueOf(game.gameMode), skin);
 
         joinButton = new TextButton("Join", skin);
         leaveButton = new TextButton("Leave", skin);

@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
+import org.example.messages.GameMode;
 
 import java.util.Arrays;
 
@@ -133,7 +134,7 @@ public class MenuScreen implements Screen {
         // Create the game type selection widget
         gameTypeSelectBox = new SelectBox<>(selectBoxStyle);
         Array<String> gameTypes = new Array();
-        for (MyGame.GameType gameType : MyGame.GameType.values()) {
+        for (GameMode.GameModes gameType : GameMode.GameModes.values()) {
             gameTypes.add(gameType.toString());
         }
         gameTypeSelectBox.setItems(gameTypes);
@@ -150,7 +151,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Logic for starting the game
-                myGame.gameType = MyGame.GameType.valueOf(gameTypeSelectBox.getSelected());
+                myGame.gameMode = GameMode.GameModes.valueOf(gameTypeSelectBox.getSelected());
                 myGame.showLobbyScreen();
             }
         });

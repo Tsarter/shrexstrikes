@@ -7,6 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
+import org.example.messages.GameMode;
 import org.example.screens.*;
 
 import java.io.IOException;
@@ -14,14 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyGame extends Game {
-    public enum GameType {
-        ONEvONE,
-        TESTING,
-        TWOvTWO,
-        ZOMBIES,
 
-    }
-    public GameType gameType;
+    public GameMode.GameModes gameMode;
     public enum GameState {
         MENU,
         LOADING,

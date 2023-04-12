@@ -26,7 +26,12 @@ public class Network {
         kryo.register(com.badlogic.gdx.math.Vector3.class);
         kryo.register(Enemies.class);
         kryo.register(EnemyHit.class);
-        kryo.register(GameOver.class);
-        kryo.register(GameStarted.class);
+        kryo.register(GameMode.class);
+        kryo.register(GameMode.GameModes.class);
+        kryo.register(GameStateChange.class);
+        kryo.register(GameStateChange.GameStates.class);
+
+
+
     }
 }

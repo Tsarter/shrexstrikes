@@ -251,7 +251,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.render(playerModelInstance);
 
         // Render enemies
-        for (Map.Entry<Integer, Enemy> entry : enemies.entrySet()) {
+        HashMap<Integer, Enemy> clonedEnemies = (HashMap<Integer, Enemy>) enemies.clone();
+        for (Map.Entry<Integer, Enemy> entry : clonedEnemies.entrySet()) {
             Enemy enemy = entry.getValue();
             ModelInstance enemyModelInstance = enemy.getEnemyInstance();
             // Rotate the enemy model smoothly
