@@ -1,19 +1,14 @@
 package org.example;
 
-
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import org.example.gameSession.GameSession;
 import org.example.gameSession.GameSessionManager;
+import org.example.gameSession.rooms.ZombiesRoom;
 import org.example.messages.*;
-import org.example.gameSession.rooms.zombies.spawner.Enemy;
 import org.example.gameSession.rooms.zombies.spawner.EnemySpawner;
-import org.example.tasks.EnemyLocationUpdateTask;
-import org.example.tasks.EnemySpawnerTask;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -80,8 +75,12 @@ public class MyServer {
                     GameMode gameMode = (GameMode) object;
                     Player player = players.get(c.getRemoteAddressUDP());
                     // Create a new game session
-                    gameSessionManager.addPlayerToGameSession(player, gameMode.gameMode);
-                    gameSessionManager.playerIds.put(c.getRemoteAddressTCP().getAddress(), player.id);
+                    if(GameMode.GameModes.ZOMBIES.equals(gameMode.gameMode)) {
+                        ZombiesRoom zombiesRoom = new ZombiesRoom(MyServer.this);
+                        gameSessionManager.addGameSession(zombiesRoom);
+                        gameSessionManager.addPlayerToGameSession(player, gameMode.gameMode);
+                        gameSessionManager.playerIds.put(c.getRemoteAddressTCP().getAddress(), player.id);
+                    }
                 }
                 if (object instanceof MapBounds) {
                     mapBounds = ((MapBounds) object).boundingBox;
@@ -149,8 +148,8 @@ public class MyServer {
              * Removes that player from the game.
              */
             public void disconnected(Connection c) {
-                players.remove(c.getRemoteAddressUDP());
                 Player player = players.get(c.getRemoteAddressUDP());
+                players.remove(c.getRemoteAddressUDP());
                 // Remove player from game session
                 gameSessionManager.removePlayerFromGameSession(player);
 

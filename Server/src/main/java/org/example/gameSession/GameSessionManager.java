@@ -24,9 +24,9 @@ public class GameSessionManager {
         this.myServer = myServer;
         // Initialize the list of game sessions
         gameSessions = new ArrayList<GameSession>();
-        gameSessions.add(new PVPRoom(myServer));
+        /*gameSessions.add(new PVPRoom(myServer));
         gameSessions.add(new TestingRoom(myServer));
-        gameSessions.add(new ZombiesRoom(myServer));
+        gameSessions.add(new ZombiesRoom(myServer));*/
     }
 
     public void addPlayerToGameSession(Player player, GameMode.GameModes gameMode) {
@@ -41,6 +41,13 @@ public class GameSessionManager {
         for (GameSession gameSession : gameSessions) {
             if (gameSession.hasPlayer(player.id)) {
                 gameSession.removePlayer(player);
+                // find to what Inetaddress the id is mapped to and remove it
+                for (Map.Entry<InetAddress, Integer> entry : playerIds.entrySet()) {
+                    if (entry.getValue().equals(player.id)) {
+                        playerIds.remove(entry.getKey());
+                        break;
+                    }
+                }
                 break;
             }
         }
@@ -79,6 +86,9 @@ public class GameSessionManager {
 
         // Game session not found, return null
         return null;
+    }
+    public void addGameSession(GameSession gameSession) {
+        gameSessions.add(gameSession);
     }
 }
 
