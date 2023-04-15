@@ -95,7 +95,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     @Override
     public void create() {
         Bullet.init();
-        myInputProcessor = new MyInputProcessor(this);
+        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
         previousRotations = new HashMap<Integer, Float>();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();

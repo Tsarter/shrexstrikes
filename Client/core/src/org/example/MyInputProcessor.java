@@ -20,11 +20,15 @@ public class MyInputProcessor implements InputProcessor {
     private float zoom;
     private boolean zoomingIn = false;
     private float movementSpeed = 50f; // Change this value to adjust sensitivity
-    private float rotationSpeed = 10f; // Change this value to adjust sensitivity
+    private float rotationSpeed; // Change this value to adjust sensitivity
+    private GamePreferences gamePreferences;
 
-    public MyInputProcessor(ShrexScreen shrexScreen) {
+    public MyInputProcessor(ShrexScreen shrexScreen,GamePreferences gamePreferences) {
         this.shrexScreen = shrexScreen;
         this.zoom = 67;
+        this.rotationSpeed = gamePreferences.getMouseSensitivity();
+        this.gamePreferences = gamePreferences;
+
     }
 
     @Override
@@ -146,6 +150,7 @@ public class MyInputProcessor implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         // Get the mouse input and calculate the camera's new position
+        rotationSpeed = gamePreferences.getMouseSensitivity();
         float slowerMovement = rotationSpeed / 2;
         float deltaX = -Gdx.input.getDeltaX() * slowerMovement * Gdx.graphics.getDeltaTime();
         float deltaY = -Gdx.input.getDeltaY() * slowerMovement * Gdx.graphics.getDeltaTime();
@@ -156,6 +161,7 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        rotationSpeed = gamePreferences.getMouseSensitivity();
         float deltaX = -Gdx.input.getDeltaX() * rotationSpeed * Gdx.graphics.getDeltaTime();
         float deltaY = -Gdx.input.getDeltaY() * rotationSpeed * Gdx.graphics.getDeltaTime();
         shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);

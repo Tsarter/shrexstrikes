@@ -2,6 +2,7 @@ package org.example;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.graphics.Texture;
@@ -29,6 +30,7 @@ public class MyGame extends Game {
     public DeathScreen deathScreen;
     public PauseOverlay pauseOverlay; // also a screen, just called Overlay
     private AssetManager assetManager;
+    private GamePreferences gamePreferences;
     private Player[] playersList;
     private Player player;
     private Client client;
@@ -56,6 +58,7 @@ public class MyGame extends Game {
 
     @Override
     public void create() {
+        gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
         menuScreen = new MenuScreen(this);
         loadingScreen = new LoadingScreen(this);
@@ -152,6 +155,9 @@ public class MyGame extends Game {
     }
     public GameClient initGameClient() {
         return new GameClient(this, "localhost", 8080, 8081);
+    }
+    public GamePreferences getGamePreferences() {
+        return gamePreferences;
     }
 }
 

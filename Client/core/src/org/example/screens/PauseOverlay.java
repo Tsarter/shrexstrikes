@@ -7,10 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -20,6 +21,7 @@ public class PauseOverlay implements Screen {
     private MyGame game;
     private Stage stage;
     private Skin skin;
+    private float sensitivity;
     public PauseOverlay(MyGame game) {
         this.game = game;
         this.stage = new Stage(new ScreenViewport());
@@ -33,6 +35,21 @@ public class PauseOverlay implements Screen {
         buttonStyle.font = customFont;
         buttonStyle.fontColor = Color.WHITE;
         buttonStyle.up = new NinePatchDrawable(borderPatch);
+        // Sensitivity slider label
+        Label sensitivityLabel = new Label("Sensitivity", skin);
+        // Sensitivity slider
+        Slider sensitivitySlider = new Slider(0, 20, 0.5f, false, skin);
+        sensitivity = game.getGamePreferences().getMouseSensitivity();
+        sensitivitySlider.setValue(sensitivity);
+        sensitivitySlider.addListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                sensitivity = sensitivitySlider.getValue();
+                game.getGamePreferences().setMouseSensitivity(sensitivity);
+                return true;
+            }
+        });
+
         // Exit button, that will return to the main menu
         TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ClickListener() {
@@ -49,12 +66,24 @@ public class PauseOverlay implements Screen {
                 game.showShrexScreen();
             }
         });
-        // center the buttons
-        exitButton.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exitButton.getHeight() / 2);
-        resumeButton.setPosition(Gdx.graphics.getWidth() / 2 - resumeButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - resumeButton.getHeight() / 2 + 50);
+        // Create table
+        Table table = new Table();
+        table.setFillParent(true);
+        table.setDebug(false);
+        table.add(exitButton).center().padBottom(10);
+        table.row();
+        table.add(resumeButton).center().padBottom(50);
+        table.row();
+        table.add(sensitivityLabel).center().padBottom(10);
+        table.row();
+        table.add(sensitivitySlider).center().padBottom(50);
+        // center the elements
+        // exitButton.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exitButton.getHeight() / 2);
+        // resumeButton.setPosition(Gdx.graphics.getWidth() / 2 - resumeButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - resumeButton.getHeight() / 2 + 50);
+        // sensitivityLabel.setPosition(Gdx.graphics.getWidth() / 2 - sensitivityLabel.getWidth() / 2, Gdx.graphics.getHeight() / 2 - sensitivityLabel.getHeight() / 2 + 200);
+        // sensitivitySlider.setPosition(Gdx.graphics.getWidth() / 2 - sensitivitySlider.getWidth() / 2, Gdx.graphics.getHeight() / 2 - sensitivitySlider.getHeight() / 2 + 150);
         // Add buttons to the stage
-        stage.addActor(exitButton);
-        stage.addActor(resumeButton);
+        stage.addActor(table);
 
     }
     @Override

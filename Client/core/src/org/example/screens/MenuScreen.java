@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.example.GamePreferences;
 import org.example.MyGame;
 import org.example.messages.GameMode;
 
@@ -35,6 +36,7 @@ public class MenuScreen implements Screen {
     private Skin skin;
 
     private Music menuMusic;
+    private float musicVolume;
 
     private Skin buttonSkin;
 
@@ -50,9 +52,9 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         Gdx.input.setInputProcessor(stage);
-
+        setGamePreferences(); // Set game preferences
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
-        menuMusic.setVolume(0.6f);
+        menuMusic.setVolume(musicVolume);
         menuMusic.setLooping(true);
 
         // Load background texture
@@ -150,6 +152,8 @@ public class MenuScreen implements Screen {
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                // Save the volume level to preferences
+                myGame.getGamePreferences().setMusicVolume(volumeSlider.getValue());
                 // Logic for starting the game
                 myGame.gameMode = GameMode.GameModes.valueOf(gameTypeSelectBox.getSelected());
                 if (myGame.gameMode == GameMode.GameModes.ZOMBIES) {
@@ -223,6 +227,10 @@ public class MenuScreen implements Screen {
         menuMusic.dispose();
         stage.dispose();
         skin.dispose();
+    }
+    public void setGamePreferences() {
+        // Set volume
+        musicVolume = myGame.getGamePreferences().getMusicVolume();
     }
 }
 
