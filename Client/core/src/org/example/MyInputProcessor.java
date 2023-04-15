@@ -46,12 +46,8 @@ public class MyInputProcessor implements InputProcessor {
                 if(shrexScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
                     // Pause the game
                     shrexScreen.getMyGame().gameState = GameStateChange.GameStates.IN_PAUSE_MENU;
-                    shrexScreen.showPauseOverlay();
-                }
-                else if(shrexScreen.getMyGame().gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
-                    // Unpause the game
-                    shrexScreen.getMyGame().gameState = GameStateChange.GameStates.IN_GAME;
-                    shrexScreen.hidePauseOverlay();
+                    shrexScreen.getMyGame().showPauseOverlay();
+                    shrexScreen.pause();
                 }
                 if (cursorCaptured) {
                     Gdx.input.setCursorCatched(false);

@@ -27,7 +27,7 @@ public class MyGame extends Game {
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
-    public PauseOverlay pauseOverlay; // also a screen
+    public PauseOverlay pauseOverlay; // also a screen, just called Overlay
     private AssetManager assetManager;
     private Player[] playersList;
     private Player player;
@@ -98,6 +98,10 @@ public class MyGame extends Game {
                                 shrexScreen.create();
                             }
                             setScreen(shrexScreen);
+                            if (gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                                // If the game was paused, unpause it
+                                shrexScreen.resume();
+                            }
                             gameState = GameStateChange.GameStates.IN_GAME;
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
 
@@ -114,8 +118,12 @@ public class MyGame extends Game {
     public void showLobbyScreen() {
         gameClient = new GameClient(this, "localhost", 8080, 8081);
         setScreen(lobbyScreen);
-        gameState = GameState.LOBBY;
+        gameState = GameStateChange.GameStates.IN_LOBBY;
 
+    }
+    public void showPauseOverlay() {
+        client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_PAUSE_MENU));
+        setScreen(pauseOverlay);
     }
     public void showDeathScreen() {
         setScreen(deathScreen);

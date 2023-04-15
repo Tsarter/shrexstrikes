@@ -70,8 +70,19 @@ public class ZombiesRoom extends GameSession {
         }
         if (object instanceof GameStateChange) {
             GameStateChange gameStateChange = (GameStateChange) object;
-            if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME) {
+            if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME &&
+                    super.getCurrentGameState() == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                // Resume the game, if the player was previously in the pause menu
+                System.out.println("Resuming game");
+                resumeGame();
+            }
+            else if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME) {
+                System.out.println("Starting game");
                 startGame();
+            }
+            else if (gameStateChange.gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                System.out.println("Pausing game");
+                pauseGame();
             }
         }
     }
@@ -148,7 +159,6 @@ public class ZombiesRoom extends GameSession {
 
     public void sendGameStatusToPlayers() {
         // Code to send information about the current game state to all players in the room
-        // ...
         HashMap enemyStatuses = new HashMap();
         for (Enemy e : enemies) {
             HashMap enemyInfo = new HashMap();
@@ -159,7 +169,6 @@ public class ZombiesRoom extends GameSession {
             enemyInfo.put("type", e.type);
             enemyInfo.put("id", e.id);
             enemyInfo.put("health", e.health);
-            System.out.println("Enemy: " + e.id + " health: " + e.health);
             enemyStatuses.put(e.id, enemyInfo);
         }
         if (enemies.size() > 0 && server.getConnections().length > 0) {
@@ -195,7 +204,7 @@ public class ZombiesRoom extends GameSession {
                     }
                     if (hit) {
 
-                        System.out.println("Enemy: " + e.id + " was hit by player: " + player.id);
+                        // System.out.println("Enemy: " + e.id + " was hit by player: " + player.id);
                         // send a message to all players that the enemy was hit
                         enemies.get(enemies.indexOf(e)).dealDamage(zombieDamage);
                         if (e.health <= 0) {
@@ -207,7 +216,7 @@ public class ZombiesRoom extends GameSession {
                         break;
                     }
                 } else{
-                    System.out.println("Player missed");
+                    // System.out.println("Player missed");
                 }
             }
         }

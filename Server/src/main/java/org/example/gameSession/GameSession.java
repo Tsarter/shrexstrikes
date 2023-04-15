@@ -2,6 +2,7 @@ package org.example.gameSession;
 
 import org.example.Player;
 import org.example.messages.GameMode;
+import org.example.messages.GameStateChange;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +28,7 @@ public class GameSession {
         return false;
     }
 
-    public enum gameState {
-        RUNNING,
-        PAUSED,
-        ENDED
-    }
-    private gameState currentGameState;
+    private GameStateChange.GameStates currentGameState;
     private Timer timer;
     // scoreboard
     private HashMap<Integer, Player> scoreboard = new HashMap<>();
@@ -49,16 +45,16 @@ public class GameSession {
         players.remove(player.id);
     }
     public void startGame() {
-        return;
+        currentGameState = GameStateChange.GameStates.IN_GAME;
     }
     public void pauseGame() {
-        currentGameState = gameState.PAUSED;
+        currentGameState = GameStateChange.GameStates.IN_PAUSE_MENU;
     }
     public void resumeGame() {
-        currentGameState = gameState.RUNNING;
+        currentGameState = GameStateChange.GameStates.IN_GAME;
     }
     public void endGame() {
-        currentGameState = gameState.ENDED;
+        currentGameState = GameStateChange.GameStates.IN_GAME_OVER;
     }
     public void updateGameState() {
 
@@ -68,5 +64,8 @@ public class GameSession {
     }
     public HashMap<Integer, Player> getScoreboard() {
         return scoreboard;
+    }
+    public GameStateChange.GameStates getCurrentGameState() {
+        return currentGameState;
     }
 }

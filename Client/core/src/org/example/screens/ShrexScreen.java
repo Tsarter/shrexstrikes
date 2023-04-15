@@ -186,6 +186,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
      */
     @Override
     public void render(float delta) {
+        if (myGame.gameState != GameStateChange.GameStates.IN_GAME) {
+            // Only render the game if the game is in the in game state
+            return;
+        }
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -201,6 +205,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         stage.act(delta);
         stage.draw();
+        // Center the crosshair
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        Gdx.input.setCursorCatched(true);
+
     }
     @Override
     public void render() {

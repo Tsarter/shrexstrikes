@@ -3,6 +3,7 @@ package org.example.tasks;
 import org.example.MyServer;
 import org.example.gameSession.rooms.ZombiesRoom;
 import org.example.gameSession.rooms.zombies.spawner.EnemySpawner;
+import org.example.messages.GameStateChange;
 
 import java.util.TimerTask;
 
@@ -20,7 +21,10 @@ public class EnemyLocationUpdateTask extends TimerTask {
         if (zombiesRoom.getPlayers().size() == 0) {
             cancel();
         }
-        zombiesRoom.updateEnemyPositsions(period);
-        zombiesRoom.sendGameStatusToPlayers();
+        if (zombiesRoom.getCurrentGameState() == GameStateChange.GameStates.IN_GAME) {
+            zombiesRoom.updateEnemyPositsions(period);
+            zombiesRoom.sendGameStatusToPlayers();
+        }
+
     }
 }

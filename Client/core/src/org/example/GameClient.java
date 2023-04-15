@@ -44,11 +44,11 @@ public class GameClient  {
                         // get the list of players
                         game.setPlayersList((Player[]) object);
                         // update the lobby screen
-                        if (game.gameState == MyGame.GameState.LOBBY) {
+                        if (game.gameState == GameStateChange.GameStates.IN_LOBBY) {
                             game.lobbyScreen.updateLobby();
                         }
                         if (game.gameMode == GameMode.GameModes.PVP &&
-                                game.gameState != MyGame.GameState.GAME) {
+                                game.gameState != GameStateChange.GameStates.IN_GAME) {
                             if (game.getPlayersList().length == 2) {
                                 game.showShrexScreen();
                             }
@@ -60,13 +60,13 @@ public class GameClient  {
                             }
                         }*/
                         if (game.gameMode == GameMode.GameModes.ZOMBIES &&
-                                game.gameState != MyGame.GameState.GAME) {
+                                game.gameState !=GameStateChange.GameStates.IN_GAME) {
                             if (game.getPlayersList().length == 1) {
                                 game.showShrexScreen();
                             }
                         }
                         if (game.gameMode == GameMode.GameModes.TESTING &&
-                                game.gameState != MyGame.GameState.GAME) {
+                                game.gameState != GameStateChange.GameStates.IN_GAME) {
                             if (game.getPlayersList().length == 1) {
                                 game.showShrexScreen();
                             }

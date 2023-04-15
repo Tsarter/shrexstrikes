@@ -6,7 +6,9 @@ public class GameStateChange {
     public enum GameStates {
         IN_LOBBY,
         IN_GAME,
-        IN_GAME_OVER
+        IN_GAME_OVER,
+        IN_DEATH_SCREEN,
+        IN_PAUSE_MENU
     }
     public GameStateChange(int idOfPlayer, GameStates gameState) {
         this.idOfPlayer = idOfPlayer;

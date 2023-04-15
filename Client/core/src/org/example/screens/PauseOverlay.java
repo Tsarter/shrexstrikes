@@ -38,7 +38,7 @@ public class PauseOverlay implements Screen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MenuScreen(game));
+                game.showMenuScreen();
             }
         });
         // Resume button, that will return to the game
@@ -46,21 +46,29 @@ public class PauseOverlay implements Screen {
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //game.setScreen(game.gameScreen);
+                game.showShrexScreen();
             }
         });
+        // Add buttons to the stage
+        stage.addActor(exitButton);
+        stage.addActor(resumeButton);
+
     }
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+
     }
 
     @Override
     public void render(float delta) {
         // Clear the screen
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0.8f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        // Draw the stage
+        stage.act();
+        stage.draw();
+        Gdx.input.setCursorCatched(false);
 
     }
 
