@@ -50,7 +50,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
     private boolean created = false;
     private ModelInstance templateEnemyModelInstance;
-    private List<Enemy> enemiesToHide = new ArrayList<Enemy>();
+    public List<Enemy> enemiesToHide = new ArrayList<Enemy>();
     public ShrexScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
 
@@ -76,12 +76,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private float cameraAngle;
     public float cameraSpeed;
     private InputMultiplexer inputMultiplexer;
-    private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
+    private MyInputProcessor myInputProcessor;
     private ModelInstance playerModelInstance;
 
     private DirectionalShadowLight shadowLight;
     private ModelBatch shadowBatch;
-    private Environment environment = new Environment();
+    private Environment environment;
 
     private List<BoundingBox> mapBounds;
     private BoundingBox playerBounds;
@@ -91,10 +91,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
     public float zoom = 67;
 
-    Map<Integer, Float> previousRotations = new HashMap<Integer, Float>();
+    Map<Integer, Float> previousRotations;
     @Override
     public void create() {
         Bullet.init();
+        myInputProcessor = new MyInputProcessor(this);
+        previousRotations = new HashMap<Integer, Float>();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();
         ModelLoader loader = new ObjLoader();
@@ -118,6 +120,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         // create a directional light for casting shadows
+        environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         shadowLight = new DirectionalShadowLight(10024, 10024, 60f, 60f, 1f, 300f);
         shadowLight.set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f);

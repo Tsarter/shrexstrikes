@@ -49,6 +49,9 @@ public class PauseOverlay implements Screen {
                 game.showShrexScreen();
             }
         });
+        // center the buttons
+        exitButton.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exitButton.getHeight() / 2);
+        resumeButton.setPosition(Gdx.graphics.getWidth() / 2 - resumeButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - resumeButton.getHeight() / 2 + 50);
         // Add buttons to the stage
         stage.addActor(exitButton);
         stage.addActor(resumeButton);

@@ -83,6 +83,8 @@ public class MyGame extends Game {
     }
 
     public void showMenuScreen() {
+        client.close();
+        shrexScreen.enemiesToHide.addAll(shrexScreen.enemies.values());
         setScreen(menuScreen);
     }
     public void showShrexScreen() {
