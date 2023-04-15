@@ -39,11 +39,11 @@ public class ZombiesRoom extends GameSession {
     private EnemySpawnerTask enemySpawnerTask;
     private EnemyLocationUpdateTask enemyLocationUpdateTask;
     private Timer timer = new Timer();
-    private static int idCounter = 0;
+    private static int zombieIdCounter = 0;
     int zombieDamage = 10;
-
-    public ZombiesRoom(MyServer myServer) {
-        super(GameMode.GameModes.ZOMBIES);
+    int zombieHealth = 100;
+    public ZombiesRoom(MyServer myServer, int sessionId) {
+        super(GameMode.GameModes.ZOMBIES, sessionId);
         this.myServer = myServer;
         this.server = myServer.getServer();
     }
@@ -81,7 +81,12 @@ public class ZombiesRoom extends GameSession {
         Player[] playersList = super.getPlayers().values().toArray(new Player[0]);
 
         // send this array to all players in the room
-        server.sendToAllUDP(playersList);
+        //server.sendToAllUDP(playersList);
+        // send this array to all the players in the room
+        for (Player p : super.getPlayers().values()) {
+            server.sendToUDP(p.id, playersList);
+        }
+
     }
     @Override
     public void startGame() {
@@ -118,14 +123,14 @@ public class ZombiesRoom extends GameSession {
     private void spawnZombies() {
         // Code to randomly spawn zombies in the game world
         for (int i = 0; i < zombiesRemaining; i++) {
-            idCounter = idCounter + 1;
-            System.out.println("Spawning enemy with id: " + idCounter);
+            zombieIdCounter = zombieIdCounter + 1;
+            System.out.println("Spawning enemy with id: " + zombieIdCounter);
             // Generate a random position for the enemy
             float x = MathUtils.random(-50f, 50f);
             float y = 0.4f;
             float z = MathUtils.random(-50f, 50f);
             float speed = MathUtils.random(0.5f, 2f);
-            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed, this);
+            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, zombieIdCounter, speed, this);
 
             // Add the enemy to the list of active enemies
             enemies.add(enemy);
@@ -160,8 +165,10 @@ public class ZombiesRoom extends GameSession {
         if (enemies.size() > 0 && server.getConnections().length > 0) {
             Enemies enemiesObject = new Enemies(enemyStatuses);
             System.out.println("Sending enemies, total: " + enemies.size());
-            // send this array to all of the connected clients
-            server.sendToAllUDP(enemiesObject);
+            // send this array to all the players in the room
+            for (Player p : super.getPlayers().values()) {
+                server.sendToUDP(p.id, enemiesObject);
+            }
         }
     }
     public void checkIfBulletHitEnemy(PlayerBullet playerBullet, Player player) {

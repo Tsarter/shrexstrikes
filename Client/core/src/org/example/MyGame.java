@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
 import org.example.messages.GameMode;
+import org.example.messages.GameStateChange;
 import org.example.screens.*;
 
 import java.io.IOException;
@@ -17,19 +18,16 @@ import java.util.List;
 public class MyGame extends Game {
 
     public GameMode.GameModes gameMode;
-    public enum GameState {
-        MENU,
-        LOADING,
-        LOBBY,
-        GAME
-    }
-    public GameState gameState;
+
+    public GameStateChange.GameStates gameState;
     private GameClient gameClient;
+    // Screens
     private MenuScreen menuScreen;
     public ShrexScreen shrexScreen;
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
+    public PauseOverlay pauseOverlay; // also a screen
     private AssetManager assetManager;
     private Player[] playersList;
     private Player player;
@@ -63,6 +61,7 @@ public class MyGame extends Game {
         loadingScreen = new LoadingScreen(this);
         lobbyScreen = new LobbyScreen(this);
         deathScreen = new DeathScreen(this);
+        pauseOverlay = new PauseOverlay(this);
         try {
             shrexScreen = new ShrexScreen(this);
         } catch (IOException e) {
@@ -93,11 +92,15 @@ public class MyGame extends Game {
                 public void run() {
                     if (assetManager.update()) {
                         // All assets have been loaded, show the shrexScreen
-                        // All assets have been loaded, show the shrexScreen
-                        if (gameState != GameState.GAME) {
-                            shrexScreen.create();
+                        if (gameState != GameStateChange.GameStates.IN_GAME) {
+                            if (shrexScreen.isCreated() == false) {
+                                // To avoid 2x creation of the shrexScreen
+                                shrexScreen.create();
+                            }
                             setScreen(shrexScreen);
-                            gameState = GameState.GAME;
+                            gameState = GameStateChange.GameStates.IN_GAME;
+                            client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
+
                         }
                     } else {
                         // Assets are still loading, show a loading screen or progress bar

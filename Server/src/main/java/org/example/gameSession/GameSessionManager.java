@@ -41,6 +41,9 @@ public class GameSessionManager {
         for (GameSession gameSession : gameSessions) {
             if (gameSession.hasPlayer(player.id)) {
                 gameSession.removePlayer(player);
+                if (gameSession.getPlayers().size() == 0) {
+                    gameSessions.remove(gameSession);
+                }
                 // find to what Inetaddress the id is mapped to and remove it
                 for (Map.Entry<InetAddress, Integer> entry : playerIds.entrySet()) {
                     if (entry.getValue().equals(player.id)) {

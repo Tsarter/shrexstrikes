@@ -45,7 +45,6 @@ public class LoadingScreen implements Screen {
         if (game.getAssetManager().update()) {
             // All assets are loaded, switch to the next screen
             game.showShrexScreen();
-            game.getClient().sendTCP(new GameStateChange(game.getClient().getID(), GameStateChange.GameStates.IN_GAME));
         }
     }
 

@@ -48,7 +48,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
     public HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
-    private boolean gameStarted = false;
+    private boolean created = false;
     private ModelInstance templateEnemyModelInstance;
     private List<Enemy> enemiesToHide = new ArrayList<Enemy>();
     public ShrexScreen(MyGame myGame) throws IOException {
@@ -177,7 +177,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
-        gameStarted = true;
+        created = true;
     }
 
     /**
@@ -440,6 +440,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
             enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
 
         }
+    }
+
+    public MyGame getMyGame() {
+        return myGame;
+    }
+    public boolean isCreated() {
+        return created;
     }
 
 }

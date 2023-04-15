@@ -8,8 +8,8 @@ import org.example.messages.GameMode;
 public class PVPRoom extends GameSession {
     private boolean gameStarted;
 
-    public PVPRoom(MyServer myServer) {
-        super(GameMode.GameModes.PVP);
+    public PVPRoom(MyServer myServer, int sessionID) {
+        super(GameMode.GameModes.PVP, sessionID);
         gameStarted = false;
     }
 

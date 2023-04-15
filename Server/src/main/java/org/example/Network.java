@@ -1,7 +1,9 @@
 package org.example;
 
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
+import org.example.gameSession.rooms.zombies.spawner.Enemy;
 import org.example.messages.*;
 
 import java.util.ArrayList;
@@ -30,7 +32,9 @@ public class Network {
         kryo.register(GameMode.GameModes.class);
         kryo.register(GameStateChange.class);
         kryo.register(GameStateChange.GameStates.class);
-
+        kryo.register(Enemy.class);
+        kryo.register(Array.class);
+        kryo.register(Object[].class);
 
 
     }

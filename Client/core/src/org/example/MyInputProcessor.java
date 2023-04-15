@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
+import org.example.messages.GameStateChange;
 import org.example.messages.PlayerBullet;
 import org.example.screens.ShrexScreen;
 
@@ -14,7 +15,7 @@ public class MyInputProcessor implements InputProcessor {
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
-    private boolean cursorCaptured = false;
+    private boolean cursorCaptured = true;
 
     private float zoom;
     private boolean zoomingIn = false;
@@ -42,6 +43,16 @@ public class MyInputProcessor implements InputProcessor {
                 rightPressed = true;
                 break;
             case Input.Keys.ESCAPE:
+                if(shrexScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
+                    // Pause the game
+                    shrexScreen.getMyGame().gameState = GameStateChange.GameStates.IN_PAUSE_MENU;
+                    shrexScreen.showPauseOverlay();
+                }
+                else if(shrexScreen.getMyGame().gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                    // Unpause the game
+                    shrexScreen.getMyGame().gameState = GameStateChange.GameStates.IN_GAME;
+                    shrexScreen.hidePauseOverlay();
+                }
                 if (cursorCaptured) {
                     Gdx.input.setCursorCatched(false);
                     cursorCaptured = false;
