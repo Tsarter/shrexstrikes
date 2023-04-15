@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Timer;
 
 public class ZombiesRoom extends GameSession {
-    private int idOfPlayer;
     private List<Enemy> enemies = new ArrayList<>();
     private int score = 0;
     private int time = 0;
@@ -135,7 +134,7 @@ public class ZombiesRoom extends GameSession {
         // Code to randomly spawn zombies in the game world
         for (int i = 0; i < zombiesRemaining; i++) {
             zombieIdCounter = zombieIdCounter + 1;
-            System.out.println("Spawning enemy with id: " + zombieIdCounter);
+            // System.out.println("Spawning enemy with id: " + zombieIdCounter);
             // Generate a random position for the enemy
             float x = MathUtils.random(-50f, 50f);
             float y = 0.4f;
@@ -173,7 +172,7 @@ public class ZombiesRoom extends GameSession {
         }
         if (enemies.size() > 0 && server.getConnections().length > 0) {
             Enemies enemiesObject = new Enemies(enemyStatuses);
-            System.out.println("Sending enemies, total: " + enemies.size());
+            System.out.println("Sending enemies to room " + super.sessionId + ", total: " + enemies.size());
             // send this array to all the players in the room
             for (Player p : super.getPlayers().values()) {
                 server.sendToUDP(p.id, enemiesObject);

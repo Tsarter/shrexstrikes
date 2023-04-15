@@ -84,10 +84,15 @@ public class MyGame extends Game {
 
     public void showMenuScreen() {
         client.close();
+        gameClient = null;
         shrexScreen.enemiesToHide.addAll(shrexScreen.enemies.values());
         setScreen(menuScreen);
     }
     public void showShrexScreen() {
+        if (gameClient == null) {
+            // If the gameClient is null, create it
+            gameClient = initGameClient();
+        }
         // Some thing with libgdx that I don't understand, everything needs to be on the main thread or smt.
             Gdx.app.postRunnable(new Runnable() {
                 @Override
@@ -118,7 +123,7 @@ public class MyGame extends Game {
     }
 
     public void showLobbyScreen() {
-        gameClient = new GameClient(this, "localhost", 8080, 8081);
+        gameClient = initGameClient();
         setScreen(lobbyScreen);
         gameState = GameStateChange.GameStates.IN_LOBBY;
 
@@ -144,6 +149,9 @@ public class MyGame extends Game {
     @Override
     public void render() {
         super.render();
+    }
+    public GameClient initGameClient() {
+        return new GameClient(this, "localhost", 8080, 8081);
     }
 }
 

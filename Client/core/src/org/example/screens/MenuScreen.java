@@ -152,7 +152,10 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // Logic for starting the game
                 myGame.gameMode = GameMode.GameModes.valueOf(gameTypeSelectBox.getSelected());
-                myGame.showLobbyScreen();
+                if (myGame.gameMode == GameMode.GameModes.ZOMBIES) {
+                    myGame.showShrexScreen();
+                }
+                //TODO: Add logic for other game modes
             }
         });
 
