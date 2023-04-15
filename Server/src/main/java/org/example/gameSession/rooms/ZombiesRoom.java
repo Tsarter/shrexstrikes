@@ -88,6 +88,7 @@ public class ZombiesRoom extends GameSession {
     public void sendState() {
         // Send the current state of the game to all players in the room
         // Create a player array from the hashmap values
+        //TODO: Change this to hashmap, key is player id, value is player object
         Player[] playersList = super.getPlayers().values().toArray(new Player[0]);
 
         // send this array to all players in the room
@@ -171,7 +172,7 @@ public class ZombiesRoom extends GameSession {
             enemyStatuses.put(e.id, enemyInfo);
         }
         if (enemies.size() > 0 && server.getConnections().length > 0) {
-            Enemies enemiesObject = new Enemies(enemyStatuses);
+            Enemies enemiesObject = new Enemies(enemyStatuses, currentWave, score);
             System.out.println("Sending enemies to room " + super.sessionId + ", total: " + enemies.size());
             // send this array to all the players in the room
             for (Player p : super.getPlayers().values()) {
@@ -202,16 +203,23 @@ public class ZombiesRoom extends GameSession {
 
                     }
                     if (hit) {
-
-                        // System.out.println("Enemy: " + e.id + " was hit by player: " + player.id);
-                        // send a message to all players that the enemy was hit
+                        // send a message to all players in the room to tell them that the enemy was hit
                         enemies.get(enemies.indexOf(e)).dealDamage(zombieDamage);
                         if (e.health <= 0) {
-                            server.sendToAllTCP(new EnemyHit(e.id, player.id, zombieDamage, true));
+                            for (Player p : super.getPlayers().values()) {
+                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, true));
+                            }
+                            player.score += 20;
+                            score += 20;
                             enemies.remove(e);
                             break;
+                        } else{
+                            for (Player p : super.getPlayers().values()) {
+                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, false));
+                            }
+                            player.score += 10;
+                            score += 10;
                         }
-                        server.sendToAllUDP(new EnemyHit(e.id, player.id, zombieDamage, false));
                         break;
                     }
                 } else{

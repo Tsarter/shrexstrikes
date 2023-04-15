@@ -59,10 +59,13 @@ public class GameClient  {
                                 game.showShrexScreen();
                             }
                         }*/
-                        if (game.gameMode == GameMode.GameModes.ZOMBIES &&
-                                game.gameState !=GameStateChange.GameStates.IN_GAME) {
-                            if (game.getPlayersList().length == 1) {
+                        if (game.gameMode == GameMode.GameModes.ZOMBIES){
+                            if(game.gameState !=GameStateChange.GameStates.IN_GAME &&
+                                    game.getPlayersList().length == 1) {
+
                                 game.showShrexScreen();
+                            } else if (game.gameState == GameStateChange.GameStates.IN_GAME) {
+                                return;
                             }
                         }
                         if (game.gameMode == GameMode.GameModes.TESTING &&

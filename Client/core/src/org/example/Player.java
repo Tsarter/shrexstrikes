@@ -9,6 +9,7 @@ public class Player {
 
     public  int id;
     public int health = 100;
+    public int score = 0;
 
     public BoundingBox boundingBox;
 

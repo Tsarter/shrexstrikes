@@ -38,7 +38,7 @@ public class PauseOverlay implements Screen {
         // Sensitivity slider label
         Label sensitivityLabel = new Label("Sensitivity", skin);
         // Sensitivity slider
-        Slider sensitivitySlider = new Slider(0, 20, 0.5f, false, skin);
+        Slider sensitivitySlider = new Slider(0.1f, 20, 0.5f, false, skin);
         sensitivity = game.getGamePreferences().getMouseSensitivity();
         sensitivitySlider.setValue(sensitivity);
         sensitivitySlider.addListener(new EventListener() {
@@ -77,11 +77,6 @@ public class PauseOverlay implements Screen {
         table.add(sensitivityLabel).center().padBottom(10);
         table.row();
         table.add(sensitivitySlider).center().padBottom(50);
-        // center the elements
-        // exitButton.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - exitButton.getHeight() / 2);
-        // resumeButton.setPosition(Gdx.graphics.getWidth() / 2 - resumeButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - resumeButton.getHeight() / 2 + 50);
-        // sensitivityLabel.setPosition(Gdx.graphics.getWidth() / 2 - sensitivityLabel.getWidth() / 2, Gdx.graphics.getHeight() / 2 - sensitivityLabel.getHeight() / 2 + 200);
-        // sensitivitySlider.setPosition(Gdx.graphics.getWidth() / 2 - sensitivitySlider.getWidth() / 2, Gdx.graphics.getHeight() / 2 - sensitivitySlider.getHeight() / 2 + 150);
         // Add buttons to the stage
         stage.addActor(table);
 
@@ -89,9 +84,7 @@ public class PauseOverlay implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-
     }
-
     @Override
     public void render(float delta) {
         // Clear the screen

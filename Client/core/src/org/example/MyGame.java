@@ -80,6 +80,7 @@ public class MyGame extends Game {
                 assetManager.load("assets/Shrek.obj", Model.class);
                 assetManager.load("assets/characters/Shrek/Shrek.obj", Model.class);
                 assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
+                assetManager.load("assets/skyboxes/skyboxBasicBlue.png", Texture.class);
                 setScreen(menuScreen);
             }
         });

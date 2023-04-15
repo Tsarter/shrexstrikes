@@ -33,7 +33,7 @@ public class DeathScreen implements Screen {
      this.game = game;
         stage = new Stage(new ScreenViewport());
         Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
-
+        Label label = new Label("You died", skin);
         TextButton button = new TextButton("Back to menu", skin);
         button.addListener(new ClickListener() {
             @Override
@@ -50,11 +50,11 @@ public class DeathScreen implements Screen {
                 // open link
                 Gdx.net.openURI("https://buy.stripe.com/6oE8zp5dMbFNgXm4gg");
                 // block game for 30 seconds
-                button.getLabel().setText("Your game will continue when you have paid.");
+                label.setText("Your game will continue when you have paid.");
                 game.getPlayer().health = 100;
             }
         });
-        Label label = new Label("You died", skin);
+
         Table table = new Table();
         table.setFillParent(true);
         table.padTop(200f);

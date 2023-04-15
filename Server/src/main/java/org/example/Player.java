@@ -11,6 +11,7 @@ public class Player {
     // Bounds of the player
     public BoundingBox boundingBox;
     public int health = 100;
+    public int score = 0;
 
     public Player() { }
     public Player(float x, float z, int id) {
