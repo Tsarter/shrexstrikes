@@ -1,19 +1,11 @@
 package org.example;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import org.example.animations.Pulse;
 import org.example.messages.*;
-import org.example.spawner.Enemy;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class GameClient  {
@@ -84,18 +76,18 @@ public class GameClient  {
                     else if (object instanceof PlayerHit) {
                         PlayerHit playerHit = (PlayerHit) object;
                         // if the player that was hit is the current player
-                        game.shrexScreen.handleIncomingPlayerHit(playerHit);
+                        game.gameScreen.handleIncomingPlayerHit(playerHit);
                     }
                     else if (object instanceof Enemies) {
                         if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                             Enemies enemiesInfo = (Enemies) object;
-                            game.shrexScreen.handleIncomingEnemies(enemiesInfo);
+                            game.gameScreen.handleIncomingEnemies(enemiesInfo);
                         }
 
                     }
                     else if (object instanceof EnemyHit) {
                         EnemyHit enemyHit = (EnemyHit) object;
-                        game.shrexScreen.handleIncomingEnemyHit(enemyHit);
+                        game.gameScreen.handleIncomingEnemyHit(enemyHit);
                     }
 
 

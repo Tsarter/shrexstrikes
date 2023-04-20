@@ -5,12 +5,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 import org.example.messages.GameStateChange;
-import org.example.messages.PlayerBullet;
-import org.example.screens.ShrexScreen;
+import org.example.screens.gameModes.GameScreen;
 
 public class MyInputProcessor implements InputProcessor {
     // Implement input event handling methods here...
-    private ShrexScreen shrexScreen;
+    private GameScreen gameScreen;
     private boolean upPressed;
     private boolean downPressed;
     private boolean leftPressed;
@@ -23,8 +22,8 @@ public class MyInputProcessor implements InputProcessor {
     private float rotationSpeed; // Change this value to adjust sensitivity
     private GamePreferences gamePreferences;
 
-    public MyInputProcessor(ShrexScreen shrexScreen,GamePreferences gamePreferences) {
-        this.shrexScreen = shrexScreen;
+    public MyInputProcessor(GameScreen gameScreen, GamePreferences gamePreferences) {
+        this.gameScreen = gameScreen;
         this.zoom = 67;
         this.rotationSpeed = gamePreferences.getMouseSensitivity();
         this.gamePreferences = gamePreferences;
@@ -47,11 +46,11 @@ public class MyInputProcessor implements InputProcessor {
                 rightPressed = true;
                 break;
             case Input.Keys.ESCAPE:
-                if(shrexScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
+                if(gameScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
                     // Pause the game
-                    shrexScreen.getMyGame().gameState = GameStateChange.GameStates.IN_PAUSE_MENU;
-                    shrexScreen.getMyGame().showPauseOverlay();
-                    shrexScreen.pause();
+                    gameScreen.getMyGame().gameState = GameStateChange.GameStates.IN_PAUSE_MENU;
+                    gameScreen.getMyGame().showPauseOverlay();
+                    gameScreen.pause();
                 }
                 if (cursorCaptured) {
                     Gdx.input.setCursorCatched(false);
@@ -89,30 +88,30 @@ public class MyInputProcessor implements InputProcessor {
     }
 
     public void updatePlayerMovement(float delta) {
-        float speed = shrexScreen.cameraSpeed * delta;
-        float y = shrexScreen.cameraPosition.y;
+        float speed = gameScreen.cameraSpeed * delta;
+        float y = gameScreen.cameraPosition.y;
 
         // Get the camera direction vector in the xz plane
-        Vector3 cameraDirectionXZ = new Vector3(shrexScreen.cameraDirection.x, 0f, shrexScreen.cameraDirection.z).nor();
+        Vector3 cameraDirectionXZ = new Vector3(gameScreen.cameraDirection.x, 0f, gameScreen.cameraDirection.z).nor();
 
         if (upPressed) {
             // Move in the direction of the camera direction vector in the xz plane
-            shrexScreen.cameraPosition.add(cameraDirectionXZ.scl(speed));
+            gameScreen.cameraPosition.add(cameraDirectionXZ.scl(speed));
         }
         if (downPressed) {
-            shrexScreen.cameraPosition.sub(cameraDirectionXZ.scl(speed));
+            gameScreen.cameraPosition.sub(cameraDirectionXZ.scl(speed));
         }
         if (leftPressed) {
             // Get the perpendicular vector to the camera direction in the xz plane
             Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
-            shrexScreen.cameraPosition.sub(cameraPerpendicularXZ.scl(speed));
+            gameScreen.cameraPosition.sub(cameraPerpendicularXZ.scl(speed));
         }
         if (rightPressed) {
             Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
-            shrexScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
+            gameScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
         }
 
-        shrexScreen.cameraPosition.y = y;
+        gameScreen.cameraPosition.y = y;
     }
 
     @Override
@@ -126,12 +125,12 @@ public class MyInputProcessor implements InputProcessor {
         if (button == Input.Buttons.RIGHT && !zoomingIn) {
             // Get a reference to the game's Camera object
             zoom = 25;
-            shrexScreen.camera.fieldOfView = 25;
+            gameScreen.camera.fieldOfView = 25;
             zoomingIn = true;
         }
         if (button == Input.Buttons.LEFT) {
             // shoot bullet
-            shrexScreen.shootBullet();
+            gameScreen.shootBullet();
         }
         return false;
     }
@@ -141,7 +140,7 @@ public class MyInputProcessor implements InputProcessor {
 
         if (button == Input.Buttons.RIGHT  && zoomingIn) {
             zoom = 67;
-            shrexScreen.camera.fieldOfView = 67;
+            gameScreen.camera.fieldOfView = 67;
             zoomingIn = false;
         }
         return false;
@@ -154,8 +153,8 @@ public class MyInputProcessor implements InputProcessor {
         float slowerMovement = rotationSpeed / 2;
         float deltaX = -Gdx.input.getDeltaX() * slowerMovement * Gdx.graphics.getDeltaTime();
         float deltaY = -Gdx.input.getDeltaY() * slowerMovement * Gdx.graphics.getDeltaTime();
-        shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
-        shrexScreen.cameraDirection.rotate(shrexScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
+        gameScreen.cameraDirection.rotate(Vector3.Y, deltaX);
+        gameScreen.cameraDirection.rotate(gameScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
         return false;
     }
 
@@ -164,8 +163,8 @@ public class MyInputProcessor implements InputProcessor {
         rotationSpeed = gamePreferences.getMouseSensitivity();
         float deltaX = -Gdx.input.getDeltaX() * rotationSpeed * Gdx.graphics.getDeltaTime();
         float deltaY = -Gdx.input.getDeltaY() * rotationSpeed * Gdx.graphics.getDeltaTime();
-        shrexScreen.cameraDirection.rotate(Vector3.Y, deltaX);
-        shrexScreen.cameraDirection.rotate(shrexScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
+        gameScreen.cameraDirection.rotate(Vector3.Y, deltaX);
+        gameScreen.cameraDirection.rotate(gameScreen.cameraDirection.cpy().crs(Vector3.Y), deltaY);
         return false;
     }
 

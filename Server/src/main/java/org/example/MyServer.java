@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import org.example.gameSession.GameSession;
 import org.example.gameSession.GameSessionManager;
+import org.example.gameSession.rooms.PVPRoom;
 import org.example.gameSession.rooms.ZombiesRoom;
 import org.example.messages.*;
 import org.example.gameSession.rooms.zombies.spawner.EnemySpawner;
@@ -72,6 +73,14 @@ public class MyServer {
                         ZombiesRoom zombiesRoom = new ZombiesRoom(MyServer.this, roomId);
 
                         gameSessionManager.addGameSession(zombiesRoom, roomId);
+                        gameSessionManager.addPlayerToGameSession(player, roomId);
+                        gameSessionManager.players.put(c.getID(), player);
+                        roomId = roomId + 1;
+                    }
+                    // If PVP gamemode is selected
+                    else if(GameMode.GameModes.PVP.equals(gameMode.gameMode)) {
+                        PVPRoom pvpRoom = new PVPRoom(MyServer.this, roomId);
+                        gameSessionManager.addGameSession(pvpRoom, roomId);
                         gameSessionManager.addPlayerToGameSession(player, roomId);
                         gameSessionManager.players.put(c.getID(), player);
                         roomId = roomId + 1;

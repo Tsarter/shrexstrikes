@@ -1,4 +1,4 @@
-package org.example.screens;
+package org.example.screens.gameModes;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -16,11 +16,9 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.utils.Layout;
 import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Player;
@@ -37,7 +35,7 @@ import java.util.Map;
 
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
-public class ShrexScreen implements ApplicationListener,Screen {
+public class GameScreen implements ApplicationListener,Screen {
     private MyGame myGame;
 
 
@@ -45,22 +43,12 @@ public class ShrexScreen implements ApplicationListener,Screen {
     private boolean created = false;
     private ModelInstance templateEnemyModelInstance;
     public List<Enemy> enemiesToHide = new ArrayList<Enemy>();
-    public ShrexScreen(MyGame myGame) throws IOException {
+    public GameScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
 
     }
-    // gets called when collision is detected
-    class MyContactListener extends ContactListener {
-        @Override
-        public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-            System.out.println("Collision detected onContactAdded");
-            return true;
-        }
-
+    public GameScreen(){
     }
-
-
-    MyContactListener contactListener;
     public ModelBatch modelBatch;
     public Model model;
     public ModelInstance groundModelInstance;
@@ -333,7 +321,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.dispose();
         modelBatch.dispose();
         model.dispose();
-        contactListener.dispose();
 
     }
 

@@ -10,6 +10,7 @@ import java.util.Timer;
 
 public class GameSession {
     public int sessionId;
+    public int timeLeft;
     private HashMap<Integer, Player> players = new HashMap<>();
     private GameMode.GameModes gameMode;
 

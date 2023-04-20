@@ -2,19 +2,16 @@ package org.example;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
 import org.example.messages.GameMode;
 import org.example.messages.GameStateChange;
 import org.example.screens.*;
+import org.example.screens.gameModes.GameScreen;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MyGame extends Game {
 
@@ -24,7 +21,7 @@ public class MyGame extends Game {
     private GameClient gameClient;
     // Screens
     private MenuScreen menuScreen;
-    public ShrexScreen shrexScreen;
+    public GameScreen gameScreen;
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
@@ -66,7 +63,7 @@ public class MyGame extends Game {
         deathScreen = new DeathScreen(this);
         pauseOverlay = new PauseOverlay(this);
         try {
-            shrexScreen = new ShrexScreen(this);
+            gameScreen = new GameScreen(this);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +86,7 @@ public class MyGame extends Game {
     public void showMenuScreen() {
         client.close();
         gameClient = null;
-        shrexScreen.enemiesToHide.addAll(shrexScreen.enemies.values());
+        gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
         setScreen(menuScreen);
     }
     public void showShrexScreen() {
@@ -102,16 +99,16 @@ public class MyGame extends Game {
                 @Override
                 public void run() {
                     if (assetManager.update()) {
-                        // All assets have been loaded, show the shrexScreen
+                        // All assets have been loaded, show the gameScreen
                         if (gameState != GameStateChange.GameStates.IN_GAME) {
-                            if (shrexScreen.isCreated() == false) {
-                                // To avoid 2x creation of the shrexScreen
-                                shrexScreen.create();
+                            if (gameScreen.isCreated() == false) {
+                                // To avoid 2x creation of the gameScreen
+                                gameScreen.create();
                             }
-                            setScreen(shrexScreen);
+                            setScreen(gameScreen);
                             if (gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
                                 // If the game was paused, unpause it
-                                shrexScreen.resume();
+                                gameScreen.resume();
                             }
                             gameState = GameStateChange.GameStates.IN_GAME;
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));

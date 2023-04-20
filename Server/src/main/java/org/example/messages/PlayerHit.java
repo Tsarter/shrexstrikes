@@ -5,6 +5,7 @@ public class PlayerHit {
     public int idOfPlayerWhoHit;
     public int damage;
 
+
     public PlayerHit(int idOfPlayerHit, int idOfPlayerWhoHi, int damage) {
         this.idOfPlayerHit = idOfPlayerHit;
         this.idOfPlayerWhoHit = idOfPlayerWhoHit;
