@@ -8,7 +8,11 @@ public class GameStateChange {
         IN_GAME,
         IN_GAME_OVER,
         IN_DEATH_SCREEN,
-        IN_PAUSE_MENU
+        IN_PAUSE_MENU,
+        GAME_STARTING,
+        GAME_OVER,
+        READY,
+        NOT_READY
     }
     public GameStateChange(int idOfPlayer, GameStates gameState) {
         this.idOfPlayer = idOfPlayer;
