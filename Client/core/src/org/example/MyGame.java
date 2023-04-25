@@ -10,6 +10,8 @@ import org.example.messages.GameMode;
 import org.example.messages.GameStateChange;
 import org.example.screens.*;
 import org.example.screens.gameModes.GameScreen;
+import org.example.screens.gameModes.PVPScreen;
+import org.example.screens.gameModes.ZombiesScreen;
 
 import java.io.IOException;
 
@@ -21,7 +23,7 @@ public class MyGame extends Game {
     private GameClient gameClient;
     // Screens
     private MenuScreen menuScreen;
-    public GameScreen gameScreen;
+    public GameScreen gameScreen; // Can be ZombiesScreen or PVPScreen
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
@@ -62,11 +64,7 @@ public class MyGame extends Game {
         lobbyScreen = new LobbyScreen(this);
         deathScreen = new DeathScreen(this);
         pauseOverlay = new PauseOverlay(this);
-        try {
-            gameScreen = new GameScreen(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -86,10 +84,13 @@ public class MyGame extends Game {
     public void showMenuScreen() {
         client.close();
         gameClient = null;
-        gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
+        if (gameMode == GameMode.GameModes.ZOMBIES) {
+            // If the gameMode is zombies, hide all the enemies (zombies
+            gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
+        }
         setScreen(menuScreen);
     }
-    public void showShrexScreen() {
+    public void showZombiesScreen() {
         if (gameClient == null) {
             // If the gameClient is null, create it
             gameClient = initGameClient();
@@ -114,19 +115,63 @@ public class MyGame extends Game {
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
 
                         }
+                    } else if (gameScreen == null) {
+                        try {
+                            gameScreen = new ZombiesScreen(MyGame.this);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
                     } else {
-                        // Assets are still loading, show a loading screen or progress bar
+                        // Assets are still loading, show a loading screen
                         setScreen(loadingScreen);
                     }
                 }
             });
 
     }
+    public void showPVPScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(gameScreen);
+            }
+        });
+    }
+    public void showPVPLobbyScreen() {
+        if (gameClient == null) {
+            // If the gameClient is null, create it
+            gameClient = initGameClient();
+        }
+        // Some thing with libgdx that I don't understand, everything needs to be on the main thread or smt.
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                if (gameScreen == null) {
+                    try {
+                        gameScreen = new PVPScreen(MyGame.this,100);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
 
-    public void showLobbyScreen() {
-        gameClient = initGameClient();
-        setScreen(lobbyScreen);
-        gameState = GameStateChange.GameStates.IN_LOBBY;
+
+                } else if (assetManager.update()) {
+                    // All assets have been loaded, notify the server that the client is ready
+                    if (gameScreen.isCreated() == false) {
+                        // To avoid 2x creation of the pvpScreen
+                        gameScreen.create();
+                    }
+                    setScreen(lobbyScreen);
+                    gameState = GameStateChange.GameStates.READY;
+                    client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.READY));
+
+                } else {
+                    // Assets are still loading, show a loading screen
+                    setScreen(loadingScreen);
+                }
+
+            }
+        });
 
     }
     public void showPauseOverlay() {

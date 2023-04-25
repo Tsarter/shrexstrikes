@@ -89,7 +89,7 @@ public class LobbyScreen implements Screen {
         }
 
         // Add UI elements to the table
-        layout.add(joinButton).padRight(10f);
+        // layout.add(joinButton).padRight(10f);
         layout.add(leaveButton).padLeft(10f);
         stage.addActor(layout);
     }

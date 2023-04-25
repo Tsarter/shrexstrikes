@@ -21,14 +21,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 
 
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.GamePreferences;
 import org.example.MyGame;
 import org.example.messages.GameMode;
-
-import java.util.Arrays;
 
 public class MenuScreen implements Screen {
     private Stage stage;
@@ -157,9 +153,11 @@ public class MenuScreen implements Screen {
                 // Logic for starting the game
                 myGame.gameMode = GameMode.GameModes.valueOf(gameTypeSelectBox.getSelected());
                 if (myGame.gameMode == GameMode.GameModes.ZOMBIES) {
-                    myGame.showShrexScreen();
+                    myGame.showZombiesScreen();
                 }
-                //TODO: Add logic for other game modes
+                if (myGame.gameMode == GameMode.GameModes.PVP) {
+                    myGame.showPVPLobbyScreen();
+                }
             }
         });
 

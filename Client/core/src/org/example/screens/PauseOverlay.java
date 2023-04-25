@@ -63,7 +63,7 @@ public class PauseOverlay implements Screen {
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.showShrexScreen();
+                game.showZombiesScreen();
             }
         });
         // Create table

@@ -5,9 +5,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.Model;
 import org.example.MyGame;
-import org.example.messages.GameStateChange;
+import org.example.messages.GameMode;
 
 public class LoadingScreen implements Screen {
 
@@ -44,7 +43,12 @@ public class LoadingScreen implements Screen {
         // Check if all assets are loaded
         if (game.getAssetManager().update()) {
             // All assets are loaded, switch to the next screen
-            game.showShrexScreen();
+            if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                game.showZombiesScreen();
+            }
+            if (game.gameMode == GameMode.GameModes.PVP) {
+                game.showPVPLobbyScreen();
+            }
         }
     }
 

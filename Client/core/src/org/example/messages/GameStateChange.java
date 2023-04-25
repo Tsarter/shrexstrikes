@@ -18,4 +18,6 @@ public class GameStateChange {
         this.idOfPlayer = idOfPlayer;
         this.gameState = gameState;
     }
+    public GameStateChange() {
+    }
 }

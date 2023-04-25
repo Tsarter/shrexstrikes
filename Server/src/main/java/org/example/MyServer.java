@@ -79,11 +79,19 @@ public class MyServer {
                     }
                     // If PVP gamemode is selected
                     else if(GameMode.GameModes.PVP.equals(gameMode.gameMode)) {
-                        PVPRoom pvpRoom = new PVPRoom(MyServer.this, roomId);
-                        gameSessionManager.addGameSession(pvpRoom, roomId);
-                        gameSessionManager.addPlayerToGameSession(player, roomId);
-                        gameSessionManager.players.put(c.getID(), player);
-                        roomId = roomId + 1;
+                        // if room with this id exists, add player to it
+                        if(gameSessionManager.getGameSessions().containsKey(gameMode.roomId)) {
+                            gameSessionManager.addPlayerToGameSession(player, gameMode.roomId);
+                            gameSessionManager.players.put(c.getID(), player);
+                        }
+                        // else create a new room
+                        else {
+                            PVPRoom pvpRoom = new PVPRoom(MyServer.this, gameMode.roomId);
+                            gameSessionManager.addGameSession(pvpRoom, gameMode.roomId);
+                            gameSessionManager.addPlayerToGameSession(player, gameMode.roomId);
+                            gameSessionManager.players.put(c.getID(), player);
+                            //roomId = roomId + 1;
+                        }
                     }
                 }
                 if (object instanceof MapBounds) {

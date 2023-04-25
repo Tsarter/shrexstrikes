@@ -36,12 +36,12 @@ import java.util.Map;
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
 public class GameScreen implements ApplicationListener,Screen {
-    private MyGame myGame;
+    protected MyGame myGame;
 
 
     public HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
     private boolean created = false;
-    private ModelInstance templateEnemyModelInstance;
+    protected ModelInstance templateEnemyModelInstance;
     public List<Enemy> enemiesToHide = new ArrayList<Enemy>();
     public GameScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
@@ -57,25 +57,25 @@ public class GameScreen implements ApplicationListener,Screen {
     public Vector3 cameraDirection;
     private float cameraAngle;
     public float cameraSpeed;
-    private InputMultiplexer inputMultiplexer;
-    private MyInputProcessor myInputProcessor;
-    private ModelInstance playerModelInstance;
+    protected InputMultiplexer inputMultiplexer;
+    protected MyInputProcessor myInputProcessor;
+    protected ModelInstance playerModelInstance;
 
-    private DirectionalShadowLight shadowLight;
-    private ModelBatch shadowBatch;
-    private Environment environment;
+    protected DirectionalShadowLight shadowLight;
+    protected ModelBatch shadowBatch;
+    protected Environment environment;
 
-    private List<BoundingBox> mapBounds;
-    private BoundingBox playerBounds;
-    private Stage stage;
+    protected List<BoundingBox> mapBounds;
+    protected BoundingBox playerBounds;
+    protected Stage stage;
     private Image crosshair;
-    private Label healthLabel;
+    protected Label healthLabel;
     private Label ammoLabel;
-    private Label scoreLabel;
-    private Label waveLabel;
-    private Label enemiesRemainingLabel;
-    private int score = 0;
-    private int currentWave = 0;
+    protected Label scoreLabel;
+    protected Label waveLabel;
+    protected Label enemiesRemainingLabel;
+    protected int score = 0;
+    protected int currentWave = 0;
     private int enemiesRemaining = 0;
     public float zoom = 67;
     Map<Integer, Float> previousRotations;

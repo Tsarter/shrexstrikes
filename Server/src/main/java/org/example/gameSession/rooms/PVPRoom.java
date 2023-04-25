@@ -20,6 +20,7 @@ public class PVPRoom extends GameSession {
     private boolean gameStarted;
     public MyServer myServer;
     private Timer timer;
+    private int roomSize = 2;
 
 
     public PVPRoom(MyServer myServer, int sessionID) {
@@ -36,6 +37,7 @@ public class PVPRoom extends GameSession {
         timer = new Timer();
         timer.scheduleAtFixedRate(pvpGameTask, 0, 1000);
         sendGameStartToPlayers();
+        System.out.println("Players with id " + super.getPlayers().keySet() + " started a game in room " + sessionId);
     }
 
     public void endGame() {
@@ -50,16 +52,19 @@ public class PVPRoom extends GameSession {
             if (gameStateChange.gameState == GameStateChange.GameStates.READY) {
                 Player player = super.getPlayers().get(gameStateChange.idOfPlayer);
                 player.ready = true;
-                // Check if all players are ready
-                boolean allReady = true;
-                for (Player p : super.getPlayers().values()) {
-                    if (p.ready == false) {
-                        allReady = false;
-                        break;
+                // Check if room is full
+                if (super.getPlayers().size() == roomSize) {
+                    // Check if all players are ready
+                    boolean allReady = true;
+                    for (Player p : super.getPlayers().values()) {
+                        if (p.ready == false) {
+                            allReady = false;
+                            break;
+                        }
                     }
-                }
-                if (allReady) {
-                    startGame();
+                    if (allReady) {
+                        startGame();
+                    }
                 }
             }
             if (gameStateChange.gameState == GameStateChange.GameStates.NOT_READY) {

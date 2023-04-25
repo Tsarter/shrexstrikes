@@ -77,5 +77,8 @@ public class GameSessionManager {
 
         gameSessions.put(roomId, gameSession);
     }
+    public HashMap<Integer, GameSession> getGameSessions() {
+        return gameSessions;
+    }
 }
 
