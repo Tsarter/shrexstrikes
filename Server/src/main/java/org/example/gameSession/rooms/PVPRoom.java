@@ -128,7 +128,8 @@ public class PVPRoom extends GameSession {
     private void sendUpdatedPlayerLocations(){
         // Send the updated player locations to all the players in the room
         for (Player player : super.getPlayers().values()) {
-            myServer.getServer().sendToUDP(player.id, super.getPlayers().values().toArray());
+            Player[] players = super.getPlayers().values().toArray(new Player[0]);
+            myServer.getServer().sendToUDP(player.id, players);
         }
     }
     private void handlePlayerHit(int playerHitID, int playerWhoHitID, int damage) {

@@ -42,7 +42,6 @@ public class GameClient  {
                     if (object instanceof Player[]) {
                         // get the list of players
                         game.setPlayersList((Player[]) object);
-                        // update the lobby screen
                     }
                     // we recieved the server created player object
                     else if (object instanceof Player) {
