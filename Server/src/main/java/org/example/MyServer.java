@@ -85,7 +85,7 @@ public class MyServer {
                         }
                         // else create a new room
                         else {
-                            PVPRoom pvpRoom = new PVPRoom(MyServer.this, gameMode.roomId, 100);
+                            PVPRoom pvpRoom = new PVPRoom(MyServer.this, gameMode.roomId, 120);
                             gameSessionManager.addGameSession(pvpRoom, gameMode.roomId);
                             gameSessionManager.addPlayerToGameSession(player, gameMode.roomId);
                             gameSessionManager.players.put(c.getID(), player);
