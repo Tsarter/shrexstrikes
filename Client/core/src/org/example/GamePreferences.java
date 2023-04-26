@@ -10,6 +10,8 @@ public class GamePreferences {
     private boolean isMusicEnabled;
     private float mouseSensitivity;
     private Preferences prefs;
+    private String username;
+    private Player.Character character;
     public GamePreferences() {
         prefs = Gdx.app.getPreferences("GamePreferences");
         String soundVolume = prefs.getString("soundVolume", "0.6f");
@@ -17,11 +19,16 @@ public class GamePreferences {
         String isSoundEnabled = prefs.getString("isSoundEnabled", "true");
         String isMusicEnabled = prefs.getString("isMusicEnabled", "true");
         String mouseSensitivity = prefs.getString("mouseSensitivity", "10f");
+        String randomNum = String.valueOf((int) (Math.random() * 1000));
+        String username = prefs.getString("username", "Player " + randomNum);
+        String character = prefs.getString("character", Player.Character.Shrex.toString());
         this.soundVolume = Float.parseFloat(soundVolume);
         this.musicVolume = Float.parseFloat(musicVolume);
         this.isSoundEnabled = Boolean.parseBoolean(isSoundEnabled);
         this.isMusicEnabled = Boolean.parseBoolean(isMusicEnabled);
         this.mouseSensitivity = Float.parseFloat(mouseSensitivity);
+        this.username = username;
+        this.character = Player.Character.valueOf(character);
     }
     public float getSoundVolume() {
         return soundVolume;
@@ -61,6 +68,22 @@ public class GamePreferences {
     public void setMouseSensitivity(float mouseSensitivity) {
         this.mouseSensitivity = mouseSensitivity;
         prefs.putString("mouseSensitivity", String.valueOf(mouseSensitivity));
+        save();
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+        prefs.putString("username", username);
+        save();
+    }
+    public Player.Character getCharacter() {
+        return character;
+    }
+    public void setCharacter(Player.Character character) {
+        this.character = character;
+        prefs.putString("character", character.toString());
         save();
     }
     public void save() {

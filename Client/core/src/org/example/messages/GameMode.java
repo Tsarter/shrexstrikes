@@ -6,8 +6,7 @@ public class GameMode {
     public int roomId;
     public enum GameModes {
         ZOMBIES,
-        PVP,
-        TESTING
+        PVP
     }
     public GameMode(int idOfPlayer, GameModes gameMode, int roomId) {
         this.idOfPlayer = idOfPlayer;

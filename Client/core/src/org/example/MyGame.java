@@ -3,6 +3,7 @@ package org.example;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
@@ -28,11 +29,13 @@ public class MyGame extends Game {
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
     public PauseOverlay pauseOverlay; // also a screen, just called Overlay
+    public SettingsScreen settingsScreen;
     private AssetManager assetManager;
     private GamePreferences gamePreferences;
     private Player[] playersList;
     private Player player;
     private Client client;
+    public Music music;
     public Client getClient() {
         return client;
     }
@@ -64,7 +67,7 @@ public class MyGame extends Game {
         lobbyScreen = new LobbyScreen(this);
         deathScreen = new DeathScreen(this);
         pauseOverlay = new PauseOverlay(this);
-
+        settingsScreen = new SettingsScreen(this);
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -82,8 +85,11 @@ public class MyGame extends Game {
     }
 
     public void showMenuScreen() {
-        client.close();
-        gameClient = null;
+        if (client != null) {
+            // If the gameClient is not null, close it
+            client.close();
+            gameClient = null;
+        }
         if (gameMode == GameMode.GameModes.ZOMBIES) {
             // If the gameMode is zombies, hide all the enemies (zombies
             gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
@@ -173,6 +179,9 @@ public class MyGame extends Game {
             }
         });
 
+    }
+    public void showSettingsScreen() {
+        setScreen(settingsScreen);
     }
     public void showPauseOverlay() {
         client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_PAUSE_MENU));

@@ -6,8 +6,7 @@ public class GameMode {
     public int roomId;
     public enum GameModes {
         ZOMBIES,
-        PVP,
-        TESTING
+        PVP
     }
     public GameMode() {
     }
