@@ -28,6 +28,7 @@ public class PVPGameTask extends TimerTask {
                     gameSession.getPlayers().get(id).alive = true;
                 }
             }
+            gameSession.getPlayers().get(id).timeLeft = timeLeft;
         }
         gameSession.timeLeft = timeLeft;
         gameSession.sendGameStatusToPlayers();
