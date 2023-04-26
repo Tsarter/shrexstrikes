@@ -191,10 +191,6 @@ public class GameScreen implements ApplicationListener,Screen {
         waveLabel.setText("Wave: " + currentWave);
         scoreLabel.setText("Score: " + score);
         enemiesRemainingLabel.setText("Enemies Remaining: " + enemiesRemaining);
-        // Render the crosshair
-        // Define the duration and scale of the animation
-        float duration = 0.5f;
-        float scale = 1.5f;
 
         stage.act(delta);
         stage.draw();
@@ -218,7 +214,6 @@ public class GameScreen implements ApplicationListener,Screen {
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
         playerModelInstance.transform.set(new Vector3(cameraPosition.x, cameraPosition.y - 1f, cameraPosition.z), new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
-
 
 
         // Check if the new position of the player is colliding with the map
@@ -297,6 +292,7 @@ public class GameScreen implements ApplicationListener,Screen {
              * So they know that this client moved aswell.
              */
             myGame.getPlayer().x = cameraPosition.x;
+            myGame.getPlayer().y = cameraPosition.y;
             myGame.getPlayer().z = cameraPosition.z;
             myGame.getPlayer().rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
             myGame.getPlayer().boundingBox = playerBounds;
@@ -384,6 +380,9 @@ public class GameScreen implements ApplicationListener,Screen {
         PlayerBullet bullet = new PlayerBullet();
         bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, myGame.getPlayer().id);
         myGame.getClient().sendUDP(bullet);
+
+    }
+    public void jump(){
 
     }
     public void handleDeath() {

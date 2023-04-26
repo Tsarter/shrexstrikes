@@ -14,6 +14,10 @@ public class MyInputProcessor implements InputProcessor {
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
+    private boolean jumpPressed;
+    private boolean jumpOnGoing = false;
+    private double jumpHeight = 0;
+    private final double initialPlayerHeight;
     private boolean cursorCaptured = true;
 
     private float zoom;
@@ -27,6 +31,7 @@ public class MyInputProcessor implements InputProcessor {
         this.zoom = 67;
         this.rotationSpeed = gamePreferences.getMouseSensitivity();
         this.gamePreferences = gamePreferences;
+        this.initialPlayerHeight = gameScreen.getMyGame().getPlayer().y;
 
     }
 
@@ -44,6 +49,11 @@ public class MyInputProcessor implements InputProcessor {
                 break;
             case Input.Keys.D:
                 rightPressed = true;
+                break;
+            case Input.Keys.SPACE:
+                if (!jumpOnGoing) {
+                    jumpOnGoing = true;
+                }
                 break;
             case Input.Keys.ESCAPE:
                 if(gameScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
@@ -110,7 +120,17 @@ public class MyInputProcessor implements InputProcessor {
             Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
             gameScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
         }
-
+        if (jumpOnGoing) {
+            if (y < initialPlayerHeight * 2) {
+                y += 0.1f;
+            } else {
+                jumpOnGoing = false;
+            }
+        } else {
+            if (y > initialPlayerHeight){
+                y -= 0.1f;
+            }
+        }
         gameScreen.cameraPosition.y = y;
     }
 

@@ -133,6 +133,7 @@ public class PVPScreen extends GameScreen {
              * So they know that this client moved aswell.
              */
             myGame.getPlayer().x = cameraPosition.x;
+            myGame.getPlayer().y = cameraPosition.y;
             myGame.getPlayer().z = cameraPosition.z;
             myGame.getPlayer().rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
             myGame.getPlayer().boundingBox = playerBounds;
