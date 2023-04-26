@@ -22,6 +22,8 @@ public class Player {
     public int team = 0;
     public boolean ready = false; // if the player is ready to start the game (map loaded, etc)
     public boolean alive = true; // if the player is alive
+    public enum Character {Shrex, Fiona, Donkey}
+    public Character character = Character.Shrex;
 
     public Player() { }
     public Player(float x, float z, int id) {

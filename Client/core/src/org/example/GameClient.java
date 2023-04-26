@@ -61,7 +61,7 @@ public class GameClient  {
              */
             game.getClient().start();
             game.getClient().connect(5000, "localhost", 8080, 8081);
-
+            int j = 0;
         } catch (IOException e) {
             e.printStackTrace();
         }

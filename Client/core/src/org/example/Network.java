@@ -1,5 +1,7 @@
 package org.example;
 
+
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
@@ -24,7 +26,7 @@ public class Network {
         kryo.register(PlayerHit.class);
         kryo.register(MapBounds.class);
         kryo.register(ArrayList.class);
-        kryo.register(com.badlogic.gdx.math.collision.BoundingBox.class);
+        kryo.register(BoundingBox.class);
         kryo.register(com.badlogic.gdx.math.Vector3.class);
         kryo.register(Enemies.class);
         kryo.register(EnemyHit.class);
@@ -35,6 +37,7 @@ public class Network {
         kryo.register(Enemy.class);
         kryo.register(Array.class);
         kryo.register(Object[].class);
+        kryo.register(Player.Character.class);
 
     }
 }
