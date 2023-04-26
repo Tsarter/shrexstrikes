@@ -1,14 +1,15 @@
 package org.example.tasks;
 
 import org.example.gameSession.GameSession;
+import org.example.gameSession.rooms.PVPRoom;
 
 import java.util.TimerTask;
 
 public class PVPGameTask extends TimerTask {
     private int timeLeft;
     private int timeLimit;
-    private GameSession gameSession;
-    public PVPGameTask(int timeLimit, GameSession gameSession) {
+    private PVPRoom gameSession;
+    public PVPGameTask(int timeLimit, PVPRoom gameSession) {
         this.timeLimit = timeLimit;
         this.timeLeft = timeLimit;
         this.gameSession = gameSession;
@@ -20,5 +21,6 @@ public class PVPGameTask extends TimerTask {
             gameSession.endGame();
         }
         gameSession.timeLeft = timeLeft;
+        gameSession.sendGameStatusToPlayers();
     }
 }

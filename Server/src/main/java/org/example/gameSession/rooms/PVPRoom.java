@@ -4,14 +4,10 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.esotericsoftware.kryonet.Server;
 import org.example.MyServer;
 import org.example.Player;
 import org.example.gameSession.GameSession;
-import org.example.messages.GameMode;
-import org.example.messages.GameStateChange;
-import org.example.messages.PlayerBullet;
-import org.example.messages.PlayerHit;
+import org.example.messages.*;
 import org.example.tasks.PVPGameTask;
 
 import java.util.Timer;
@@ -34,6 +30,7 @@ public class PVPRoom extends GameSession {
         gameStarted = true;
         // Start PVPGameTask
         PVPGameTask pvpGameTask = new PVPGameTask(120, this);
+        super.timeLeft = 120;
         timer = new Timer();
         timer.scheduleAtFixedRate(pvpGameTask, 0, 1000);
         sendGameStartToPlayers();
@@ -82,9 +79,10 @@ public class PVPRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;
+                player.timeLeft = playerClient.timeLeft;
             }
 
-            sendUpdatedPlayerLocations();  // send info about all players to all players
+            sendUpdatedPlayers();  // send info about all players to all players
         }
         else if (data instanceof PlayerBullet) {
             PlayerBullet playerBullet = (PlayerBullet) data;  // get the bullet that they sent
@@ -125,7 +123,7 @@ public class PVPRoom extends GameSession {
 
         }
     }
-    private void sendUpdatedPlayerLocations(){
+    private void sendUpdatedPlayers(){
         // Send the updated player locations to all the players in the room
         for (Player player : super.getPlayers().values()) {
             Player[] players = super.getPlayers().values().toArray(new Player[0]);
@@ -162,7 +160,6 @@ public class PVPRoom extends GameSession {
 
     private void sendGameStartToPlayers() {
         // Notify all players in the room that the game has started
-        super.startGame();
         for (Player player : super.getPlayers().values()) {
             GameStateChange gameStateChange = new GameStateChange(player.id, GameStateChange.GameStates.GAME_STARTING);
             myServer.getServer().sendToTCP(player.id, gameStateChange);
@@ -175,6 +172,14 @@ public class PVPRoom extends GameSession {
         for (Player player : super.getPlayers().values()) {
             GameStateChange gameStateChange = new GameStateChange(player.id, GameStateChange.GameStates.GAME_OVER);
             myServer.getServer().sendToTCP(player.id, gameStateChange);
+        }
+    }
+    public void sendGameStatusToPlayers() {
+        GameStatus gameStatus = new GameStatus();
+        gameStatus.timeLeft = timeLeft;
+        // send the game status to all players in the room
+        for (Player player : super.getPlayers().values()) {
+            myServer.getServer().sendToUDP(player.id, gameStatus);
         }
     }
 }

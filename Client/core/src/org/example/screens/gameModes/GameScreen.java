@@ -68,7 +68,7 @@ public class GameScreen implements ApplicationListener,Screen {
     protected List<BoundingBox> mapBounds;
     protected BoundingBox playerBounds;
     protected Stage stage;
-    private Image crosshair;
+    protected Image crosshair;
     protected Label healthLabel;
     private Label ammoLabel;
     protected Label scoreLabel;

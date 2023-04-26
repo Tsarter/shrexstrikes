@@ -3,12 +3,18 @@ package org.example.screens.gameModes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import org.example.MyGame;
 import org.example.Player;
+import org.example.messages.GameStatus;
 import org.example.spawner.Enemy;
 
 import java.io.IOException;
@@ -16,12 +22,12 @@ import java.io.IOException;
 public class PVPScreen extends GameScreen {
 
     private GameScreen gameScreen;
-    private int timeLeft;
     private int timeLimit;
+    private int timeLeft;
+    private Label timeLabel;
     public PVPScreen(MyGame myGame, int timeLimit) throws IOException {
         super(myGame);
-        this.timeLimit = timeLimit;
-        this.timeLeft = timeLimit;
+        this.timeLimit = 120;
     }
     @Override
     public void render(float delta) {
@@ -33,6 +39,7 @@ public class PVPScreen extends GameScreen {
         render();
         // update healt
         healthLabel.setText("Health: " + myGame.getPlayer().health);
+        timeLabel.setText("Time left: " + timeLeft);
         // Render the crosshair
         // Define the duration and scale of the animation
         float duration = 0.5f;
@@ -137,5 +144,37 @@ public class PVPScreen extends GameScreen {
         shadowLight.end();
         modelBatch.end();
 
+    }
+    @Override
+    public void show() {
+        stage = new Stage();
+        // Add text to the stage to display the player's health
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = new BitmapFont();
+        healthLabel = new Label("Health: " + myGame.getPlayer().health, labelStyle);
+        scoreLabel = new Label("Score: " + score, labelStyle);
+        timeLabel = new Label("Time left: " + timeLeft, labelStyle);
+        // Create the crosshair image and center it on the screen
+        Texture texture = new Texture("assets/crosshair-icon.png");
+        crosshair = new Image(texture);
+        // size the crosshair to 50x50 pixels
+        crosshair.setSize(25, 25);
+        crosshair.setPosition(
+                Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
+        healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        scoreLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
+        timeLabel.setPosition(10, Gdx.graphics.getHeight() - 60);
+
+        stage.addActor(healthLabel);
+        stage.addActor(scoreLabel);
+        stage.addActor(timeLabel);
+        // Add the crosshair to the stage
+        stage.addActor(crosshair);
+
+    }
+    public void handleIncomingGameStatus(GameStatus gameStatus) {
+        timeLeft = gameStatus.timeLeft;
+        score = gameStatus.score;
     }
 }

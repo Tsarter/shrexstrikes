@@ -25,7 +25,7 @@ public class Network {
         kryo.register(PlayerHit.class);
         kryo.register(MapBounds.class);
         kryo.register(ArrayList.class);
-        kryo.register(com.badlogic.gdx.math.collision.BoundingBox.class);
+        kryo.register(BoundingBox.class);
         kryo.register(com.badlogic.gdx.math.Vector3.class);
         kryo.register(Enemies.class);
         kryo.register(EnemyHit.class);
@@ -37,7 +37,7 @@ public class Network {
         kryo.register(Array.class);
         kryo.register(Object[].class);
         kryo.register(Player.Character.class);
-        kryo.register(BoundingBox.class);
+        kryo.register(GameStatus.class);
 
     }
 }

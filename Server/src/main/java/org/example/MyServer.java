@@ -98,61 +98,6 @@ public class MyServer {
                     mapBounds = ((MapBounds) object).boundingBox;
                 }
 
-                /*if (object instanceof Player ) {
-                    Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent their location
-                    Player playerClient = (Player) object;  // get the location that they sent
-                    testPlayer = playerClient;
-                    spawner.setPlayer(testPlayer);
-                    if (player.id == playerClient.id) {
-                        // update the server's player object with the new location
-                        player.x = playerClient.x;
-                        player.z = playerClient.z;
-                        player.rotation = playerClient.rotation;
-                        player.boundingBox = playerClient.boundingBox;
-                    }
-
-                    sendState();  // send info about all players to all players
-                }*/
-
-                /*else if (object instanceof PlayerBullet) {
-                    Player player = players.get(c.getRemoteAddressUDP());  // get the player that sent the bullet
-                    PlayerBullet playerBullet = (PlayerBullet) object;  // get the bullet that they sent
-
-                    // iterate over all the players and check if the bullet intersects with any of them
-                    for (Player p : players.values()) {
-                        if (p.id != player.id && p.boundingBox != null) {
-                        Ray bulletRay = new Ray(playerBullet.getPosition(), playerBullet.getDirection());  // create a ray from the bullet
-                            if (Intersector.intersectRayBoundsFast(bulletRay, p.boundingBox)) {
-                                // check if there are any blocking objects between the player that fired the bullet and the player that was hit
-                                boolean hit = true;
-                                // get the distance from the player that fired the bullet to the player that was hit
-                                float distance = playerBullet.getPosition().dst(p.boundingBox.getCenter(new com.badlogic.gdx.math.Vector3()));
-                                Vector3 intersection = new Vector3();
-                                for (BoundingBox bb : mapBounds) {
-                                    if (Intersector.intersectRayBounds(bulletRay, bb, intersection)){
-                                        // Object might be after the player that was hit, so check the distance
-                                        if (intersection.dst(playerBullet.getPosition()) < distance) {
-                                            hit = false;
-                                            System.out.println("Player: " + p.id + " was hit by player: " + player.id + " but there was an object in the way.");
-                                            break;
-                                        }
-                                    }
-
-                                }
-                                if (hit) {
-                                    System.out.println("Player: " + p.id + " was hit by player: " + player.id);
-                                    // send a message to all players that the player was hit
-                                    server.sendToAllTCP(new PlayerHit(p.id, player.id, 10));
-                                    break;
-                                }
-                            } else{
-                                System.out.println("Player missed");
-                            }
-                        }
-                    }
-
-                } */
-
             }
 
             /**

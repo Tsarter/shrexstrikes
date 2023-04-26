@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import org.example.messages.*;
+import org.example.screens.gameModes.PVPScreen;
 
 import java.io.IOException;
 
@@ -42,6 +43,7 @@ public class GameClient  {
                     if (object instanceof Player[]) {
                         // get the list of players
                         game.setPlayersList((Player[]) object);
+
                     }
                     // we recieved the server created player object
                     else if (object instanceof Player) {
@@ -78,6 +80,12 @@ public class GameClient  {
             if (gameStateChange.gameState == GameStateChange.GameStates.GAME_STARTING) {
                 game.showPVPScreen();
             }
+        }
+        // Update game status
+        if (object instanceof GameStatus) {
+            GameStatus gameStatus = (GameStatus) object;
+            PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
+            pvpScreen.handleIncomingGameStatus(gameStatus);
         }
     }
     public void handleZombies(Connection connection,Object object){
