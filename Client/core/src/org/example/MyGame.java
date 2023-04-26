@@ -15,6 +15,7 @@ import org.example.screens.gameModes.PVPScreen;
 import org.example.screens.gameModes.ZombiesScreen;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class MyGame extends Game {
 
@@ -32,7 +33,7 @@ public class MyGame extends Game {
     public SettingsScreen settingsScreen;
     private AssetManager assetManager;
     private GamePreferences gamePreferences;
-    private Player[] playersList;
+    private HashMap<Integer, Player> players = new HashMap<>();
     private Player player;
     private Client client;
     public Music music;
@@ -42,11 +43,11 @@ public class MyGame extends Game {
     public void setClient(Client client) {
         this.client = client;
     }
-    public Player[] getPlayersList() {
-        return playersList;
+    public HashMap<Integer, Player> getPlayers() {
+        return players;
     }
-    public void setPlayersList(Player[] playersList) {
-        this.playersList = playersList;
+    public void setPlayers(HashMap<Integer, Player> players) {
+        this.players = players;
     }
     public Player getPlayer() {
         return player;
@@ -197,9 +198,6 @@ public class MyGame extends Game {
     public void leaveGame() {
         client.close();
         showMenuScreen();
-    }
-    public Player[] getPlayers() {
-        return playersList;
     }
     @Override
     public void render() {

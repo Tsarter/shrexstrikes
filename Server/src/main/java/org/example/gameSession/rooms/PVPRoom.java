@@ -9,6 +9,7 @@ import org.example.Player;
 import org.example.gameSession.GameSession;
 import org.example.messages.*;
 import org.example.tasks.PVPGameTask;
+import org.example.tasks.UpdatePlayersTask;
 
 import java.util.Timer;
 
@@ -20,7 +21,7 @@ public class PVPRoom extends GameSession {
 
 
     public PVPRoom(MyServer myServer, int sessionID) {
-        super(GameMode.GameModes.PVP, sessionID);
+        super(GameMode.GameModes.PVP, sessionID, myServer);
         gameStarted = false;
         this.myServer = myServer;
     }
@@ -28,13 +29,17 @@ public class PVPRoom extends GameSession {
     public void startGame() {
         super.startGame();
         gameStarted = true;
-        // Start PVPGameTask
+        // Start PVPGameTask (Send GameStatus(timeleft) to clients every second)
+        // Kinda stupid
         PVPGameTask pvpGameTask = new PVPGameTask(120, this);
         super.timeLeft = 120;
         timer = new Timer();
         timer.scheduleAtFixedRate(pvpGameTask, 0, 1000);
         sendGameStartToPlayers();
         System.out.println("Players with id " + super.getPlayers().keySet() + " started a game in room " + sessionId);
+        // Start sending Player[] to clients every 100ms
+        UpdatePlayersTask updatePlayersTask = new UpdatePlayersTask(this);
+        timer.scheduleAtFixedRate(updatePlayersTask, 0, 40);
     }
 
     public void endGame() {
@@ -79,10 +84,7 @@ public class PVPRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;
-                player.timeLeft = playerClient.timeLeft;
             }
-
-            sendUpdatedPlayers();  // send info about all players to all players
         }
         else if (data instanceof PlayerBullet) {
             PlayerBullet playerBullet = (PlayerBullet) data;  // get the bullet that they sent
@@ -135,21 +137,15 @@ public class PVPRoom extends GameSession {
         Player playerWhoGotHit = super.getPlayers().get(playerHitID);
         playerWhoGotHit.health -= damage;
         if (playerWhoGotHit.health <= 0) {
-            // Player died
-            playerWhoGotHit.health = 0;
+            Player playerWhoHit = super.getPlayers().get(playerWhoHitID);
+            playerWhoHit.kills++;
+            super.log.add(playerWhoHitID + " killed " + playerHitID);
             playerWhoGotHit.alive = false;
-            // Check if all players are dead
-            boolean allDead = true;
-            for (Player p : super.getPlayers().values()) {
-                if (p.alive == true) {
-                    allDead = false;
-                    break;
-                }
-            }
-            if (allDead) {
-                // All players are dead, end the game
-                endGame();
-            }
+            playerWhoGotHit.health = 100;
+            playerWhoGotHit.x = 0;
+            playerWhoGotHit.z = 0;
+            playerWhoGotHit.rotation = 0;
+
         }
         PlayerHit playerHit = new PlayerHit(playerHitID, playerWhoHitID, damage);
         // Notify all players in the room that a player was hit

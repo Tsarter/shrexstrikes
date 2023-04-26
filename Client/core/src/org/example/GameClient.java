@@ -7,6 +7,7 @@ import org.example.messages.*;
 import org.example.screens.gameModes.PVPScreen;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class GameClient  {
@@ -40,11 +41,6 @@ public class GameClient  {
                         handleZombies(connection, object);
                     }
 
-                    if (object instanceof Player[]) {
-                        // get the list of players
-                        game.setPlayersList((Player[]) object);
-
-                    }
                     // we recieved the server created player object
                     else if (object instanceof Player) {
                         game.setPlayer((Player) object);
@@ -69,6 +65,16 @@ public class GameClient  {
         }
     }
     public void handlePVP(Connection connection,Object object){
+        if (object instanceof HashMap<?,?>) {
+            HashMap<Integer, Player> players = (HashMap<Integer, Player>) object;
+            // get the list of players
+            game.setPlayers(players);
+            if (players.containsKey(game.getPlayer().id)) {
+                // if the player is in the list of players
+                // set the player to the player in the list
+                game.setPlayer(players.get(game.getPlayer().id));
+            }
+        }
         // we recieved playerHit
         if (object instanceof PlayerHit) {
             PlayerHit playerHit = (PlayerHit) object;
@@ -89,13 +95,13 @@ public class GameClient  {
         }
     }
     public void handleZombies(Connection connection,Object object){
-        if (object instanceof Player[]) {
+        if (object instanceof HashMap<?,?>) {
             // get the list of players
-            game.setPlayersList((Player[]) object);
+            game.setPlayers((HashMap<Integer, Player>) object);
 
             if (game.gameMode == GameMode.GameModes.ZOMBIES){
                 if(game.gameState !=GameStateChange.GameStates.IN_GAME &&
-                        game.getPlayersList().length == 1) {
+                        game.getPlayers().size() == 1) {
 
                     game.showZombiesScreen();
                 }

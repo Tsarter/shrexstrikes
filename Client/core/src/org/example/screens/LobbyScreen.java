@@ -82,9 +82,9 @@ public class LobbyScreen implements Screen {
         layout.clearChildren();
         stage.clear();
         layout.add(title).padBottom(10f).row();
-        layout.add("Total players: " + String.valueOf(game.getPlayers().length) + " / 2").padBottom(10f).row();
+        layout.add("Total players: " + String.valueOf(game.getPlayers().size()) + " / 2").padBottom(10f).row();
         layout.add("Players:").padBottom(10f).row();
-        for (Player player : game.getPlayers()) {
+        for (Player player : game.getPlayers().values()) {
             layout.add("Player id: " + String.valueOf(player.id)).padBottom(10f).row();
         }
 

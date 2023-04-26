@@ -22,7 +22,7 @@ public class MyServer {
      * We use a hashmap (python dictionary) that has their IP as key and Player object as value
      * Each player object has coordinates (x and y)
      */
-    private final HashMap<Integer, org.example.Player> players = new HashMap<>();
+    private HashMap<Integer, org.example.Player> players = new HashMap<>();
     private final Server server;
     // Define a data structure to associate each client's IP address with their player ID
     // Map<Integer, Integer> playerIds = new HashMap<>();
@@ -55,7 +55,6 @@ public class MyServer {
 
                 System.out.println(c.getID() + " connected");
 
-                sendState();  // send info about all players to all players
             }
 
             /**
@@ -110,7 +109,7 @@ public class MyServer {
                 // Remove player from game session
                 gameSessionManager.removePlayerFromGameSession(player);
 
-                sendState();  // send info about all players to all players
+
             }
         });
 
@@ -120,17 +119,6 @@ public class MyServer {
 
     }
 
-    /**
-     * Sends all player objects to all players.
-     * So everyone can see, where all the players are.
-     */
-    private void sendState() {
-        // Create a player array from the hashmap values
-        Player[] playersList = players.values().toArray(new Player[0]);
-
-        // send this array to all of the connected clients
-        server.sendToAllUDP(playersList);
-    }
 
     public Server getServer() {
         return server;

@@ -273,7 +273,7 @@ public class GameScreen implements ApplicationListener,Screen {
          */
         if (myGame.getClient().isConnected()) {
             // render all other players
-            for (Player otherPlayer : myGame.getPlayers()) {
+            for (Player otherPlayer : myGame.getPlayers().values()) {
                 // don't render the player if they are the same as the current playerd
                 if (myGame.getPlayer().id != otherPlayer.id) {
                 // create a new instance of the player model for this player
