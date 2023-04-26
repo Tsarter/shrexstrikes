@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import org.example.messages.*;
 import org.example.screens.gameModes.PVPScreen;
+import org.example.screens.gameModes.ZombiesScreen;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -126,6 +127,11 @@ public class GameClient  {
         else if (object instanceof EnemyHit) {
             EnemyHit enemyHit = (EnemyHit) object;
             game.gameScreen.handleIncomingEnemyHit(enemyHit);
+        }
+        else if (object instanceof PlayerHit) {
+            PlayerHit playerHit = (PlayerHit) object;
+            ZombiesScreen zombiesScreen = (ZombiesScreen) game.gameScreen;
+            zombiesScreen.handleIncomingPlayerHit(playerHit);
         }
     }
 }
