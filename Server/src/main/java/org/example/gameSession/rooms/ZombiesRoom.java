@@ -90,7 +90,6 @@ public class ZombiesRoom extends GameSession {
     public void sendState() {
         // Send the current state of the game to all players in the room
         // Create a player array from the hashmap values
-        //TODO: Change this to hashmap, key is player id, value is player object
         Player[] playersList = super.getPlayers().values().toArray(new Player[0]);
 
         // send this array to all players in the room

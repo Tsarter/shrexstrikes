@@ -17,7 +17,9 @@ public class MyInputProcessor implements InputProcessor {
     private boolean jumpPressed;
     private boolean jumpOnGoing = false;
     private double jumpHeight = 0;
-    private final double initialPlayerHeight;
+    private float jumpTime = 0f;
+    private final float JUMP_DURATION = 1f;
+    private final float initialPlayerHeight;
     private boolean cursorCaptured = true;
 
     private float zoom;
@@ -53,6 +55,7 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.SPACE:
                 if (!jumpOnGoing) {
                     jumpOnGoing = true;
+                    jumpTime = 0f;
                 }
                 break;
             case Input.Keys.ESCAPE:
@@ -121,14 +124,14 @@ public class MyInputProcessor implements InputProcessor {
             gameScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
         }
         if (jumpOnGoing) {
-            if (y < initialPlayerHeight * 2) {
-                y += 0.1f;
-            } else {
+            jumpTime += delta;
+            if (jumpTime > JUMP_DURATION) {
                 jumpOnGoing = false;
-            }
-        } else {
-            if (y > initialPlayerHeight){
-                y -= 0.1f;
+                y = initialPlayerHeight;
+            } else {
+                float jumpProgress = jumpTime / JUMP_DURATION;
+                float yOffset = (float) (Math.sin(jumpProgress * Math.PI) * initialPlayerHeight * 0.5f);
+                y = initialPlayerHeight + yOffset;
             }
         }
         gameScreen.cameraPosition.y = y;
