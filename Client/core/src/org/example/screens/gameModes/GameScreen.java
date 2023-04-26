@@ -376,10 +376,7 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void hide() {
-        healthLabel.remove();
-        crosshair.remove();
-        //stage.dispose();
-
+        Gdx.input.setCursorCatched(false);
     }
     public void shootBullet() {
         // create a new bullet

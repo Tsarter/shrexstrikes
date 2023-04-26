@@ -44,7 +44,11 @@ public class PVPRespawnScreen implements Screen {
         countdownLabel.setText("Respawning in " + (int)game.getPlayer().timeTilRespawn + " seconds");
         // if the countdown is finished, switch back to the game screen
         if (game.getPlayer().timeTilRespawn <= 0) {
-            game.showPVPScreen();
+            if (game.getPlayer().timeLeft <= 6)
+                game.showGameOverScreen();
+            else if (game.getPlayer().timeLeft > 0){
+                game.showPVPScreen();
+            }
         }
         // clear the screen and draw the stage
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);

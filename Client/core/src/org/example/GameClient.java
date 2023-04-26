@@ -43,7 +43,9 @@ public class GameClient  {
 
                     // we recieved the server created player object
                     else if (object instanceof Player) {
-                        game.setPlayer((Player) object);
+                        Player player = (Player) object;
+                        player.name = game.getGamePreferences().getUsername();
+                        game.setPlayer(player);
                         int roomID = 100; // For testing purposes the id is 100
                         game.getClient().sendTCP(new GameMode(game.getPlayer().id, game.gameMode, 100));
                     }
@@ -90,6 +92,9 @@ public class GameClient  {
             GameStateChange gameStateChange = (GameStateChange) object;
             if (gameStateChange.gameState == GameStateChange.GameStates.GAME_STARTING) {
                 game.showPVPScreen();
+            }
+            if (gameStateChange.gameState == GameStateChange.GameStates.GAME_OVER) {
+                game.showGameOverScreen();
             }
         }
         // Update game status

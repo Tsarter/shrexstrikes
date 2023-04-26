@@ -63,6 +63,7 @@ public class ZombiesRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.getBoundingBox();
+                player.name = playerClient.name;
             }
 
             //sendState();  // send info about all players in the room

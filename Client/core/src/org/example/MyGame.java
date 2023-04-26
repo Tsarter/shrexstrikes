@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.esotericsoftware.kryonet.Client;
 import org.example.messages.GameMode;
 import org.example.messages.GameStateChange;
@@ -32,12 +33,14 @@ public class MyGame extends Game {
     public PauseOverlay pauseOverlay; // also a screen, just called Overlay
     public SettingsScreen settingsScreen;
     public PVPRespawnScreen pvpRespawnScreen;
+    public GameOverScreen gameOverScreen;
     private AssetManager assetManager;
     private GamePreferences gamePreferences;
     private HashMap<Integer, Player> players = new HashMap<>();
     private Player player;
     private Client client;
     public Music music;
+    private Skin skin;
     public Client getClient() {
         return client;
     }
@@ -59,9 +62,14 @@ public class MyGame extends Game {
     public AssetManager getAssetManager() {
         return assetManager;
     }
+    public Skin getSkin() {
+        return skin;
+    }
 
     @Override
     public void create() {
+        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        player = new Player();
         gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
         menuScreen = new MenuScreen(this);
@@ -71,6 +79,7 @@ public class MyGame extends Game {
         pauseOverlay = new PauseOverlay(this);
         settingsScreen = new SettingsScreen(this);
         pvpRespawnScreen = new PVPRespawnScreen(this);
+        gameOverScreen = new GameOverScreen(this);
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -162,9 +171,8 @@ public class MyGame extends Game {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
-
-                } else if (assetManager.update()) {
+                }
+                if (assetManager.update()) {
                     // All assets have been loaded, notify the server that the client is ready
                     if (gameScreen.isCreated() == false) {
                         // To avoid 2x creation of the pvpScreen
@@ -188,6 +196,14 @@ public class MyGame extends Game {
             @Override
             public void run() {
                 setScreen(pvpRespawnScreen);
+            }
+        });
+    }
+    public void showGameOverScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(gameOverScreen);
             }
         });
     }

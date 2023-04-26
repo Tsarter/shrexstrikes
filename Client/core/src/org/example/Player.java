@@ -8,7 +8,7 @@ public class Player {
     public float x, y, z;
     public float rotation;
     public int id;
-    // Bounds of the player
+    public String name = "Test";
     public BoundingBox boundingBox;
     public int health = 100;
     public int score = 0;

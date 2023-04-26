@@ -18,12 +18,13 @@ public class PVPRoom extends GameSession {
     public MyServer myServer;
     private Timer timer;
     private int roomSize = 2;
+    private int timeLimit;
 
-
-    public PVPRoom(MyServer myServer, int sessionID) {
+    public PVPRoom(MyServer myServer, int sessionID, int timeLimit) {
         super(GameMode.GameModes.PVP, sessionID, myServer);
         gameStarted = false;
         this.myServer = myServer;
+        this.timeLimit = timeLimit;
     }
 
     public void startGame() {
@@ -31,8 +32,8 @@ public class PVPRoom extends GameSession {
         gameStarted = true;
         // Start PVPGameTask (Send GameStatus(timeleft) to clients every second)
         // Kinda stupid
-        PVPGameTask pvpGameTask = new PVPGameTask(120, this);
-        super.timeLeft = 120;
+        PVPGameTask pvpGameTask = new PVPGameTask(timeLimit, this);
+        super.timeLeft = timeLimit;
         timer = new Timer();
         timer.scheduleAtFixedRate(pvpGameTask, 0, 1000);
         sendGameStartToPlayers();
@@ -46,6 +47,7 @@ public class PVPRoom extends GameSession {
         super.endGame();
         gameStarted = false;
         sendGameEndToPlayers();
+        timer.cancel();
     }
     @Override
     public void processData(Object data) {
@@ -84,6 +86,7 @@ public class PVPRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;
+                player.name = playerClient.name;
             }
         }
         else if (data instanceof PlayerBullet) {
