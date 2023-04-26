@@ -6,9 +6,8 @@ import org.example.gameSession.GameSession;
 import org.example.messages.GameMode;
 
 public class TestingRoom extends GameSession {
-
-    public TestingRoom(MyServer myServer) {
-        super(GameMode.GameModes.TESTING);
+    public TestingRoom(GameMode.GameModes gameMode, int sessionId) {
+        super(gameMode, sessionId);
     }
 
 }

@@ -1,19 +1,15 @@
 package org.example;
 
-
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.math.collision.Ray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import org.example.gameSession.GameSession;
 import org.example.gameSession.GameSessionManager;
+import org.example.gameSession.rooms.PVPRoom;
+import org.example.gameSession.rooms.ZombiesRoom;
 import org.example.messages.*;
-import org.example.gameSession.rooms.zombies.spawner.Enemy;
 import org.example.gameSession.rooms.zombies.spawner.EnemySpawner;
-import org.example.tasks.EnemyLocationUpdateTask;
-import org.example.tasks.EnemySpawnerTask;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -26,18 +22,15 @@ public class MyServer {
      * We use a hashmap (python dictionary) that has their IP as key and Player object as value
      * Each player object has coordinates (x and y)
      */
-    private final HashMap<java.net.InetSocketAddress, org.example.Player> players = new HashMap<>();
+    private final HashMap<Integer, org.example.Player> players = new HashMap<>();
     private final Server server;
     // Define a data structure to associate each client's IP address with their player ID
-    Map<InetAddress, Integer> playerIds = new HashMap<>();
+    // Map<Integer, Integer> playerIds = new HashMap<>();
     // Keep track of the next available player ID
     int nextPlayerId = 0;
     private Timer timer;
     private List<BoundingBox> mapBounds;
-    private Player testPlayer;
-    private EnemySpawner spawner;
-    private TimerTask enemySpawnerTask;
-    private TimerTask enemyLocationUpdateTask;
+    private static int roomId = 0;
     private GameSessionManager gameSessionManager;
     private boolean tasksStarted = false;
     public MyServer() throws IOException {
@@ -53,17 +46,14 @@ public class MyServer {
              * We want to make them a new player object to keep track of their coordinates
              */
             public void connected(Connection c) {
-                // Assign the next available player ID to the client
-                int playerId = nextPlayerId++;
-                playerIds.put(c.getRemoteAddressTCP().getAddress(), playerId);
-
-                Player player = new Player(0, 0, playerId);
+                // Get connection id
+                // playerIds.put(c.getRemoteAddressTCP().getAddress(), c.getID());
+                Player player = new Player(0, 0, c.getID());
                 // Send the player to the client
                 c.sendTCP(player);
+                players.put(c.getID(), player);
 
-                players.put(c.getRemoteAddressUDP(), player);
-
-                System.out.println(c.getRemoteAddressUDP().toString() + " connected");
+                System.out.println(c.getID() + " connected");
 
                 sendState();  // send info about all players to all players
             }
@@ -72,16 +62,37 @@ public class MyServer {
              * We received some data from one of the players.
              */
             public void received(Connection c, Object object) {
-
-                if (gameSessionManager.playerIds.containsKey(c.getRemoteAddressTCP().getAddress())) {
+                if (gameSessionManager.players.containsKey(c.getID())) {
                     // Pass the data to the appropriate game session for processing
                     gameSessionManager.processData(c, object);
                 } else if (object instanceof GameMode) {
                     GameMode gameMode = (GameMode) object;
-                    Player player = players.get(c.getRemoteAddressUDP());
+                    Player player = players.get(c.getID());
                     // Create a new game session
-                    gameSessionManager.addPlayerToGameSession(player, gameMode.gameMode);
-                    gameSessionManager.playerIds.put(c.getRemoteAddressTCP().getAddress(), player.id);
+                    if(GameMode.GameModes.ZOMBIES.equals(gameMode.gameMode)) {
+                        ZombiesRoom zombiesRoom = new ZombiesRoom(MyServer.this, roomId);
+
+                        gameSessionManager.addGameSession(zombiesRoom, roomId);
+                        gameSessionManager.addPlayerToGameSession(player, roomId);
+                        gameSessionManager.players.put(c.getID(), player);
+                        roomId = roomId + 1;
+                    }
+                    // If PVP gamemode is selected
+                    else if(GameMode.GameModes.PVP.equals(gameMode.gameMode)) {
+                        // if room with this id exists, add player to it
+                        if(gameSessionManager.getGameSessions().containsKey(gameMode.roomId)) {
+                            gameSessionManager.addPlayerToGameSession(player, gameMode.roomId);
+                            gameSessionManager.players.put(c.getID(), player);
+                        }
+                        // else create a new room
+                        else {
+                            PVPRoom pvpRoom = new PVPRoom(MyServer.this, gameMode.roomId);
+                            gameSessionManager.addGameSession(pvpRoom, gameMode.roomId);
+                            gameSessionManager.addPlayerToGameSession(player, gameMode.roomId);
+                            gameSessionManager.players.put(c.getID(), player);
+                            //roomId = roomId + 1;
+                        }
+                    }
                 }
                 if (object instanceof MapBounds) {
                     mapBounds = ((MapBounds) object).boundingBox;
@@ -149,8 +160,8 @@ public class MyServer {
              * Removes that player from the game.
              */
             public void disconnected(Connection c) {
-                players.remove(c.getRemoteAddressUDP());
-                Player player = players.get(c.getRemoteAddressUDP());
+                Player player = players.get(c.getID());
+                players.remove(c.getID());
                 // Remove player from game session
                 gameSessionManager.removePlayerFromGameSession(player);
 

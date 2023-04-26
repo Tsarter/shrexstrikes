@@ -1,4 +1,4 @@
-package org.example.screens;
+package org.example.screens.gameModes;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -16,19 +16,11 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.*;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import org.example.MyGame;
 import org.example.MyInputProcessor;
-import org.example.Network;
 import org.example.Player;
 import org.example.animations.Pulse;
 import org.example.loader.ObjLoaderCustom;
@@ -43,30 +35,20 @@ import java.util.Map;
 
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
-public class ShrexScreen implements ApplicationListener,Screen {
-    private MyGame myGame;
+public class GameScreen implements ApplicationListener,Screen {
+    protected MyGame myGame;
 
 
     public HashMap<Integer, Enemy> enemies = new HashMap<Integer, Enemy>();
-    private boolean gameStarted = false;
-    private ModelInstance templateEnemyModelInstance;
-    private List<Enemy> enemiesToHide = new ArrayList<Enemy>();
-    public ShrexScreen(MyGame myGame) throws IOException {
+    private boolean created = false;
+    protected ModelInstance templateEnemyModelInstance;
+    public List<Enemy> enemiesToHide = new ArrayList<Enemy>();
+    public GameScreen(MyGame myGame) throws IOException {
         this.myGame = myGame;
 
     }
-    // gets called when collision is detected
-    class MyContactListener extends ContactListener {
-        @Override
-        public boolean onContactAdded (int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-            System.out.println("Collision detected onContactAdded");
-            return true;
-        }
-
+    public GameScreen(){
     }
-
-
-    MyContactListener contactListener;
     public ModelBatch modelBatch;
     public Model model;
     public ModelInstance groundModelInstance;
@@ -75,26 +57,33 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public Vector3 cameraDirection;
     private float cameraAngle;
     public float cameraSpeed;
-    private InputMultiplexer inputMultiplexer;
-    private MyInputProcessor myInputProcessor = new MyInputProcessor(this);
-    private ModelInstance playerModelInstance;
+    protected InputMultiplexer inputMultiplexer;
+    protected MyInputProcessor myInputProcessor;
+    protected ModelInstance playerModelInstance;
 
-    private DirectionalShadowLight shadowLight;
-    private ModelBatch shadowBatch;
-    private Environment environment = new Environment();
+    protected DirectionalShadowLight shadowLight;
+    protected ModelBatch shadowBatch;
+    protected Environment environment;
 
-    private List<BoundingBox> mapBounds;
-    private BoundingBox playerBounds;
-    private Stage stage;
+    protected List<BoundingBox> mapBounds;
+    protected BoundingBox playerBounds;
+    protected Stage stage;
     private Image crosshair;
-    private Label healthLabel;
-
+    protected Label healthLabel;
+    private Label ammoLabel;
+    protected Label scoreLabel;
+    protected Label waveLabel;
+    protected Label enemiesRemainingLabel;
+    protected int score = 0;
+    protected int currentWave = 0;
+    private int enemiesRemaining = 0;
     public float zoom = 67;
-
-    Map<Integer, Float> previousRotations = new HashMap<Integer, Float>();
+    Map<Integer, Float> previousRotations;
     @Override
     public void create() {
         Bullet.init();
+        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
+        previousRotations = new HashMap<Integer, Float>();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();
         ModelLoader loader = new ObjLoader();
@@ -118,6 +107,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
 
         // create a directional light for casting shadows
+        environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         shadowLight = new DirectionalShadowLight(10024, 10024, 60f, 60f, 1f, 300f);
         shadowLight.set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f);
@@ -177,7 +167,7 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         //collisionWorld.addCollisionObject(obj.body, OBJECT_FLAG, GROUND_FLAG);
         Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
-        gameStarted = true;
+        created = true;
     }
 
     /**
@@ -186,6 +176,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
      */
     @Override
     public void render(float delta) {
+        if (myGame.gameState != GameStateChange.GameStates.IN_GAME) {
+            // Only render the game if the game is in the in game state
+            return;
+        }
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -194,6 +188,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         render();
         // update healt
         healthLabel.setText("Health: " + myGame.getPlayer().health);
+        waveLabel.setText("Wave: " + currentWave);
+        scoreLabel.setText("Score: " + score);
+        enemiesRemainingLabel.setText("Enemies Remaining: " + enemiesRemaining);
         // Render the crosshair
         // Define the duration and scale of the animation
         float duration = 0.5f;
@@ -201,6 +198,10 @@ public class ShrexScreen implements ApplicationListener,Screen {
 
         stage.act(delta);
         stage.draw();
+        // Center the crosshair
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        Gdx.input.setCursorCatched(true);
+
     }
     @Override
     public void render() {
@@ -245,10 +246,8 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowLight.begin(Vector3.Zero, camera.direction);
         shadowBatch.begin(shadowLight.getCamera());
         modelBatch.begin(camera);
-        shadowBatch.render(groundModelInstance);
         modelBatch.render(groundModelInstance, environment);
         modelBatch.render(playerModelInstance);
-        shadowBatch.render(playerModelInstance);
 
         // Render enemies
         HashMap<Integer, Enemy> clonedEnemies = (HashMap<Integer, Enemy>) enemies.clone();
@@ -322,7 +321,6 @@ public class ShrexScreen implements ApplicationListener,Screen {
         shadowBatch.dispose();
         modelBatch.dispose();
         model.dispose();
-        contactListener.dispose();
 
     }
 
@@ -352,7 +350,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
         healthLabel = new Label("Health: " + myGame.getPlayer().health, labelStyle);
-
+        waveLabel = new Label("Wave: " + currentWave, labelStyle);
+        enemiesRemainingLabel = new Label("Enemies Remaining: " + enemiesRemaining, labelStyle);
+        scoreLabel = new Label("Score: " + score, labelStyle);
         // Create the crosshair image and center it on the screen
         Texture texture = new Texture("assets/crosshair-icon.png");
         crosshair = new Image(texture);
@@ -362,9 +362,14 @@ public class ShrexScreen implements ApplicationListener,Screen {
                 Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
                 Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
         healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        waveLabel.setPosition(Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() - 20);
+        enemiesRemainingLabel.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 40);
+        scoreLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         // Add the health label to the stage
         stage.addActor(healthLabel);
-
+        stage.addActor(waveLabel);
+        stage.addActor(enemiesRemainingLabel);
+        stage.addActor(scoreLabel);
         // Add the crosshair to the stage
         stage.addActor(crosshair);
 
@@ -406,6 +411,9 @@ public class ShrexScreen implements ApplicationListener,Screen {
     public void handleIncomingEnemies(Enemies enemiesInfo){
 
             System.out.println("Enemies received");
+            currentWave = enemiesInfo.waveNumber;
+            enemiesRemaining = enemiesInfo.enemies.size();
+            score = enemiesInfo.score;
             for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
                 //if the health is 0, we hide the enemy
                 if ((int) entry.getValue().get("health") <= 0) {
@@ -440,6 +448,13 @@ public class ShrexScreen implements ApplicationListener,Screen {
             enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
 
         }
+    }
+
+    public MyGame getMyGame() {
+        return myGame;
+    }
+    public boolean isCreated() {
+        return created;
     }
 
 }

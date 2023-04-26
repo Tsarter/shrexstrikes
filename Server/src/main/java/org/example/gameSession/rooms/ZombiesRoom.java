@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Timer;
 
 public class ZombiesRoom extends GameSession {
-    private int idOfPlayer;
     private List<Enemy> enemies = new ArrayList<>();
     private int score = 0;
     private int time = 0;
@@ -39,11 +38,11 @@ public class ZombiesRoom extends GameSession {
     private EnemySpawnerTask enemySpawnerTask;
     private EnemyLocationUpdateTask enemyLocationUpdateTask;
     private Timer timer = new Timer();
-    private static int idCounter = 0;
+    private static int zombieIdCounter = 0;
     int zombieDamage = 10;
-
-    public ZombiesRoom(MyServer myServer) {
-        super(GameMode.GameModes.ZOMBIES);
+    int zombieHealth = 100;
+    public ZombiesRoom(MyServer myServer, int sessionId) {
+        super(GameMode.GameModes.ZOMBIES, sessionId);
         this.myServer = myServer;
         this.server = myServer.getServer();
     }
@@ -70,18 +69,35 @@ public class ZombiesRoom extends GameSession {
         }
         if (object instanceof GameStateChange) {
             GameStateChange gameStateChange = (GameStateChange) object;
-            if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME) {
+            if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME &&
+                    super.getCurrentGameState() == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                // Resume the game, if the player was previously in the pause menu
+                System.out.println("Resuming game");
+                resumeGame();
+            }
+            else if (gameStateChange.gameState == GameStateChange.GameStates.IN_GAME) {
+                System.out.println("Starting game");
                 startGame();
+            }
+            else if (gameStateChange.gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                System.out.println("Pausing game");
+                pauseGame();
             }
         }
     }
     public void sendState() {
         // Send the current state of the game to all players in the room
         // Create a player array from the hashmap values
+        //TODO: Change this to hashmap, key is player id, value is player object
         Player[] playersList = super.getPlayers().values().toArray(new Player[0]);
 
         // send this array to all players in the room
-        server.sendToAllUDP(playersList);
+        //server.sendToAllUDP(playersList);
+        // send this array to all the players in the room
+        for (Player p : super.getPlayers().values()) {
+            server.sendToUDP(p.id, playersList);
+        }
+
     }
     @Override
     public void startGame() {
@@ -118,14 +134,14 @@ public class ZombiesRoom extends GameSession {
     private void spawnZombies() {
         // Code to randomly spawn zombies in the game world
         for (int i = 0; i < zombiesRemaining; i++) {
-            idCounter = idCounter + 1;
-            System.out.println("Spawning enemy with id: " + idCounter);
+            zombieIdCounter = zombieIdCounter + 1;
+            // System.out.println("Spawning enemy with id: " + zombieIdCounter);
             // Generate a random position for the enemy
             float x = MathUtils.random(-50f, 50f);
             float y = 0.4f;
             float z = MathUtils.random(-50f, 50f);
             float speed = MathUtils.random(0.5f, 2f);
-            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, idCounter, speed, this);
+            Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, zombieIdCounter, speed, this);
 
             // Add the enemy to the list of active enemies
             enemies.add(enemy);
@@ -143,7 +159,6 @@ public class ZombiesRoom extends GameSession {
 
     public void sendGameStatusToPlayers() {
         // Code to send information about the current game state to all players in the room
-        // ...
         HashMap enemyStatuses = new HashMap();
         for (Enemy e : enemies) {
             HashMap enemyInfo = new HashMap();
@@ -154,14 +169,15 @@ public class ZombiesRoom extends GameSession {
             enemyInfo.put("type", e.type);
             enemyInfo.put("id", e.id);
             enemyInfo.put("health", e.health);
-            System.out.println("Enemy: " + e.id + " health: " + e.health);
             enemyStatuses.put(e.id, enemyInfo);
         }
         if (enemies.size() > 0 && server.getConnections().length > 0) {
-            Enemies enemiesObject = new Enemies(enemyStatuses);
-            System.out.println("Sending enemies, total: " + enemies.size());
-            // send this array to all of the connected clients
-            server.sendToAllUDP(enemiesObject);
+            Enemies enemiesObject = new Enemies(enemyStatuses, currentWave, score);
+            System.out.println("Sending enemies to room " + super.sessionId + ", total: " + enemies.size());
+            // send this array to all the players in the room
+            for (Player p : super.getPlayers().values()) {
+                server.sendToUDP(p.id, enemiesObject);
+            }
         }
     }
     public void checkIfBulletHitEnemy(PlayerBullet playerBullet, Player player) {
@@ -187,20 +203,27 @@ public class ZombiesRoom extends GameSession {
 
                     }
                     if (hit) {
-
-                        System.out.println("Enemy: " + e.id + " was hit by player: " + player.id);
-                        // send a message to all players that the enemy was hit
+                        // send a message to all players in the room to tell them that the enemy was hit
                         enemies.get(enemies.indexOf(e)).dealDamage(zombieDamage);
                         if (e.health <= 0) {
-                            server.sendToAllTCP(new EnemyHit(e.id, player.id, zombieDamage, true));
+                            for (Player p : super.getPlayers().values()) {
+                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, true));
+                            }
+                            player.score += 20;
+                            score += 20;
                             enemies.remove(e);
                             break;
+                        } else{
+                            for (Player p : super.getPlayers().values()) {
+                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, false));
+                            }
+                            player.score += 10;
+                            score += 10;
                         }
-                        server.sendToAllUDP(new EnemyHit(e.id, player.id, zombieDamage, false));
                         break;
                     }
                 } else{
-                    System.out.println("Player missed");
+                    // System.out.println("Player missed");
                 }
             }
         }

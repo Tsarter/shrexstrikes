@@ -1,19 +1,11 @@
 package org.example;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import org.example.animations.Pulse;
 import org.example.messages.*;
-import org.example.spawner.Enemy;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class GameClient  {
@@ -40,59 +32,22 @@ public class GameClient  {
                  * In this case, it is probably a list of all players.
                  */
                 public void received(Connection connection, Object object) {
+                    if (game.gameMode == GameMode.GameModes.PVP) {
+                        handlePVP(connection, object);
+                    }
+                    if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                        handleZombies(connection, object);
+                    }
+
                     if (object instanceof Player[]) {
                         // get the list of players
                         game.setPlayersList((Player[]) object);
-                        // update the lobby screen
-                        if (game.gameState == MyGame.GameState.LOBBY) {
-                            game.lobbyScreen.updateLobby();
-                        }
-                        if (game.gameMode == GameMode.GameModes.PVP &&
-                                game.gameState != MyGame.GameState.GAME) {
-                            if (game.getPlayersList().length == 2) {
-                                game.showShrexScreen();
-                            }
-                        }
-                        /*if (game.gameMode == MyGame.GameType.TWOvTWO &&
-                                game.gameState != MyGame.GameState.GAME) {
-                            if (game.getPlayersList().length == 4) {
-                                game.showShrexScreen();
-                            }
-                        }*/
-                        if (game.gameMode == GameMode.GameModes.ZOMBIES &&
-                                game.gameState != MyGame.GameState.GAME) {
-                            if (game.getPlayersList().length == 1) {
-                                game.showShrexScreen();
-                            }
-                        }
-                        if (game.gameMode == GameMode.GameModes.TESTING &&
-                                game.gameState != MyGame.GameState.GAME) {
-                            if (game.getPlayersList().length == 1) {
-                                game.showShrexScreen();
-                            }
-                        }
                     }
                     // we recieved the server created player object
                     else if (object instanceof Player) {
                         game.setPlayer((Player) object);
-                        game.getClient().sendTCP(new GameMode(game.getPlayer().id, game.gameMode));
-                    }
-                    // we recieved playerHit
-                    else if (object instanceof PlayerHit) {
-                        PlayerHit playerHit = (PlayerHit) object;
-                        // if the player that was hit is the current player
-                        game.shrexScreen.handleIncomingPlayerHit(playerHit);
-                    }
-                    else if (object instanceof Enemies) {
-                        if (game.gameMode == GameMode.GameModes.ZOMBIES) {
-                            Enemies enemiesInfo = (Enemies) object;
-                            game.shrexScreen.handleIncomingEnemies(enemiesInfo);
-                        }
-
-                    }
-                    else if (object instanceof EnemyHit) {
-                        EnemyHit enemyHit = (EnemyHit) object;
-                        game.shrexScreen.handleIncomingEnemyHit(enemyHit);
+                        int roomID = 100; // For testing purposes the id is 100
+                        game.getClient().sendTCP(new GameMode(game.getPlayer().id, game.gameMode, 100));
                     }
 
 
@@ -106,9 +61,53 @@ public class GameClient  {
              */
             game.getClient().start();
             game.getClient().connect(5000, "localhost", 8080, 8081);
-
+            int j = 0;
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public void handlePVP(Connection connection,Object object){
+        // we recieved playerHit
+        if (object instanceof PlayerHit) {
+            PlayerHit playerHit = (PlayerHit) object;
+            // if the player that was hit is the current player
+            game.gameScreen.handleIncomingPlayerHit(playerHit);
+        }
+        if (object instanceof GameStateChange) {
+            GameStateChange gameStateChange = (GameStateChange) object;
+            if (gameStateChange.gameState == GameStateChange.GameStates.GAME_STARTING) {
+                game.showPVPScreen();
+            }
+        }
+    }
+    public void handleZombies(Connection connection,Object object){
+        if (object instanceof Player[]) {
+            // get the list of players
+            game.setPlayersList((Player[]) object);
+
+            if (game.gameMode == GameMode.GameModes.ZOMBIES){
+                if(game.gameState !=GameStateChange.GameStates.IN_GAME &&
+                        game.getPlayersList().length == 1) {
+
+                    game.showZombiesScreen();
+                }
+            }
+        }
+        // we recieved playerHit
+        else if (object instanceof PlayerHit) {
+            PlayerHit playerHit = (PlayerHit) object;
+            // if the player that was hit is the current player
+            game.gameScreen.handleIncomingPlayerHit(playerHit);
+        }
+        else if (object instanceof Enemies) {
+            if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                Enemies enemiesInfo = (Enemies) object;
+                game.gameScreen.handleIncomingEnemies(enemiesInfo);
+            }
+        }
+        else if (object instanceof EnemyHit) {
+            EnemyHit enemyHit = (EnemyHit) object;
+            game.gameScreen.handleIncomingEnemyHit(enemyHit);
         }
     }
 }

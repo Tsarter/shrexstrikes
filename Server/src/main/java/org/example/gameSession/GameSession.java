@@ -2,16 +2,17 @@ package org.example.gameSession;
 
 import org.example.Player;
 import org.example.messages.GameMode;
+import org.example.messages.GameStateChange;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 
 public class GameSession {
-    private int roomId;
+    public int sessionId;
+    public int timeLeft;
     private HashMap<Integer, Player> players = new HashMap<>();
     private GameMode.GameModes gameMode;
-    public static int roomIdCounter = 0;
 
     public void processData(Object data) {
 
@@ -28,38 +29,33 @@ public class GameSession {
         return false;
     }
 
-    public enum gameState {
-        RUNNING,
-        PAUSED,
-        ENDED
-    }
-    private gameState currentGameState;
+    private GameStateChange.GameStates currentGameState;
     private Timer timer;
     // scoreboard
     private HashMap<Integer, Player> scoreboard = new HashMap<>();
 
-    public GameSession(GameMode.GameModes gameMode) {
-        this.roomId = roomIdCounter;
+    public GameSession(GameMode.GameModes gameMode, int sessionId) {
         this.gameMode = gameMode;
-        roomIdCounter++;
+        this.sessionId = sessionId;
     }
     public void addPlayer(Player player) {
         players.put(player.id, player);
     }
+
     public void removePlayer(Player player) {
         players.remove(player.id);
     }
     public void startGame() {
-        return;
+        currentGameState = GameStateChange.GameStates.IN_GAME;
     }
     public void pauseGame() {
-        currentGameState = gameState.PAUSED;
+        currentGameState = GameStateChange.GameStates.IN_PAUSE_MENU;
     }
     public void resumeGame() {
-        currentGameState = gameState.RUNNING;
+        currentGameState = GameStateChange.GameStates.IN_GAME;
     }
     public void endGame() {
-        currentGameState = gameState.ENDED;
+        currentGameState = GameStateChange.GameStates.IN_GAME_OVER;
     }
     public void updateGameState() {
 
@@ -69,5 +65,8 @@ public class GameSession {
     }
     public HashMap<Integer, Player> getScoreboard() {
         return scoreboard;
+    }
+    public GameStateChange.GameStates getCurrentGameState() {
+        return currentGameState;
     }
 }

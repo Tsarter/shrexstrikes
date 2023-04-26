@@ -21,21 +21,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 
 
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
 import org.example.messages.GameMode;
 
-import java.util.Arrays;
-
 public class MenuScreen implements Screen {
     private Stage stage;
     private MyGame myGame;
     private Skin skin;
-
-    private Music menuMusic;
-
     private Skin buttonSkin;
 
     private Texture backgroundTexture;
@@ -50,10 +44,9 @@ public class MenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         Gdx.input.setInputProcessor(stage);
-
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
-        menuMusic.setVolume(0.6f);
-        menuMusic.setLooping(true);
+        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        myGame.music.setVolume(myGame.getGamePreferences().getMusicVolume());
+        myGame.music.setLooping(true);
 
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("assets/shrexstrikesbg.png"));
@@ -96,20 +89,6 @@ public class MenuScreen implements Screen {
         selectBoxStyle.scrollStyle.hScrollKnob = new NinePatchDrawable(borderPatch);
         selectBoxStyle.scrollStyle.hScroll = new NinePatchDrawable(borderPatch);
 
-
-
-        Slider volumeSlider = new Slider(0f, 1f, 0.1f, false, slider);
-        volumeSlider.setValue(menuMusic.getVolume());
-        volumeSlider.addListener(new EventListener() {
-            @Override
-            public boolean handle(Event event) {
-                // Update volume when slider value changes
-                menuMusic.setVolume(volumeSlider.getValue());
-                return true;
-            }
-        });
-
-        Label volumeLabel = new Label("Volume: ", slider);
         //Label volumeLabel = new Label("Volume: " + volumeSlider.getValue(), slider);
 
 
@@ -117,10 +96,6 @@ public class MenuScreen implements Screen {
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
         skin.add("default", labelStyle);
-
-        //Label titleLabel = new Label("Shrex Strikes", skin, "default");
-        //titleLabel.setAlignment(Align.center);
-        //titleLabel.setPosition(Gdx.graphics.getWidth() / 2f - titleLabel.getWidth() / 2f, Gdx.graphics.getHeight() * 2 / 3f);
 
         Image background = new Image(backgroundDrawable);
 
@@ -144,15 +119,26 @@ public class MenuScreen implements Screen {
         TextButton settingsButton = new TextButton("Settings", buttonStyle);
         settingsButton.setTransform(true);
         settingsButton.setScale(0.6f);
-
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                myGame.showSettingsScreen();
+            }
+        });
 
         // Add UI elements to the table
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+
                 // Logic for starting the game
                 myGame.gameMode = GameMode.GameModes.valueOf(gameTypeSelectBox.getSelected());
-                myGame.showLobbyScreen();
+                if (myGame.gameMode == GameMode.GameModes.ZOMBIES) {
+                    myGame.showZombiesScreen();
+                }
+                if (myGame.gameMode == GameMode.GameModes.PVP) {
+                    myGame.showPVPLobbyScreen();
+                }
             }
         });
 
@@ -172,9 +158,6 @@ public class MenuScreen implements Screen {
         table.add(settingsButton).width((float) (settingsButton.getWidth() * 1.2)).padLeft(94);
         table.padBottom(30);
         table.row();
-        table.add(volumeLabel).pad(3);
-        table.row();
-        table.add(volumeSlider).pad(3);
         stage.addActor(table);
 
     }
@@ -182,7 +165,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        menuMusic.play();
+        myGame.music.play();
     }
 
     @Override
@@ -211,15 +194,15 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
-        menuMusic.stop();
+
     }
 
     @Override
     public void dispose() {
-        menuMusic.stop();
-        menuMusic.dispose();
+
         stage.dispose();
         skin.dispose();
     }
+
 }
 

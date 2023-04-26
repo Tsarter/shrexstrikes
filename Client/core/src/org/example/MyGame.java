@@ -3,37 +3,39 @@ package org.example;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.esotericsoftware.kryonet.Client;
 import org.example.messages.GameMode;
+import org.example.messages.GameStateChange;
 import org.example.screens.*;
+import org.example.screens.gameModes.GameScreen;
+import org.example.screens.gameModes.PVPScreen;
+import org.example.screens.gameModes.ZombiesScreen;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MyGame extends Game {
 
     public GameMode.GameModes gameMode;
-    public enum GameState {
-        MENU,
-        LOADING,
-        LOBBY,
-        GAME
-    }
-    public GameState gameState;
+
+    public GameStateChange.GameStates gameState;
     private GameClient gameClient;
+    // Screens
     private MenuScreen menuScreen;
-    public ShrexScreen shrexScreen;
+    public GameScreen gameScreen; // Can be ZombiesScreen or PVPScreen
     private LoadingScreen loadingScreen;
     public LobbyScreen lobbyScreen;
     public DeathScreen deathScreen;
+    public PauseOverlay pauseOverlay; // also a screen, just called Overlay
+    public SettingsScreen settingsScreen;
     private AssetManager assetManager;
+    private GamePreferences gamePreferences;
     private Player[] playersList;
     private Player player;
     private Client client;
+    public Music music;
     public Client getClient() {
         return client;
     }
@@ -58,16 +60,14 @@ public class MyGame extends Game {
 
     @Override
     public void create() {
+        gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
         menuScreen = new MenuScreen(this);
         loadingScreen = new LoadingScreen(this);
         lobbyScreen = new LobbyScreen(this);
         deathScreen = new DeathScreen(this);
-        try {
-            shrexScreen = new ShrexScreen(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        pauseOverlay = new PauseOverlay(this);
+        settingsScreen = new SettingsScreen(this);
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -78,41 +78,114 @@ public class MyGame extends Game {
                 assetManager.load("assets/Shrek.obj", Model.class);
                 assetManager.load("assets/characters/Shrek/Shrek.obj", Model.class);
                 assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
+                assetManager.load("assets/skyboxes/skyboxBasicBlue.png", Texture.class);
                 setScreen(menuScreen);
             }
         });
     }
 
     public void showMenuScreen() {
+        if (client != null) {
+            // If the gameClient is not null, close it
+            client.close();
+            gameClient = null;
+        }
+        if (gameMode == GameMode.GameModes.ZOMBIES) {
+            // If the gameMode is zombies, hide all the enemies (zombies
+            gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
+        }
         setScreen(menuScreen);
     }
-    public void showShrexScreen() {
+    public void showZombiesScreen() {
+        if (gameClient == null) {
+            // If the gameClient is null, create it
+            gameClient = initGameClient();
+        }
         // Some thing with libgdx that I don't understand, everything needs to be on the main thread or smt.
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
                     if (assetManager.update()) {
-                        // All assets have been loaded, show the shrexScreen
-                        // All assets have been loaded, show the shrexScreen
-                        if (gameState != GameState.GAME) {
-                            shrexScreen.create();
-                            setScreen(shrexScreen);
-                            gameState = GameState.GAME;
+                        // All assets have been loaded, show the gameScreen
+                        if (gameState != GameStateChange.GameStates.IN_GAME) {
+                            if (gameScreen.isCreated() == false) {
+                                // To avoid 2x creation of the gameScreen
+                                gameScreen.create();
+                            }
+                            setScreen(gameScreen);
+                            if (gameState == GameStateChange.GameStates.IN_PAUSE_MENU) {
+                                // If the game was paused, unpause it
+                                gameScreen.resume();
+                            }
+                            gameState = GameStateChange.GameStates.IN_GAME;
+                            client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
+
                         }
+                    } else if (gameScreen == null) {
+                        try {
+                            gameScreen = new ZombiesScreen(MyGame.this);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
                     } else {
-                        // Assets are still loading, show a loading screen or progress bar
+                        // Assets are still loading, show a loading screen
                         setScreen(loadingScreen);
                     }
                 }
             });
 
     }
+    public void showPVPScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(gameScreen);
+            }
+        });
+    }
+    public void showPVPLobbyScreen() {
+        if (gameClient == null) {
+            // If the gameClient is null, create it
+            gameClient = initGameClient();
+        }
+        // Some thing with libgdx that I don't understand, everything needs to be on the main thread or smt.
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                if (gameScreen == null) {
+                    try {
+                        gameScreen = new PVPScreen(MyGame.this,100);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
 
-    public void showLobbyScreen() {
-        gameClient = new GameClient(this, "localhost", 8080, 8081);
-        setScreen(lobbyScreen);
-        gameState = GameState.LOBBY;
 
+                } else if (assetManager.update()) {
+                    // All assets have been loaded, notify the server that the client is ready
+                    if (gameScreen.isCreated() == false) {
+                        // To avoid 2x creation of the pvpScreen
+                        gameScreen.create();
+                    }
+                    setScreen(lobbyScreen);
+                    gameState = GameStateChange.GameStates.READY;
+                    client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.READY));
+
+                } else {
+                    // Assets are still loading, show a loading screen
+                    setScreen(loadingScreen);
+                }
+
+            }
+        });
+
+    }
+    public void showSettingsScreen() {
+        setScreen(settingsScreen);
+    }
+    public void showPauseOverlay() {
+        client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_PAUSE_MENU));
+        setScreen(pauseOverlay);
     }
     public void showDeathScreen() {
         setScreen(deathScreen);
@@ -131,6 +204,12 @@ public class MyGame extends Game {
     @Override
     public void render() {
         super.render();
+    }
+    public GameClient initGameClient() {
+        return new GameClient(this, "localhost", 8080, 8081);
+    }
+    public GamePreferences getGamePreferences() {
+        return gamePreferences;
     }
 }
 

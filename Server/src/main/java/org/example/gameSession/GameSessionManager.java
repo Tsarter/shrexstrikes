@@ -17,61 +17,54 @@ import java.util.Map;
 
 public class GameSessionManager {
 
-    private List<GameSession> gameSessions;
-    public Map<InetAddress, Integer> playerIds = new HashMap<InetAddress, Integer>();
+    private HashMap<Integer, GameSession> gameSessions;
+    public Map<Integer, Player> players = new HashMap<Integer, Player>();
     public MyServer myServer;
     public GameSessionManager(MyServer myServer) {
         this.myServer = myServer;
         // Initialize the list of game sessions
-        gameSessions = new ArrayList<GameSession>();
-        gameSessions.add(new PVPRoom(myServer));
+        gameSessions = new HashMap<Integer, GameSession>();
+        /*gameSessions.add(new PVPRoom(myServer));
         gameSessions.add(new TestingRoom(myServer));
-        gameSessions.add(new ZombiesRoom(myServer));
+        gameSessions.add(new ZombiesRoom(myServer));*/
     }
 
-    public void addPlayerToGameSession(Player player, GameMode.GameModes gameMode) {
+    public void addPlayerToGameSession(Player player, int roomId) {
         // Find the game session that matches the specified game mode
-        GameSession gameSession = getGameSessionByMode(gameMode);
 
-        // Add the player to the game session
-        gameSession.addPlayer(player);
+        gameSessions.get(roomId).addPlayer(player);
+
     }
     public void removePlayerFromGameSession(Player player) {
         // Find the game session that this player belongs to and remove the player
-        for (GameSession gameSession : gameSessions) {
+        for (GameSession gameSession : gameSessions.values()) {
             if (gameSession.hasPlayer(player.id)) {
                 gameSession.removePlayer(player);
+                if (gameSession.getPlayers().size() == 0) {
+                    gameSessions.remove(gameSession.sessionId);
+                }
+                // Remove the player with the specified ID from the list of players
+                players.remove(player.id);
                 break;
             }
         }
     }
     public void processData(Connection c, Object data) {
         // Find the game session that this player belongs to
-        GameSession gameSession = getGameSessionByConnection(c);
+        GameSession gameSession = getGameSessionByConnectionId(c);
 
         // Pass the data to the game session for processing
         gameSession.processData(data);
     }
 
-    private GameSession getGameSessionByMode(GameMode.GameModes gameMode) {
-        // Find the game session that matches the specified game mode
-        for (GameSession gameSession : gameSessions) {
-            if (gameSession.getGameMode().equals(gameMode)) {
-                return gameSession;
-            }
-        }
 
-        // Game session not found, return null
-        return null;
-    }
-
-    private GameSession getGameSessionByConnection(Connection c) {
+    private GameSession getGameSessionByConnectionId(Connection c) {
         // Find the player ID associated with this connection
-        InetAddress address = c.getRemoteAddressTCP().getAddress();
-        int playerId = playerIds.get(address);
+        // InetAddress address = c.getRemoteAddressTCP().getAddress();
+        int playerId = c.getID();
 
         // Find the game session that this player belongs to
-        for (GameSession gameSession : gameSessions) {
+        for (GameSession gameSession : gameSessions.values()) {
             if (gameSession.hasPlayer(playerId)) {
                 return gameSession;
             }
@@ -79,6 +72,13 @@ public class GameSessionManager {
 
         // Game session not found, return null
         return null;
+    }
+    public void addGameSession(GameSession gameSession, int roomId) {
+
+        gameSessions.put(roomId, gameSession);
+    }
+    public HashMap<Integer, GameSession> getGameSessions() {
+        return gameSessions;
     }
 }
 
