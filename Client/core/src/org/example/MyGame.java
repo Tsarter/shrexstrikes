@@ -31,6 +31,7 @@ public class MyGame extends Game {
     public DeathScreen deathScreen;
     public PauseOverlay pauseOverlay; // also a screen, just called Overlay
     public SettingsScreen settingsScreen;
+    public PVPRespawnScreen pvpRespawnScreen;
     private AssetManager assetManager;
     private GamePreferences gamePreferences;
     private HashMap<Integer, Player> players = new HashMap<>();
@@ -69,6 +70,7 @@ public class MyGame extends Game {
         deathScreen = new DeathScreen(this);
         pauseOverlay = new PauseOverlay(this);
         settingsScreen = new SettingsScreen(this);
+        pvpRespawnScreen = new PVPRespawnScreen(this);
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -180,6 +182,14 @@ public class MyGame extends Game {
             }
         });
 
+    }
+    public void showPVPRespawnScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(pvpRespawnScreen);
+            }
+        });
     }
     public void showSettingsScreen() {
         setScreen(settingsScreen);

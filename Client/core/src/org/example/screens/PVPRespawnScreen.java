@@ -18,29 +18,32 @@ public class PVPRespawnScreen implements Screen {
 
     public PVPRespawnScreen(MyGame game) {
         this.game = game;
-        this.stage = new Stage(new ScreenViewport());
-        Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
-        // create the countdown label with initial text
-        countdownLabel = new Label("Respawning in " + countdownSeconds + " seconds", skin, "large");
-        // set the label position
-        countdownLabel.setPosition(Gdx.graphics.getWidth() / 2 - countdownLabel.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-        // add the label to the stage
-        stage.addActor(countdownLabel);
     }
 
     @Override
     public void show() {
-        // nothing to do here
+        this.stage = new Stage(new ScreenViewport());
+        Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        // create the countdown label with initial text
+        countdownLabel = new Label("Respawning in " + countdownSeconds + " seconds", skin);
+        // set the label position
+        countdownLabel.setPosition(Gdx.graphics.getWidth() / 2 - countdownLabel.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        // add the label to the stage
+        stage.addActor(countdownLabel);
+        // Set the input processor to the stage
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         // update the countdown timer
         countdownSeconds -= delta;
         // update the label text
-        countdownLabel.setText("Respawning in " + (int)countdownSeconds + " seconds");
+        countdownLabel.setText("Respawning in " + (int)game.getPlayer().timeTilRespawn + " seconds");
         // if the countdown is finished, switch back to the game screen
-        if (countdownSeconds <= 0) {
+        if (game.getPlayer().timeTilRespawn <= 0) {
             game.showPVPScreen();
         }
         // clear the screen and draw the stage

@@ -73,13 +73,18 @@ public class GameClient  {
                 // if the player is in the list of players
                 // set the player to the player in the list
                 game.setPlayer(players.get(game.getPlayer().id));
+                if (!game.getPlayer().alive) {
+                    // if the player is dead
+                    game.showPVPRespawnScreen();
+                }
             }
         }
         // we recieved playerHit
         if (object instanceof PlayerHit) {
             PlayerHit playerHit = (PlayerHit) object;
             // if the player that was hit is the current player
-            game.gameScreen.handleIncomingPlayerHit(playerHit);
+            PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
+            pvpScreen.handleIncomingPlayerHit(playerHit);
         }
         if (object instanceof GameStateChange) {
             GameStateChange gameStateChange = (GameStateChange) object;
@@ -106,12 +111,6 @@ public class GameClient  {
                     game.showZombiesScreen();
                 }
             }
-        }
-        // we recieved playerHit
-        else if (object instanceof PlayerHit) {
-            PlayerHit playerHit = (PlayerHit) object;
-            // if the player that was hit is the current player
-            game.gameScreen.handleIncomingPlayerHit(playerHit);
         }
         else if (object instanceof Enemies) {
             if (game.gameMode == GameMode.GameModes.ZOMBIES) {

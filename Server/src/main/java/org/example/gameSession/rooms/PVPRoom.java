@@ -145,6 +145,7 @@ public class PVPRoom extends GameSession {
             playerWhoGotHit.x = 0;
             playerWhoGotHit.z = 0;
             playerWhoGotHit.rotation = 0;
+            playerWhoGotHit.timeTilRespawn = 5;
 
         }
         PlayerHit playerHit = new PlayerHit(playerHitID, playerWhoHitID, damage);

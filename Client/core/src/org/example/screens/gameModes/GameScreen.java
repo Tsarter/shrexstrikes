@@ -392,22 +392,6 @@ public class GameScreen implements ApplicationListener,Screen {
         // Show death screen, when player dies
         myGame.showDeathScreen();
     }
-    public void handleIncomingPlayerHit(PlayerHit playerHit) {
-        if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
-            // update the health
-            myGame.getPlayer().health -= playerHit.damage;
-        } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
-            // Animates the crosshair when the player hits an enemy
-            Pulse pulse = new Pulse();
-            crosshair.addAction(pulse.Action(crosshair));
-        } else if (playerHit.idOfPlayerWhoHit == -1) {
-            // Hit by zombie enemy, not real player
-            myGame.getPlayer().health -= playerHit.damage;
-        }
-        if (myGame.getPlayer().health <= 0) {
-            handleDeath();
-        }
-    }
     public void handleIncomingEnemies(Enemies enemiesInfo){
 
             System.out.println("Enemies received");
