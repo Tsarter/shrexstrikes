@@ -117,6 +117,14 @@ public class MyGame extends Game {
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
+                    if (gameScreen == null) {
+                        try {
+                            gameScreen = new ZombiesScreen(MyGame.this);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
                     if (assetManager.update()) {
                         // All assets have been loaded, show the gameScreen
                         if (gameState != GameStateChange.GameStates.IN_GAME) {
@@ -134,14 +142,7 @@ public class MyGame extends Game {
 
                         }
                     }
-                    if (gameScreen == null) {
-                        try {
-                            gameScreen = new ZombiesScreen(MyGame.this);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    } else {
+                    else {
                         // Assets are still loading, show a loading screen
                         setScreen(loadingScreen);
                     }

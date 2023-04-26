@@ -42,7 +42,7 @@ public class GameClient  {
                     }
 
                     // we recieved the server created player object
-                    else if (object instanceof Player) {
+                    if (object instanceof Player) {
                         Player player = (Player) object;
                         player.name = game.getGamePreferences().getUsername();
                         game.setPlayer(player);

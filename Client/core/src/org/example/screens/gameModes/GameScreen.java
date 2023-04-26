@@ -345,6 +345,7 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        myGame.music.stop();
         stage = new Stage();
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
