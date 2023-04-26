@@ -133,7 +133,8 @@ public class MyGame extends Game {
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
 
                         }
-                    } else if (gameScreen == null) {
+                    }
+                    if (gameScreen == null) {
                         try {
                             gameScreen = new ZombiesScreen(MyGame.this);
                         } catch (IOException e) {

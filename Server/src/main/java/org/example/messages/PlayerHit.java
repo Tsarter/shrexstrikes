@@ -6,7 +6,7 @@ public class PlayerHit {
     public int damage;
 
 
-    public PlayerHit(int idOfPlayerHit, int idOfPlayerWhoHi, int damage) {
+    public PlayerHit(int idOfPlayerHit, int idOfPlayerWhoHit, int damage) {
         this.idOfPlayerHit = idOfPlayerHit;
         this.idOfPlayerWhoHit = idOfPlayerWhoHit;
         this.damage = damage;
