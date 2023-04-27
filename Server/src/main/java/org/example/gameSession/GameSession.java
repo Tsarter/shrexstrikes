@@ -1,9 +1,12 @@
 package org.example.gameSession;
 
+import org.example.MyServer;
 import org.example.Player;
 import org.example.messages.GameMode;
 import org.example.messages.GameStateChange;
+import org.example.messages.GameStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -13,6 +16,8 @@ public class GameSession {
     public int timeLeft;
     private HashMap<Integer, Player> players = new HashMap<>();
     private GameMode.GameModes gameMode;
+    public MyServer myServer;
+    protected List<String> log = new ArrayList<>();
 
     public void processData(Object data) {
 
@@ -34,9 +39,10 @@ public class GameSession {
     // scoreboard
     private HashMap<Integer, Player> scoreboard = new HashMap<>();
 
-    public GameSession(GameMode.GameModes gameMode, int sessionId) {
+    public GameSession(GameMode.GameModes gameMode, int sessionId, MyServer myServer) {
         this.gameMode = gameMode;
         this.sessionId = sessionId;
+        this.myServer = myServer;
     }
     public void addPlayer(Player player) {
         players.put(player.id, player);
@@ -69,4 +75,5 @@ public class GameSession {
     public GameStateChange.GameStates getCurrentGameState() {
         return currentGameState;
     }
+
 }

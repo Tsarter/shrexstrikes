@@ -4,8 +4,10 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import org.example.messages.*;
+import org.example.screens.gameModes.PVPScreen;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class GameClient  {
@@ -39,13 +41,11 @@ public class GameClient  {
                         handleZombies(connection, object);
                     }
 
-                    if (object instanceof Player[]) {
-                        // get the list of players
-                        game.setPlayersList((Player[]) object);
-                    }
                     // we recieved the server created player object
-                    else if (object instanceof Player) {
-                        game.setPlayer((Player) object);
+                    if (object instanceof Player) {
+                        Player player = (Player) object;
+                        player.name = game.getGamePreferences().getUsername();
+                        game.setPlayer(player);
                         int roomID = 100; // For testing purposes the id is 100
                         game.getClient().sendTCP(new GameMode(game.getPlayer().id, game.gameMode, 100));
                     }
@@ -67,37 +67,55 @@ public class GameClient  {
         }
     }
     public void handlePVP(Connection connection,Object object){
+        if (object instanceof HashMap<?,?>) {
+            HashMap<Integer, Player> players = (HashMap<Integer, Player>) object;
+            // get the list of players
+            game.setPlayers(players);
+            if (players.containsKey(game.getPlayer().id)) {
+                // if the player is in the list of players
+                // set the player to the player in the list
+                game.setPlayer(players.get(game.getPlayer().id));
+                if (!game.getPlayer().alive) {
+                    // if the player is dead
+                    game.showPVPRespawnScreen();
+                }
+            }
+        }
         // we recieved playerHit
         if (object instanceof PlayerHit) {
             PlayerHit playerHit = (PlayerHit) object;
             // if the player that was hit is the current player
-            game.gameScreen.handleIncomingPlayerHit(playerHit);
+            PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
+            pvpScreen.handleIncomingPlayerHit(playerHit);
         }
         if (object instanceof GameStateChange) {
             GameStateChange gameStateChange = (GameStateChange) object;
             if (gameStateChange.gameState == GameStateChange.GameStates.GAME_STARTING) {
                 game.showPVPScreen();
             }
+            if (gameStateChange.gameState == GameStateChange.GameStates.GAME_OVER) {
+                game.showGameOverScreen();
+            }
+        }
+        // Update game status
+        if (object instanceof GameStatus) {
+            GameStatus gameStatus = (GameStatus) object;
+            PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
+            pvpScreen.handleIncomingGameStatus(gameStatus);
         }
     }
     public void handleZombies(Connection connection,Object object){
-        if (object instanceof Player[]) {
+        if (object instanceof HashMap<?,?>) {
             // get the list of players
-            game.setPlayersList((Player[]) object);
+            game.setPlayers((HashMap<Integer, Player>) object);
 
             if (game.gameMode == GameMode.GameModes.ZOMBIES){
                 if(game.gameState !=GameStateChange.GameStates.IN_GAME &&
-                        game.getPlayersList().length == 1) {
+                        game.getPlayers().size() == 1) {
 
                     game.showZombiesScreen();
                 }
             }
-        }
-        // we recieved playerHit
-        else if (object instanceof PlayerHit) {
-            PlayerHit playerHit = (PlayerHit) object;
-            // if the player that was hit is the current player
-            game.gameScreen.handleIncomingPlayerHit(playerHit);
         }
         else if (object instanceof Enemies) {
             if (game.gameMode == GameMode.GameModes.ZOMBIES) {

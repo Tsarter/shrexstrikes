@@ -3,25 +3,36 @@ package org.example.screens.gameModes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import org.example.MyGame;
 import org.example.Player;
+import org.example.animations.Pulse;
+import org.example.messages.GameStatus;
+import org.example.messages.PlayerHit;
 import org.example.spawner.Enemy;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PVPScreen extends GameScreen {
 
     private GameScreen gameScreen;
-    private int timeLeft;
     private int timeLimit;
+    private int timeLeft;
+    private Label timeLabel;
+    private Label killLabel;
     public PVPScreen(MyGame myGame, int timeLimit) throws IOException {
         super(myGame);
-        this.timeLimit = timeLimit;
-        this.timeLeft = timeLimit;
+        this.timeLimit = 120;
     }
     @Override
     public void render(float delta) {
@@ -33,6 +44,8 @@ public class PVPScreen extends GameScreen {
         render();
         // update healt
         healthLabel.setText("Health: " + myGame.getPlayer().health);
+        timeLabel.setText("Time left: " + timeLeft);
+        killLabel.setText("Kills: " + myGame.getPlayer().kills);
         // Render the crosshair
         // Define the duration and scale of the animation
         float duration = 0.5f;
@@ -96,9 +109,9 @@ public class PVPScreen extends GameScreen {
          */
         if (myGame.getClient().isConnected()) {
             // render all other players
-            for (Player otherPlayer : myGame.getPlayers()) {
+            for (Player otherPlayer : myGame.getPlayers().values()) {
                 // don't render the player if they are the same as the current playerd
-                if (myGame.getPlayer().id != otherPlayer.id) {
+                if (myGame.getPlayer().id != otherPlayer.id && otherPlayer.alive) {
                     // create a new instance of the player model for this player
                     ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
                     Vector3 playerPosition = new Vector3(otherPlayer.x, otherPlayer.y - 0.4f, otherPlayer.z);
@@ -126,16 +139,54 @@ public class PVPScreen extends GameScreen {
             myGame.getClient().sendUDP(myGame.getPlayer());
 
         }
-        // Render the enemy far away, then stop rendering it.
-        for (Enemy enemy: enemiesToHide) {
-            modelBatch.render(enemy.getEnemyInstance(), environment);
-            shadowBatch.render(enemy.getEnemyInstance());
-            enemies.remove(enemy.id);
-        }
-        enemiesToHide.clear();
         shadowBatch.end();
         shadowLight.end();
         modelBatch.end();
 
+    }
+    @Override
+    public void show() {
+        stage = new Stage();
+        // Add text to the stage to display the player's health
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = new BitmapFont();
+        healthLabel = new Label("Health: " + myGame.getPlayer().health, labelStyle);
+        killLabel = new Label("Kills: " + myGame.getPlayer().kills, labelStyle);
+        timeLabel = new Label("Time left: " + timeLeft, labelStyle);
+        // Create the crosshair image and center it on the screen
+        Texture texture = new Texture("assets/crosshair-icon.png");
+        crosshair = new Image(texture);
+        // size the crosshair to 50x50 pixels
+        crosshair.setSize(25, 25);
+        crosshair.setPosition(
+                Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
+        healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        killLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
+        timeLabel.setPosition(10, Gdx.graphics.getHeight() - 60);
+
+        stage.addActor(healthLabel);
+        stage.addActor(killLabel);
+        stage.addActor(timeLabel);
+        // Add the crosshair to the stage
+        stage.addActor(crosshair);
+
+    }
+    public void handleIncomingGameStatus(GameStatus gameStatus) {
+        timeLeft = gameStatus.timeLeft;
+        score = gameStatus.score;
+    }
+    public void handleIncomingPlayerHit(PlayerHit playerHit) {
+        if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
+            // update the health
+            myGame.getPlayer().health -= playerHit.damage;
+        } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
+            // Animates the crosshair when the player hit another player
+            Pulse pulse = new Pulse();
+            crosshair.addAction(pulse.Action(crosshair));
+        }
+        if (myGame.getPlayer().health <= 0) {
+            myGame.showPVPRespawnScreen();
+        }
     }
 }

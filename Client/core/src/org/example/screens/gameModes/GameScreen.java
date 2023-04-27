@@ -68,7 +68,7 @@ public class GameScreen implements ApplicationListener,Screen {
     protected List<BoundingBox> mapBounds;
     protected BoundingBox playerBounds;
     protected Stage stage;
-    private Image crosshair;
+    protected Image crosshair;
     protected Label healthLabel;
     private Label ammoLabel;
     protected Label scoreLabel;
@@ -273,7 +273,7 @@ public class GameScreen implements ApplicationListener,Screen {
          */
         if (myGame.getClient().isConnected()) {
             // render all other players
-            for (Player otherPlayer : myGame.getPlayers()) {
+            for (Player otherPlayer : myGame.getPlayers().values()) {
                 // don't render the player if they are the same as the current playerd
                 if (myGame.getPlayer().id != otherPlayer.id) {
                 // create a new instance of the player model for this player
@@ -345,6 +345,7 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        myGame.music.stop();
         stage = new Stage();
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -376,10 +377,7 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void hide() {
-        healthLabel.remove();
-        crosshair.remove();
-        //stage.dispose();
-
+        Gdx.input.setCursorCatched(false);
     }
     public void shootBullet() {
         // create a new bullet
@@ -391,22 +389,6 @@ public class GameScreen implements ApplicationListener,Screen {
     public void handleDeath() {
         // Show death screen, when player dies
         myGame.showDeathScreen();
-    }
-    public void handleIncomingPlayerHit(PlayerHit playerHit) {
-        if (playerHit.idOfPlayerHit == myGame.getPlayer().id) {
-            // update the health
-            myGame.getPlayer().health -= playerHit.damage;
-        } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
-            // Animates the crosshair when the player hits an enemy
-            Pulse pulse = new Pulse();
-            crosshair.addAction(pulse.Action(crosshair));
-        } else if (playerHit.idOfPlayerWhoHit == -1) {
-            // Hit by zombie enemy, not real player
-            myGame.getPlayer().health -= playerHit.damage;
-        }
-        if (myGame.getPlayer().health <= 0) {
-            handleDeath();
-        }
     }
     public void handleIncomingEnemies(Enemies enemiesInfo){
 

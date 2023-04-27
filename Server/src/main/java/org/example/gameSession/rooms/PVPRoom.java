@@ -4,15 +4,12 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
-import com.esotericsoftware.kryonet.Server;
 import org.example.MyServer;
 import org.example.Player;
 import org.example.gameSession.GameSession;
-import org.example.messages.GameMode;
-import org.example.messages.GameStateChange;
-import org.example.messages.PlayerBullet;
-import org.example.messages.PlayerHit;
+import org.example.messages.*;
 import org.example.tasks.PVPGameTask;
+import org.example.tasks.UpdatePlayersTask;
 
 import java.util.Timer;
 
@@ -21,29 +18,36 @@ public class PVPRoom extends GameSession {
     public MyServer myServer;
     private Timer timer;
     private int roomSize = 2;
+    private int timeLimit;
 
-
-    public PVPRoom(MyServer myServer, int sessionID) {
-        super(GameMode.GameModes.PVP, sessionID);
+    public PVPRoom(MyServer myServer, int sessionID, int timeLimit) {
+        super(GameMode.GameModes.PVP, sessionID, myServer);
         gameStarted = false;
         this.myServer = myServer;
+        this.timeLimit = timeLimit;
     }
 
     public void startGame() {
         super.startGame();
         gameStarted = true;
-        // Start PVPGameTask
-        PVPGameTask pvpGameTask = new PVPGameTask(120, this);
+        // Start PVPGameTask (Send GameStatus(timeleft) to clients every second)
+        // Kinda stupid
+        PVPGameTask pvpGameTask = new PVPGameTask(timeLimit, this);
+        super.timeLeft = timeLimit;
         timer = new Timer();
         timer.scheduleAtFixedRate(pvpGameTask, 0, 1000);
         sendGameStartToPlayers();
         System.out.println("Players with id " + super.getPlayers().keySet() + " started a game in room " + sessionId);
+        // Start sending Player[] to clients every 100ms
+        UpdatePlayersTask updatePlayersTask = new UpdatePlayersTask(this);
+        timer.scheduleAtFixedRate(updatePlayersTask, 0, 40);
     }
 
     public void endGame() {
         super.endGame();
         gameStarted = false;
         sendGameEndToPlayers();
+        timer.cancel();
     }
     @Override
     public void processData(Object data) {
@@ -82,9 +86,8 @@ public class PVPRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;
+                player.name = playerClient.name;
             }
-
-            sendUpdatedPlayerLocations();  // send info about all players to all players
         }
         else if (data instanceof PlayerBullet) {
             PlayerBullet playerBullet = (PlayerBullet) data;  // get the bullet that they sent
@@ -125,7 +128,7 @@ public class PVPRoom extends GameSession {
 
         }
     }
-    private void sendUpdatedPlayerLocations(){
+    private void sendUpdatedPlayers(){
         // Send the updated player locations to all the players in the room
         for (Player player : super.getPlayers().values()) {
             Player[] players = super.getPlayers().values().toArray(new Player[0]);
@@ -137,21 +140,16 @@ public class PVPRoom extends GameSession {
         Player playerWhoGotHit = super.getPlayers().get(playerHitID);
         playerWhoGotHit.health -= damage;
         if (playerWhoGotHit.health <= 0) {
-            // Player died
-            playerWhoGotHit.health = 0;
+            Player playerWhoHit = super.getPlayers().get(playerWhoHitID);
+            playerWhoHit.kills++;
+            super.log.add(playerWhoHitID + " killed " + playerHitID);
             playerWhoGotHit.alive = false;
-            // Check if all players are dead
-            boolean allDead = true;
-            for (Player p : super.getPlayers().values()) {
-                if (p.alive == true) {
-                    allDead = false;
-                    break;
-                }
-            }
-            if (allDead) {
-                // All players are dead, end the game
-                endGame();
-            }
+            playerWhoGotHit.health = 100;
+            playerWhoGotHit.x = 0;
+            playerWhoGotHit.z = 0;
+            playerWhoGotHit.rotation = 0;
+            playerWhoGotHit.timeTilRespawn = 5;
+
         }
         PlayerHit playerHit = new PlayerHit(playerHitID, playerWhoHitID, damage);
         // Notify all players in the room that a player was hit
@@ -162,7 +160,6 @@ public class PVPRoom extends GameSession {
 
     private void sendGameStartToPlayers() {
         // Notify all players in the room that the game has started
-        super.startGame();
         for (Player player : super.getPlayers().values()) {
             GameStateChange gameStateChange = new GameStateChange(player.id, GameStateChange.GameStates.GAME_STARTING);
             myServer.getServer().sendToTCP(player.id, gameStateChange);
@@ -175,6 +172,14 @@ public class PVPRoom extends GameSession {
         for (Player player : super.getPlayers().values()) {
             GameStateChange gameStateChange = new GameStateChange(player.id, GameStateChange.GameStates.GAME_OVER);
             myServer.getServer().sendToTCP(player.id, gameStateChange);
+        }
+    }
+    public void sendGameStatusToPlayers() {
+        GameStatus gameStatus = new GameStatus();
+        gameStatus.timeLeft = timeLeft;
+        // send the game status to all players in the room
+        for (Player player : super.getPlayers().values()) {
+            myServer.getServer().sendToUDP(player.id, gameStatus);
         }
     }
 }

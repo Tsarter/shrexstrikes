@@ -42,7 +42,7 @@ public class ZombiesRoom extends GameSession {
     int zombieDamage = 10;
     int zombieHealth = 100;
     public ZombiesRoom(MyServer myServer, int sessionId) {
-        super(GameMode.GameModes.ZOMBIES, sessionId);
+        super(GameMode.GameModes.ZOMBIES, sessionId, myServer);
         this.myServer = myServer;
         this.server = myServer.getServer();
     }
@@ -63,9 +63,10 @@ public class ZombiesRoom extends GameSession {
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.getBoundingBox();
+                player.name = playerClient.name;
             }
 
-            sendState();  // send info about all players in the room
+            //sendState();  // send info about all players in the room
         }
         if (object instanceof GameStateChange) {
             GameStateChange gameStateChange = (GameStateChange) object;

@@ -38,6 +38,7 @@ public class Network {
         kryo.register(Array.class);
         kryo.register(Object[].class);
         kryo.register(Player.Character.class);
+        kryo.register(GameStatus.class);
 
     }
 }

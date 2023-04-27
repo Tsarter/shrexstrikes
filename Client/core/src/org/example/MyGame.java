@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.esotericsoftware.kryonet.Client;
 import org.example.messages.GameMode;
 import org.example.messages.GameStateChange;
@@ -15,6 +16,7 @@ import org.example.screens.gameModes.PVPScreen;
 import org.example.screens.gameModes.ZombiesScreen;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class MyGame extends Game {
 
@@ -30,23 +32,26 @@ public class MyGame extends Game {
     public DeathScreen deathScreen;
     public PauseOverlay pauseOverlay; // also a screen, just called Overlay
     public SettingsScreen settingsScreen;
+    public PVPRespawnScreen pvpRespawnScreen;
+    public GameOverScreen gameOverScreen;
     private AssetManager assetManager;
     private GamePreferences gamePreferences;
-    private Player[] playersList;
+    private HashMap<Integer, Player> players = new HashMap<>();
     private Player player;
     private Client client;
     public Music music;
+    private Skin skin;
     public Client getClient() {
         return client;
     }
     public void setClient(Client client) {
         this.client = client;
     }
-    public Player[] getPlayersList() {
-        return playersList;
+    public HashMap<Integer, Player> getPlayers() {
+        return players;
     }
-    public void setPlayersList(Player[] playersList) {
-        this.playersList = playersList;
+    public void setPlayers(HashMap<Integer, Player> players) {
+        this.players = players;
     }
     public Player getPlayer() {
         return player;
@@ -57,9 +62,14 @@ public class MyGame extends Game {
     public AssetManager getAssetManager() {
         return assetManager;
     }
+    public Skin getSkin() {
+        return skin;
+    }
 
     @Override
     public void create() {
+        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        player = new Player();
         gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
         menuScreen = new MenuScreen(this);
@@ -68,6 +78,8 @@ public class MyGame extends Game {
         deathScreen = new DeathScreen(this);
         pauseOverlay = new PauseOverlay(this);
         settingsScreen = new SettingsScreen(this);
+        pvpRespawnScreen = new PVPRespawnScreen(this);
+        gameOverScreen = new GameOverScreen(this);
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -105,6 +117,14 @@ public class MyGame extends Game {
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
+                    if (gameScreen == null) {
+                        try {
+                            gameScreen = new ZombiesScreen(MyGame.this);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
                     if (assetManager.update()) {
                         // All assets have been loaded, show the gameScreen
                         if (gameState != GameStateChange.GameStates.IN_GAME) {
@@ -121,14 +141,8 @@ public class MyGame extends Game {
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
 
                         }
-                    } else if (gameScreen == null) {
-                        try {
-                            gameScreen = new ZombiesScreen(MyGame.this);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    } else {
+                    }
+                    else {
                         // Assets are still loading, show a loading screen
                         setScreen(loadingScreen);
                     }
@@ -159,9 +173,8 @@ public class MyGame extends Game {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-
-
-                } else if (assetManager.update()) {
+                }
+                if (assetManager.update()) {
                     // All assets have been loaded, notify the server that the client is ready
                     if (gameScreen.isCreated() == false) {
                         // To avoid 2x creation of the pvpScreen
@@ -180,6 +193,22 @@ public class MyGame extends Game {
         });
 
     }
+    public void showPVPRespawnScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(pvpRespawnScreen);
+            }
+        });
+    }
+    public void showGameOverScreen() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(gameOverScreen);
+            }
+        });
+    }
     public void showSettingsScreen() {
         setScreen(settingsScreen);
     }
@@ -197,9 +226,6 @@ public class MyGame extends Game {
     public void leaveGame() {
         client.close();
         showMenuScreen();
-    }
-    public Player[] getPlayers() {
-        return playersList;
     }
     @Override
     public void render() {
