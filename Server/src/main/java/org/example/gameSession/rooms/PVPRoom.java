@@ -83,6 +83,7 @@ public class PVPRoom extends GameSession {
             if (player.id == playerClient.id) {
                 // update the server's player object with the new location
                 player.x = playerClient.x;
+                player.y = playerClient.y;
                 player.z = playerClient.z;
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;

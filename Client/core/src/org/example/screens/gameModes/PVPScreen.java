@@ -114,7 +114,7 @@ public class PVPScreen extends GameScreen {
                 if (myGame.getPlayer().id != otherPlayer.id && otherPlayer.alive) {
                     // create a new instance of the player model for this player
                     ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
-                    Vector3 playerPosition = new Vector3(otherPlayer.x, otherPlayer.y - 0.4f, otherPlayer.z);
+                    Vector3 playerPosition = new Vector3(otherPlayer.x, otherPlayer.y - 0.9f, otherPlayer.z);
 
                     // set the position and orientation of the player model instance
                     otherPlayerModelInstance.transform.setToTranslation(playerPosition);
@@ -133,6 +133,7 @@ public class PVPScreen extends GameScreen {
              * So they know that this client moved aswell.
              */
             myGame.getPlayer().x = cameraPosition.x;
+            myGame.getPlayer().y = cameraPosition.y;
             myGame.getPlayer().z = cameraPosition.z;
             myGame.getPlayer().rotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
             myGame.getPlayer().boundingBox = playerBounds;

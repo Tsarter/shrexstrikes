@@ -28,7 +28,7 @@ public class Player {
         this.rotation = 0;
         this.id = id;
         // set height to default 1, for now
-        this.y = 1;
+        this.y = 1.5f;
     }
 
     /**

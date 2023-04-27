@@ -10,10 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -124,6 +121,17 @@ public class SettingsScreen implements Screen {
         table.add(volumeLabel).row();
         table.add(volumeSlider).padBottom(30).row();
 
+        // Buy Shrex Blue button
+        TextButton buyShrexBlueButton = new TextButton("Buy Shrex Blue", skin);
+        buyShrexBlueButton.addListener(new ClickListener(){
+           @Override
+           public void clicked(InputEvent event, float x, float y){
+               // Open url
+                Gdx.net.openURI("https://buy.stripe.com/28odTJ8pY25d5eE9AB");
+           }
+        });
+        table.add(buyShrexBlueButton).center().padBottom(10).row();
+
         // Save button
         saveButton = new TextButton("Save settings", skin);
         saveButton.addListener(new ClickListener() {
@@ -133,7 +141,7 @@ public class SettingsScreen implements Screen {
 
             }
         });
-        table.add(saveButton).center().padBottom(10).row();
+        //table.add(saveButton).center().padBottom(10).row();
 
         // Exit to menu button
         TextButton exitButton = new TextButton("Back to menu", skin);

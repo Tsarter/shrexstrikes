@@ -14,6 +14,12 @@ public class MyInputProcessor implements InputProcessor {
     private boolean downPressed;
     private boolean leftPressed;
     private boolean rightPressed;
+    private boolean jumpPressed;
+    private boolean jumpOnGoing = false;
+    private double jumpHeight = 0;
+    private float jumpTime = 0f;
+    private final float JUMP_DURATION = 1f;
+    private final float initialPlayerHeight;
     private boolean cursorCaptured = true;
 
     private float zoom;
@@ -27,6 +33,7 @@ public class MyInputProcessor implements InputProcessor {
         this.zoom = 67;
         this.rotationSpeed = gamePreferences.getMouseSensitivity();
         this.gamePreferences = gamePreferences;
+        this.initialPlayerHeight = gameScreen.getMyGame().getPlayer().y;
 
     }
 
@@ -44,6 +51,12 @@ public class MyInputProcessor implements InputProcessor {
                 break;
             case Input.Keys.D:
                 rightPressed = true;
+                break;
+            case Input.Keys.SPACE:
+                if (!jumpOnGoing) {
+                    jumpOnGoing = true;
+                    jumpTime = 0f;
+                }
                 break;
             case Input.Keys.ESCAPE:
                 if(gameScreen.getMyGame().gameState == GameStateChange.GameStates.IN_GAME) {
@@ -110,7 +123,17 @@ public class MyInputProcessor implements InputProcessor {
             Vector3 cameraPerpendicularXZ = cameraDirectionXZ.crs(Vector3.Y).nor();
             gameScreen.cameraPosition.add(cameraPerpendicularXZ.scl(speed));
         }
-
+        if (jumpOnGoing) {
+            jumpTime += delta;
+            if (jumpTime > JUMP_DURATION) {
+                jumpOnGoing = false;
+                y = initialPlayerHeight;
+            } else {
+                float jumpProgress = jumpTime / JUMP_DURATION;
+                float yOffset = (float) (Math.sin(jumpProgress * Math.PI) * initialPlayerHeight * 0.5f);
+                y = initialPlayerHeight + yOffset;
+            }
+        }
         gameScreen.cameraPosition.y = y;
     }
 
