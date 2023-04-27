@@ -47,7 +47,7 @@ public class MenuScreen implements Screen {
         myGame.music = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
         myGame.music.setVolume(myGame.getGamePreferences().getMusicVolume());
         myGame.music.setLooping(true);
-
+        myGame.music.play();
         // Load background texture
         backgroundTexture = new Texture(Gdx.files.internal("assets/shrexstrikesbg.png"));
 
@@ -165,6 +165,10 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        myGame.music.dispose();
+        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        myGame.music.setVolume(myGame.getGamePreferences().getMusicVolume());
+        myGame.music.setLooping(true);
         myGame.music.play();
     }
 
