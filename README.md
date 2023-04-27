@@ -27,10 +27,12 @@ Keys:
 ## What is in the game?
 
 Two game modes:
-- Zombies (Endless waves of zombies who try to kill you)
-- 1 versus 1 (Fight against each other until time runs out, player with most kills win)
-In settings you can change your username, sound level, player.
-Shrex Green - option to subscibe to shrex green and receive green badge and extra health, damage, speed.
+    - Zombies (Endless waves of zombies who try to kill you)
+    - 1 versus 1 (Fight against each other until time runs out, player with most kills win)
+
+
+- In settings you can change your username, sound level, player.
+- Shrex Green - option to subscibe to shrex green and receive green badge and extra health, damage, speed.
 
 
 
