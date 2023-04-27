@@ -16,7 +16,7 @@ Rezising doesn't work for all screens and on some the buttons may become unclikc
 9. The run icon should turn green. Click on it.
     If it doesn't run and you are on a mac then you need to do some extra configurations.
     "On macOS your application needs to be started with the -XstartOnFirstThread JVM argument"
-10. Start playing by clicking Start Game.
+10. Start playing by clicking Start Game inside the game window.
 
 Keys:
  - SpaceBar -> Jump
@@ -32,7 +32,7 @@ Two game modes:
 
 Other stuff:
 - In settings you can change your username, sound level, player.
-- Shrex Green - option to subscibe to shrex green and receive green badge and extra health, damage, speed.
+- Shrex Green - option to subscibe to shrex green and receive green badge and no ads, extra health, damage, speed.
 
 
 
