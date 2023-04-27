@@ -40,7 +40,7 @@ public class SettingsScreen implements Screen {
         this.table = new Table(skin);
         this.table.setFillParent(true);
 
-        Label usernameLabel = new Label("Username", skin);
+        Label usernameLabel = new Label("Change username", skin);
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
         BitmapFont usernameFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         usernameFont.getData().setScale(0.5f);
@@ -87,7 +87,7 @@ public class SettingsScreen implements Screen {
         playerSelectBoxStyle.scrollStyle.hScrollKnob = new NinePatchDrawable(borderPatch);
         playerSelectBoxStyle.scrollStyle.hScroll = new NinePatchDrawable(borderPatch);
         // Label & Player select box (Shrek, Fionza, Donkey)
-        Label playerLabel = new Label("Choose your character", skin);
+        Label playerLabel = new Label("Change your character", skin);
         playerSelectBox = new SelectBox<String>(playerSelectBoxStyle);
         ArrayList<String> characterNames = new ArrayList<String>();
         for (Player.Character character : Player.Character.values()) {
@@ -122,7 +122,7 @@ public class SettingsScreen implements Screen {
         table.add(volumeSlider).padBottom(30).row();
 
         // Buy Shrex Blue button
-        TextButton buyShrexBlueButton = new TextButton("Buy Shrex Blue", skin);
+        TextButton buyShrexBlueButton = new TextButton("Buy Shrex Green", skin);
         buyShrexBlueButton.addListener(new ClickListener(){
            @Override
            public void clicked(InputEvent event, float x, float y){
