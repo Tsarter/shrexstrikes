@@ -27,8 +27,8 @@ Keys:
 ## What is in the game?
 
 Two game modes:
-    - Zombies (Endless waves of zombies who try to kill you)
-    - 1 versus 1 (Fight against each other until time runs out, player with most kills win)
+- Zombies (Endless waves of zombies who try to kill you)
+- 1 versus 1 (Fight against each other until time runs out, player with most kills win)
 
 
 - In settings you can change your username, sound level, player.
