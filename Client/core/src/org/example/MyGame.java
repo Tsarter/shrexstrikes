@@ -41,6 +41,7 @@ public class MyGame extends Game {
     private Client client;
     public Music music;
     private Skin skin;
+    private boolean showAds = true;
     public Client getClient() {
         return client;
     }
@@ -125,7 +126,12 @@ public class MyGame extends Game {
                         }
 
                     }
-                    if (assetManager.update()) {
+                    if (showAds){
+                        setScreen(loadingScreen);
+                        showAds = false;
+                    }
+                    else if (assetManager.update()) {
+                        showAds = true;
                         // All assets have been loaded, show the gameScreen
                         if (gameState != GameStateChange.GameStates.IN_GAME) {
                             if (gameScreen.isCreated() == false) {
@@ -174,7 +180,12 @@ public class MyGame extends Game {
                         throw new RuntimeException(e);
                     }
                 }
-                if (assetManager.update()) {
+                if (showAds){
+                    setScreen(loadingScreen);
+                    showAds = false;
+                }
+                else if (assetManager.update()) {
+                    showAds = true;
                     // All assets have been loaded, notify the server that the client is ready
                     if (gameScreen.isCreated() == false) {
                         // To avoid 2x creation of the pvpScreen

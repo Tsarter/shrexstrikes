@@ -60,7 +60,6 @@ public class LoadingScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 videoPlayer.stop();
-                game.music.dispose();
                 videoPlayer.dispose();
                 spriteBatch.dispose();
                 // All assets are loaded, switch to the next screen
@@ -88,13 +87,13 @@ public class LoadingScreen implements Screen {
         });
         try {
             double random = Math.random();
-            if (random < 1) {
+            if (random < 0.5) {
                 currentAd = "Bolt";
                 videoPlayer.play(Gdx.files.internal("assets/ads/weAreBolt.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreBolt.mp3"));
 
-            } else if (random >= 1) {
+            } else if (random >= 0.5) {
                 currentAd = "Grow";
                 videoPlayer.play(Gdx.files.internal("assets/ads/weAreGrow.webm"));
                 game.music.dispose();
@@ -141,7 +140,7 @@ public class LoadingScreen implements Screen {
                 int scaledVideoHeight = (int) (screenWidth * 0.565);
 
                 int x = (screenWidth - scaledVideoWidth) / 2;
-                int y = (screenHeight - scaledVideoHeight) / 3;
+                int y = (screenHeight - scaledVideoHeight) / 2;
                 spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
             }
         }
@@ -188,5 +187,6 @@ public class LoadingScreen implements Screen {
         // Dispose assets here if necessary
         spriteBatch.dispose();
         font.dispose();
+        videoPlayer.dispose();
     }
 }
