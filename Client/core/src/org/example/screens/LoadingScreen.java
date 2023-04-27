@@ -2,30 +2,110 @@ package org.example.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.video.VideoPlayer;
+import com.badlogic.gdx.video.VideoPlayerCreator;
 import org.example.MyGame;
 import org.example.messages.GameMode;
+
+import java.io.FileNotFoundException;
 
 public class LoadingScreen implements Screen {
 
     private final MyGame game;
     private SpriteBatch spriteBatch;
+    private VideoPlayer videoPlayer;
     private BitmapFont font;
     private String loadingMessage;
+    private Stage stage;
+    private TextButton skipButton;
+    private String currentAd;
 
     public LoadingScreen(MyGame game) {
         this.game = game;
         this.spriteBatch = new SpriteBatch();
         this.font = new BitmapFont();
         this.loadingMessage = "Loading...";
+
     }
 
     @Override
     public void show() {
         // Set the message to display while loading assets
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
         loadingMessage = "Loading assets...";
+        spriteBatch = new SpriteBatch();
+        videoPlayer = VideoPlayerCreator.createVideoPlayer();
+        // Skip button
+        skipButton = new TextButton("Skip", game.getSkin());
+        skipButton.setPosition(Gdx.graphics.getWidth() - skipButton.getWidth() - 80, 50);
+        skipButton.scaleBy(2);
+        skipButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                videoPlayer.stop();
+                game.music.dispose();
+                videoPlayer.dispose();
+                spriteBatch.dispose();
+                // All assets are loaded, switch to the next screen
+                if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                    game.showZombiesScreen();
+                }
+                if (game.gameMode == GameMode.GameModes.PVP) {
+                    game.showPVPLobbyScreen();
+                }
+            }
+        });
+        videoPlayer.setOnCompletionListener(new VideoPlayer.CompletionListener() {
+            @Override
+            public void onCompletionListener(FileHandle fileHandle) {
+                videoPlayer.dispose();
+                spriteBatch.dispose();
+                // All assets are loaded, switch to the next screen
+                if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                    game.showZombiesScreen();
+                }
+                if (game.gameMode == GameMode.GameModes.PVP) {
+                    game.showPVPLobbyScreen();
+                }
+            }
+        });
+        try {
+            double random = Math.random();
+            if (random < 1) {
+                currentAd = "Bolt";
+                videoPlayer.play(Gdx.files.internal("assets/ads/weAreBolt.webm"));
+                game.music.dispose();
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreBolt.mp3"));
+
+            } else if (random >= 1) {
+                currentAd = "Grow";
+                videoPlayer.play(Gdx.files.internal("assets/ads/weAreGrow.webm"));
+                game.music.dispose();
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreGrow.mp3"));
+            }
+            game.music.setVolume(game.getGamePreferences().getMusicVolume());
+            game.music.play();
+
+        } catch (FileNotFoundException e) {
+            Gdx.app.error("LoadingScreen", "Video file not found", e);
+        }
     }
 
     @Override
@@ -36,20 +116,54 @@ public class LoadingScreen implements Screen {
 
         // Update the asset manager and display progress
         float progress = game.getAssetManager().getProgress();
+        videoPlayer.update();
         spriteBatch.begin();
-        font.draw(spriteBatch, loadingMessage + " " + (int) (progress * 100) + "%", Gdx.graphics.getWidth() / 2.5f, Gdx.graphics.getHeight() / 2);
-        spriteBatch.end();
+        Texture currentFrame = videoPlayer.getTexture();
+        if (currentFrame != null) {
+            if (currentAd == "Grow"){
+                int videoWidth = videoPlayer.getVideoWidth();
+                int videoHeight = videoPlayer.getVideoHeight();
+                int screenWidth = Gdx.graphics.getWidth();
+                int screenHeight = Gdx.graphics.getHeight();
+                int scaledVideoWidth = (int) (screenWidth);
+                int scaledVideoHeight = (int) (screenWidth * 0.565);
+
+                int x = (screenWidth - scaledVideoWidth) / 2;
+                int y = (screenHeight - scaledVideoHeight) / 2;
+
+                spriteBatch.draw(currentFrame, x, y, scaledVideoWidth, scaledVideoHeight);
+            } else if (currentAd == "Bolt") {
+                int videoWidth = videoPlayer.getVideoWidth();
+                int videoHeight = videoPlayer.getVideoHeight();
+                int screenWidth = Gdx.graphics.getWidth();
+                int screenHeight = Gdx.graphics.getHeight();
+                int scaledVideoWidth = (int) (screenWidth);
+                int scaledVideoHeight = (int) (screenWidth * 0.565);
+
+                int x = (screenWidth - scaledVideoWidth) / 2;
+                int y = (screenHeight - scaledVideoHeight) / 3;
+                spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
+            }
+        }
 
         // Check if all assets are loaded
         if (game.getAssetManager().update()) {
+            // add the skip button
+            stage.addActor(skipButton);
             // All assets are loaded, switch to the next screen
             if (game.gameMode == GameMode.GameModes.ZOMBIES) {
-                game.showZombiesScreen();
+                //game.showZombiesScreen();
             }
             if (game.gameMode == GameMode.GameModes.PVP) {
-                game.showPVPLobbyScreen();
+                // game.showPVPLobbyScreen();
             }
         }
+        else {
+            font.draw(spriteBatch, loadingMessage + " " + (int) (progress * 100) + "%", Gdx.graphics.getWidth() - 200f, 50f);
+        }
+        spriteBatch.end();
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     @Override
