@@ -2,7 +2,7 @@
 
 
 ## Warnings && known bugs
-Rezising doesn't work for all screens, and on some the buttons may become unclikcable after rezising.
+Rezising doesn't work for all screens and on some the buttons may become unclikcable after rezising.
 
 ## How to play?
 1. Download the code from gitlab using `git clone https://gitlab.cs.ttu.ee/tatall/iti0301-2023.git`
