@@ -12,6 +12,7 @@ public class GamePreferences {
     private Preferences prefs;
     private String username;
     private Player.Character character;
+    private int currentAdId;
     public GamePreferences() {
         prefs = Gdx.app.getPreferences("GamePreferences");
         String soundVolume = prefs.getString("soundVolume", "0.6f");
@@ -22,6 +23,7 @@ public class GamePreferences {
         String randomNum = String.valueOf((int) (Math.random() * 1000));
         String username = prefs.getString("username", "Player " + randomNum);
         String character = prefs.getString("character", Player.Character.Shrex.toString());
+        String currentAdId = prefs.getString("currentAdId", "0");
         this.soundVolume = Float.parseFloat(soundVolume);
         this.musicVolume = Float.parseFloat(musicVolume);
         this.isSoundEnabled = Boolean.parseBoolean(isSoundEnabled);
@@ -29,6 +31,7 @@ public class GamePreferences {
         this.mouseSensitivity = Float.parseFloat(mouseSensitivity);
         this.username = username;
         this.character = Player.Character.valueOf(character);
+        this.currentAdId = Integer.parseInt(currentAdId);
     }
     public float getSoundVolume() {
         return soundVolume;
@@ -84,6 +87,14 @@ public class GamePreferences {
     public void setCharacter(Player.Character character) {
         this.character = character;
         prefs.putString("character", character.toString());
+        save();
+    }
+    public int getCurrentAdId() {
+        return currentAdId;
+    }
+    public void setCurrentAdId(int currentAdId) {
+        this.currentAdId = currentAdId;
+        prefs.putString("currentAdId", String.valueOf(currentAdId));
         save();
     }
     public void save() {

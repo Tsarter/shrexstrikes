@@ -35,6 +35,7 @@ public class LoadingScreen implements Screen {
     private Stage stage;
     private TextButton skipButton;
     private String currentAd;
+    private Texture currentFrame;
 
     public LoadingScreen(MyGame game) {
         this.game = game;
@@ -61,7 +62,6 @@ public class LoadingScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 videoPlayer.stop();
                 videoPlayer.dispose();
-                spriteBatch.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                     game.showZombiesScreen();
@@ -87,19 +87,35 @@ public class LoadingScreen implements Screen {
         });
         try {
             double random = Math.random();
-            if (random < 0.5) {
+            int currentAdId = game.getGamePreferences().getCurrentAdId();
+            if (currentAdId == 0) {
                 currentAd = "Bolt";
                 videoPlayer.play(Gdx.files.internal("assets/ads/weAreBolt.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreBolt.mp3"));
-
-            } else if (random >= 0.5) {
+                game.getGamePreferences().setCurrentAdId(1);
+                game.music.setVolume(game.getGamePreferences().getMusicVolume());
+            } else if (currentAdId == 1) {
                 currentAd = "Grow";
                 videoPlayer.play(Gdx.files.internal("assets/ads/weAreGrow.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreGrow.mp3"));
+                game.getGamePreferences().setCurrentAdId(2);
+                game.music.setVolume(game.getGamePreferences().getMusicVolume());
+            } else if (currentAdId == 2) {
+                currentAd = "Interstellar";
+                videoPlayer.play(Gdx.files.internal("assets/ads/interstellar.webm"));
+                game.music.dispose();
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/interstellar.mp3"));
+                game.getGamePreferences().setCurrentAdId(0);
+                if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f){
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.3f);
+                }else{
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                }
+
             }
-            game.music.setVolume(game.getGamePreferences().getMusicVolume());
+            System.out.println("Music volume is " + game.getGamePreferences().getMusicVolume());
             game.music.play();
 
         } catch (FileNotFoundException e) {
@@ -117,31 +133,25 @@ public class LoadingScreen implements Screen {
         float progress = game.getAssetManager().getProgress();
         videoPlayer.update();
         spriteBatch.begin();
-        Texture currentFrame = videoPlayer.getTexture();
+        currentFrame = videoPlayer.getTexture();
         if (currentFrame != null) {
+            int videoWidth = videoPlayer.getVideoWidth();
+            int videoHeight = videoPlayer.getVideoHeight();
+            int screenWidth = Gdx.graphics.getWidth();
+            int screenHeight = Gdx.graphics.getHeight();
+            int scaledVideoWidth = (int) (screenWidth);
+            int scaledVideoHeight = (int) (screenWidth * 0.565);
+
+            int x = (screenWidth - scaledVideoWidth) / 2;
+            int y = (screenHeight - scaledVideoHeight) / 2;
+            spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
+
             if (currentAd == "Grow"){
-                int videoWidth = videoPlayer.getVideoWidth();
-                int videoHeight = videoPlayer.getVideoHeight();
-                int screenWidth = Gdx.graphics.getWidth();
-                int screenHeight = Gdx.graphics.getHeight();
-                int scaledVideoWidth = (int) (screenWidth);
-                int scaledVideoHeight = (int) (screenWidth * 0.565);
 
-                int x = (screenWidth - scaledVideoWidth) / 2;
-                int y = (screenHeight - scaledVideoHeight) / 2;
-
-                spriteBatch.draw(currentFrame, x, y, scaledVideoWidth, scaledVideoHeight);
             } else if (currentAd == "Bolt") {
-                int videoWidth = videoPlayer.getVideoWidth();
-                int videoHeight = videoPlayer.getVideoHeight();
-                int screenWidth = Gdx.graphics.getWidth();
-                int screenHeight = Gdx.graphics.getHeight();
-                int scaledVideoWidth = (int) (screenWidth);
-                int scaledVideoHeight = (int) (screenWidth * 0.565);
 
-                int x = (screenWidth - scaledVideoWidth) / 2;
-                int y = (screenHeight - scaledVideoHeight) / 2;
-                spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
+            } else if (currentAd == "Interstellar") {
+
             }
         }
 
@@ -187,6 +197,5 @@ public class LoadingScreen implements Screen {
         // Dispose assets here if necessary
         spriteBatch.dispose();
         font.dispose();
-        videoPlayer.dispose();
     }
 }
