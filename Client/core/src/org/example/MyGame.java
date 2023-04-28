@@ -246,7 +246,8 @@ public class MyGame extends Game {
         super.render();
     }
     public GameClient initGameClient() {
-        return new GameClient(this, "localhost", 8080, 8081);
+        // Server ip 193.40.156.227
+        return new GameClient(this, "193.40.156.227", 8080, 8081);
     }
     public GamePreferences getGamePreferences() {
         return gamePreferences;
