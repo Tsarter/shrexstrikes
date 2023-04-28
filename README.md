@@ -38,7 +38,7 @@ Other stuff:
 
 ## How to manage the Server on Taltech server 
 
-ssh to the server and delete the old file `ssh ubuntu 193.40.156.227`
+ssh to the server and delete the old file `ssh ubuntu@193.40.156.227`
 
 push the Server.jar file to server `scp Server-1.0.jar ubuntu@193.40.156.227:gameServer/`
 
