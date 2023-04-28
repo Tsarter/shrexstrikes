@@ -43,7 +43,7 @@ public class DeathScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.leaveGame();
+                game.showMenuScreen();
                 game.getPlayer().health = 100;
             }
         });
@@ -83,7 +83,7 @@ public class DeathScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        stage.act(delta);
+        stage.act();
         stage.draw();
     }
     @Override
@@ -101,6 +101,7 @@ public class DeathScreen implements Screen {
     }
     @Override
     public void dispose() {
+        stage.dispose();
     }
 
 }

@@ -39,14 +39,14 @@ public class LoadingScreen implements Screen {
 
     public LoadingScreen(MyGame game) {
         this.game = game;
-        this.spriteBatch = new SpriteBatch();
-        this.font = new BitmapFont();
         this.loadingMessage = "Loading...";
 
     }
 
     @Override
     public void show() {
+        this.font = new BitmapFont();
+        this.spriteBatch = new SpriteBatch();
         // Set the message to display while loading assets
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -61,7 +61,7 @@ public class LoadingScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                videoPlayer.dispose();
+                //videoPlayer.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                     game.showZombiesScreen();
@@ -86,7 +86,7 @@ public class LoadingScreen implements Screen {
             }
         });
         try {
-            double random = Math.random();
+            // double random = Math.random();
             int currentAdId = game.getGamePreferences().getCurrentAdId();
             if (currentAdId == 0) {
                 currentAd = "Bolt";
@@ -161,7 +161,7 @@ public class LoadingScreen implements Screen {
             stage.addActor(skipButton);
             // All assets are loaded, switch to the next screen
             if (game.gameMode == GameMode.GameModes.ZOMBIES) {
-                //game.showZombiesScreen();
+                // game.showZombiesScreen();
             }
             if (game.gameMode == GameMode.GameModes.PVP) {
                 // game.showPVPLobbyScreen();
@@ -191,6 +191,10 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void hide() {
+        // Dispose assets here if necessary
+        spriteBatch.dispose();
+        font.dispose();
+        game.music.stop();
     }
 
     @Override
@@ -198,5 +202,8 @@ public class LoadingScreen implements Screen {
         // Dispose assets here if necessary
         spriteBatch.dispose();
         font.dispose();
+        if (videoPlayer != null) {
+            videoPlayer.dispose();
+        }
     }
 }

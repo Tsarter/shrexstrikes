@@ -98,8 +98,8 @@ public class MyGame extends Game {
     }
 
     public void showMenuScreen() {
-        if (client != null) {
-            // If the gameClient is not null, close it
+        if (client != null && client.isConnected()) {
+            // If the client is connected, disconnect it
             client.close();
             gameClient = null;
         }
@@ -107,6 +107,7 @@ public class MyGame extends Game {
             // If the gameMode is zombies, hide all the enemies (zombies
             gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
         }
+        gameState = GameStateChange.GameStates.IN_MENU;
         setScreen(menuScreen);
     }
     public void showZombiesScreen() {
@@ -228,13 +229,15 @@ public class MyGame extends Game {
         setScreen(pauseOverlay);
     }
     public void showDeathScreen() {
-        setScreen(deathScreen);
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                setScreen(deathScreen);
+            }
+        });
+
     }
     public void leaveLobby() {
-        client.close();
-        showMenuScreen();
-    }
-    public void leaveGame() {
         client.close();
         showMenuScreen();
     }

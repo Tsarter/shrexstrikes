@@ -9,6 +9,7 @@ public class GameStateChange {
         IN_GAME_OVER,
         IN_DEATH_SCREEN,
         IN_PAUSE_MENU,
+        IN_MENU,
         GAME_STARTING,
         GAME_OVER,
         READY,
