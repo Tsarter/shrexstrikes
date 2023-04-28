@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
 import org.example.Player;
 import org.example.animations.Pulse;
@@ -51,7 +52,7 @@ public class PVPScreen extends GameScreen {
         float duration = 0.5f;
         float scale = 1.5f;
 
-        stage.act(delta);
+        stage.act();
         stage.draw();
         // Center the crosshair
         Gdx.input.setInputProcessor(inputMultiplexer);
@@ -147,7 +148,7 @@ public class PVPScreen extends GameScreen {
     }
     @Override
     public void show() {
-        stage = new Stage();
+        stage = new Stage(new ScreenViewport());
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();

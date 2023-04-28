@@ -60,7 +60,7 @@ public class LoadingScreen implements Screen {
         skipButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                videoPlayer.stop();
+
                 videoPlayer.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
@@ -75,7 +75,7 @@ public class LoadingScreen implements Screen {
             @Override
             public void onCompletionListener(FileHandle fileHandle) {
                 videoPlayer.dispose();
-                spriteBatch.dispose();
+                // spriteBatch.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                     game.showZombiesScreen();
@@ -109,7 +109,7 @@ public class LoadingScreen implements Screen {
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/interstellar.mp3"));
                 game.getGamePreferences().setCurrentAdId(0);
                 if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f){
-                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.3f);
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.1f);
                 }else{
                     game.music.setVolume(game.getGamePreferences().getMusicVolume());
                 }
@@ -178,6 +178,7 @@ public class LoadingScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         spriteBatch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

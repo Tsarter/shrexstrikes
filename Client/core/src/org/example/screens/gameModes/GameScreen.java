@@ -19,6 +19,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Player;
@@ -326,9 +327,8 @@ public class GameScreen implements ApplicationListener,Screen {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
         camera.update();
-        // use orthographic projection for the crosshair
-
-
+        show();
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -342,7 +342,7 @@ public class GameScreen implements ApplicationListener,Screen {
     @Override
     public void show() {
         myGame.music.stop();
-        stage = new Stage();
+        stage = new Stage(new ScreenViewport());
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
@@ -359,8 +359,8 @@ public class GameScreen implements ApplicationListener,Screen {
                 Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
                 Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
         healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
-        waveLabel.setPosition(Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() - 20);
-        enemiesRemainingLabel.setPosition(Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 40);
+        waveLabel.setPosition(Gdx.graphics.getWidth() - waveLabel.getWidth() - 20f, Gdx.graphics.getHeight() - 20);
+        enemiesRemainingLabel.setPosition(Gdx.graphics.getWidth() - enemiesRemainingLabel.getWidth() - 20f, Gdx.graphics.getHeight() - 40);
         scoreLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         // Add the health label to the stage
         stage.addActor(healthLabel);

@@ -31,6 +31,11 @@ public class DeathScreen implements Screen {
     private Stage stage;
     public DeathScreen(MyGame game) {
      this.game = game;
+    }
+    @Override
+    public void show() {
+
+
         stage = new Stage(new ScreenViewport());
         Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         Label label = new Label("You died", skin);
@@ -68,14 +73,7 @@ public class DeathScreen implements Screen {
         actor.setColor(Color.BLACK);
         stage.addActor(actor);
         stage.addActor(table);
-        // create a new input multiplexer that includes the stage and the default input processor
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        Gdx.input.setInputProcessor(multiplexer);
 
-    }
-    @Override
-    public void show() {
         Gdx.input.setInputProcessor(stage);
         Gdx.input.setCursorCatched(false);
 
@@ -93,6 +91,7 @@ public class DeathScreen implements Screen {
     }
     @Override
     public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
     @Override
     public void pause() {

@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
 import org.example.Player;
 
@@ -35,7 +36,7 @@ public class SettingsScreen implements Screen {
     private Slider volumeSlider;
     public SettingsScreen(MyGame myGame) {
         this.myGame = myGame;
-        this.stage = new Stage();
+        this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
         this.table = new Table(skin);
         this.table.setFillParent(true);
@@ -161,8 +162,9 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(Gdx.graphics.getDeltaTime());
+        stage.act();
         stage.draw();
     }
 
