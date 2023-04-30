@@ -2,7 +2,7 @@
 
 
 ## Warnings && known bugs
-Doesn't work on mac m1 and m2
+Doesn't work on mac m1 and m2. Fix, generate .jar file `gradlew desktop:dist`, open terminal as rosetta (intel architecture) and run it in terminal using  `java -jar -XstartOnFirstThread desktop-1.0.jar` 
 
 ## How to play?
 1. Download the code from gitlab using `git clone https://gitlab.cs.ttu.ee/tatall/iti0301-2023.git`
