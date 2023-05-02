@@ -1,5 +1,7 @@
 # Shrex Strikes - java edition
 
+## Buy the game
+[https://payhip.com/toboshop](https://payhip.com/toboshop)  
 
 ## Warnings && known bugs
 Doesn't work on mac m1 and m2. Fix, generate .jar file `gradlew desktop:dist`, open terminal as rosetta (intel architecture) and run it in terminal using  `java -jar -XstartOnFirstThread desktop-1.0.jar` 
