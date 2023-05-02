@@ -46,6 +46,7 @@ public class GameSession {
     }
     public void addPlayer(Player player) {
         players.put(player.id, player);
+
     }
 
     public void removePlayer(Player player) {
@@ -62,6 +63,7 @@ public class GameSession {
     }
     public void endGame() {
         currentGameState = GameStateChange.GameStates.IN_GAME_OVER;
+        System.out.println("GameSession " + sessionId + " ended");
     }
     public void updateGameState() {
 
