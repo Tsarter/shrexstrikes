@@ -156,7 +156,7 @@ public class PVPScreen extends GameScreen {
         killLabel = new Label("Kills: " + myGame.getPlayer().kills, labelStyle);
         timeLabel = new Label("Time left: " + timeLeft, labelStyle);
         // Create the crosshair image and center it on the screen
-        Texture texture = new Texture("assets/crosshair-icon.png");
+        Texture texture = new Texture("crosshair-icon.png");
         crosshair = new Image(texture);
         // size the crosshair to 50x50 pixels
         crosshair.setSize(25, 25);

@@ -17,15 +17,15 @@ public class ObjLoaderCustom {
 
     public ObjLoaderCustom(MyGame game) {
         this.game = game;
-        shrexModel =  game.getAssetManager().get("assets/characters/Shrek/Shrek.obj", Model.class);
+        shrexModel =  game.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
     }
     public ModelInstance loadShrek() {
         for (Mesh mesh : shrexModel.meshes) {
             mesh.scale(0.01f, 0.01f, 0.01f);
         }
         // load the texture files
-        Texture bodyTexture = game.getAssetManager().get("assets/Shrek_Body.png");
-        Texture headLegsTexture = game.getAssetManager().get("assets/Shrek_Head_Legs.png");
+        Texture bodyTexture = game.getAssetManager().get("Shrek_Body.png");
+        Texture headLegsTexture = game.getAssetManager().get("Shrek_Head_Legs.png");
         // create materials that reference the texture files
         Material bodyMaterial = new Material(TextureAttribute.createDiffuse(bodyTexture));
         Material headLegsMaterial = new Material(TextureAttribute.createDiffuse(headLegsTexture));
@@ -37,8 +37,8 @@ public class ObjLoaderCustom {
         return playerModelInstance;
     }
     public ModelInstance loadFiona() {
-        String folder = "assets/characters/fiona/";
-        Model playerModel = loader.loadModel(Gdx.files.internal(  "assets/characters/fiona/fiona.obj"));
+        String folder = "characters/fiona/";
+        Model playerModel = loader.loadModel(Gdx.files.internal(  "characters/fiona/fiona.obj"));
         // load the texture files
         Texture bodyTexture = new Texture(Gdx.files.internal(folder + "sss.png"));
         Texture headLegsTexture = new Texture(Gdx.files.internal(folder + "djddk.png"));

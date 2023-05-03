@@ -90,23 +90,23 @@ public class LoadingScreen implements Screen {
             int currentAdId = game.getGamePreferences().getCurrentAdId();
             if (currentAdId == 0) {
                 currentAd = "Bolt";
-                videoPlayer.play(Gdx.files.internal("assets/ads/weAreBolt.webm"));
+                videoPlayer.play(Gdx.files.internal("ads/weAreBolt.webm"));
                 game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreBolt.mp3"));
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreBolt.mp3"));
                 game.getGamePreferences().setCurrentAdId(1);
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
             } else if (currentAdId == 1) {
                 currentAd = "Grow";
-                videoPlayer.play(Gdx.files.internal("assets/ads/weAreGrow.webm"));
+                videoPlayer.play(Gdx.files.internal("ads/weAreGrow.webm"));
                 game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/weAreGrow.mp3"));
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreGrow.mp3"));
                 game.getGamePreferences().setCurrentAdId(2);
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
             } else if (currentAdId == 2) {
                 currentAd = "Interstellar";
-                videoPlayer.play(Gdx.files.internal("assets/ads/interstellar.webm"));
+                videoPlayer.play(Gdx.files.internal("ads/interstellar.webm"));
                 game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("assets/ads/interstellar.mp3"));
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/interstellar.mp3"));
                 game.getGamePreferences().setCurrentAdId(0);
                 if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f){
                     game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.1f);

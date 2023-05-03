@@ -69,7 +69,7 @@ public class MyGame extends Game {
 
     @Override
     public void create() {
-        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
         player = new Player();
         gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
@@ -85,13 +85,13 @@ public class MyGame extends Game {
             @Override
             public void run() {
                 // Asynchronously load the map
-                assetManager.load("assets/Shrek_Body.png", Texture.class);
-                assetManager.load("assets/Shrek_Head_Legs.png", Texture.class);
-                assetManager.load("assets/characters/Fiona/fiona.obj", Model.class);
-                assetManager.load("assets/Shrek.obj", Model.class);
-                assetManager.load("assets/characters/Shrek/Shrek.obj", Model.class);
-                assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
-                assetManager.load("assets/skyboxes/skyboxBasicBlue.png", Texture.class);
+                assetManager.load("Shrek_Body.png", Texture.class);
+                assetManager.load("Shrek_Head_Legs.png", Texture.class);
+                assetManager.load("characters/Fiona/fiona.obj", Model.class);
+                assetManager.load("Shrek.obj", Model.class);
+                assetManager.load("characters/Shrek/Shrek.obj", Model.class);
+                assetManager.load("maps/City/MediEvalCity.g3db", Model.class);
+                assetManager.load("skyboxes/skyboxBasicBlue.png", Texture.class);
                 setScreen(menuScreen);
             }
         });

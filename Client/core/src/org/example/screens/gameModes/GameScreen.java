@@ -88,7 +88,7 @@ public class GameScreen implements ApplicationListener,Screen {
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();
         ModelLoader loader = new ObjLoader();
-        Model mapModel = myGame.getAssetManager().get("assets/maps/City/MediEvalCity.g3db");
+        Model mapModel = myGame.getAssetManager().get("maps/City/MediEvalCity.g3db");
         groundModelInstance = new ModelInstance(mapModel);
         groundModelInstance.transform.setToTranslation(0, 0.5f, 0);
 
@@ -134,7 +134,7 @@ public class GameScreen implements ApplicationListener,Screen {
             String counter = "00000" + String.valueOf(i);
             int counterMaxLength = 6;
             counter = counter.substring(counter.length() - counterMaxLength);
-            Model model = loader.loadModel(Gdx.files.internal("assets/characters/WalkingShrek/walkingShrek_" + counter + ".obj"));
+            Model model = loader.loadModel(Gdx.files.internal("characters/WalkingShrek/walkingShrek_" + counter + ".obj"));
             animationFrames[i] = new ModelInstance(playerModel);
         }*/
 
@@ -351,7 +351,7 @@ public class GameScreen implements ApplicationListener,Screen {
         enemiesRemainingLabel = new Label("Enemies Remaining: " + enemiesRemaining, labelStyle);
         scoreLabel = new Label("Score: " + score, labelStyle);
         // Create the crosshair image and center it on the screen
-        Texture texture = new Texture("assets/crosshair-icon.png");
+        Texture texture = new Texture("crosshair-icon.png");
         crosshair = new Image(texture);
         // size the crosshair to 50x50 pixels
         crosshair.setSize(25, 25);

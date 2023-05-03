@@ -25,11 +25,11 @@ public class PauseOverlay implements Screen {
     public PauseOverlay(MyGame game) {
         this.game = game;
         this.stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
         // Button styling
-        Texture borderTexture = new Texture("assets/shrekbg.png");
+        Texture borderTexture = new Texture("shrekbg.png");
         NinePatch borderPatch = new NinePatch(borderTexture, 12, 12, 12, 12);
-        BitmapFont customFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        BitmapFont customFont = new BitmapFont(Gdx.files.internal("N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         customFont.getData().setScale(1f);
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = customFont;

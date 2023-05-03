@@ -32,22 +32,22 @@ public class SettingsScreen implements Screen {
     private SelectBox<String> playerSelectBox;
     private TextButton saveButton;
     private MyGame myGame;
-    private Skin slider = new Skin(Gdx.files.internal("assets/uiskin.json"));
+    private Skin slider = new Skin(Gdx.files.internal("uiskin.json"));
     private Slider volumeSlider;
     public SettingsScreen(MyGame myGame) {
         this.myGame = myGame;
         this.stage = new Stage(new ScreenViewport());
-        this.skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         this.table = new Table(skin);
         this.table.setFillParent(true);
 
         Label usernameLabel = new Label("Change username", skin);
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-        BitmapFont usernameFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        BitmapFont usernameFont = new BitmapFont(Gdx.files.internal("N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         usernameFont.getData().setScale(0.5f);
         textFieldStyle.font = usernameFont;
         textFieldStyle.fontColor = Color.WHITE;
-        textFieldStyle.background = new NinePatchDrawable(new NinePatch(new Texture("assets/shrekbg.png"), 12, 12, 22, 12));
+        textFieldStyle.background = new NinePatchDrawable(new NinePatch(new Texture("shrekbg.png"), 12, 12, 22, 12));
         // Cursor color
         Pixmap pixmap = new Pixmap(3, 10, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
@@ -62,10 +62,10 @@ public class SettingsScreen implements Screen {
 
 
         // Style for select box
-        Texture borderTexture = new Texture("assets/shrekbg.png");
+        Texture borderTexture = new Texture("shrekbg.png");
         NinePatch borderPatch = new NinePatch(borderTexture, 12, 12, 12, 12);
         SelectBox.SelectBoxStyle playerSelectBoxStyle = new SelectBox.SelectBoxStyle();
-        BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         smallerFont.getData().setScale(0.6f);
         playerSelectBoxStyle.font = smallerFont;
         playerSelectBoxStyle.fontColor = Color.WHITE;
