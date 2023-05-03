@@ -103,8 +103,13 @@ public class GameClient  {
         // Update game status
         if (object instanceof GameStatus) {
             GameStatus gameStatus = (GameStatus) object;
-            PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
-            pvpScreen.handleIncomingGameStatus(gameStatus);
+            if (game.gameScreen instanceof PVPScreen) {
+                PVPScreen pvpScreen = (PVPScreen) game.gameScreen;
+                pvpScreen.handleIncomingGameStatus(gameStatus);
+            } else{
+                System.out.println("Game status recieved, but not in PVP screen");
+            }
+
         }
     }
     public void handleZombies(Connection connection,Object object){
