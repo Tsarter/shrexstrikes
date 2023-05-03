@@ -36,28 +36,28 @@ public class MenuScreen implements Screen {
     private TextureRegionDrawable backgroundDrawable;
     private SelectBox<String> gameTypeSelectBox;
 
-    Skin slider = new Skin(Gdx.files.internal("assets/uiskin.json"));
+    Skin slider = new Skin(Gdx.files.internal("uiskin.json"));
 
 
     public MenuScreen(MyGame myGame) {
         this.myGame = myGame;
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
         Gdx.input.setInputProcessor(stage);
-        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("best_theme.mp3"));
         myGame.music.setVolume(myGame.getGamePreferences().getMusicVolume());
         myGame.music.setLooping(true);
         myGame.music.play();
         // Load background texture
-        backgroundTexture = new Texture(Gdx.files.internal("assets/shrexstrikesbg.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("shrexstrikesbg.png"));
 
         // Create background drawable
         backgroundDrawable = new TextureRegionDrawable(new TextureRegion(backgroundTexture));
 
-        Texture borderTexture = new Texture("assets/shrekbg.png");
+        Texture borderTexture = new Texture("shrekbg.png");
         NinePatch borderPatch = new NinePatch(borderTexture, 12, 12, 12, 12);
 
-        BitmapFont customFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        BitmapFont customFont = new BitmapFont(Gdx.files.internal("N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         customFont.getData().setScale(1f);
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = customFont;
@@ -66,7 +66,7 @@ public class MenuScreen implements Screen {
 
         // Style select box
         SelectBox.SelectBoxStyle selectBoxStyle = new SelectBox.SelectBoxStyle();
-        BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("assets/N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
+        BitmapFont smallerFont = new BitmapFont(Gdx.files.internal("N2THxmg3XjwlAOwJTIgQL7g9.TTF.fnt"));
         smallerFont.getData().setScale(0.5f);
         selectBoxStyle.font = smallerFont;
         selectBoxStyle.fontColor = Color.WHITE;
@@ -165,7 +165,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         myGame.music.dispose();
-        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("assets/best_theme.mp3"));
+        myGame.music = Gdx.audio.newMusic(Gdx.files.internal("best_theme.mp3"));
         myGame.music.setVolume(myGame.getGamePreferences().getMusicVolume());
         myGame.music.setLooping(true);
         myGame.music.play();

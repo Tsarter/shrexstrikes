@@ -37,7 +37,7 @@ public class DeathScreen implements Screen {
 
 
         stage = new Stage(new ScreenViewport());
-        Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
         Label label = new Label("You died", skin);
         TextButton button = new TextButton("Back to menu", skin);
         button.addListener(new ClickListener() {

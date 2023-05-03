@@ -62,7 +62,6 @@ public class GameClient  {
              */
             game.getClient().start();
             game.getClient().connect(5000, serverIp, 8080, 8081);
-            int j = 0;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,6 +69,9 @@ public class GameClient  {
     public void handlePVP(Connection connection,Object object){
         if (object instanceof HashMap<?,?>) {
             HashMap<Integer, Player> players = (HashMap<Integer, Player>) object;
+            if (players.size() == 0){
+                System.out.println("No players in the game");
+            }
             // get the list of players
             game.setPlayers(players);
             if (players.containsKey(game.getPlayer().id)) {
@@ -107,7 +109,7 @@ public class GameClient  {
     }
     public void handleZombies(Connection connection,Object object){
         if (object instanceof HashMap<?,?>) {
-            // get the list of players
+            // list of players
             game.setPlayers((HashMap<Integer, Player>) object);
 
             if (game.gameMode == GameMode.GameModes.ZOMBIES){

@@ -33,7 +33,7 @@ public class LobbyScreen implements Screen {
     public void show() {
         // create UI elements
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
         title = new Label(String.valueOf(game.gameMode), skin);
 
         joinButton = new TextButton("Join", skin);
@@ -45,8 +45,19 @@ public class LobbyScreen implements Screen {
                 game.leaveLobby();
             }
         });
+        layout = new Table(skin);
+        layout.setFillParent(true);
+        layout.add(title).padBottom(10f).row();
+        layout.add("Total players: " + String.valueOf(game.getPlayers().size()) + " / 2").padBottom(10f).row();
+        layout.add("Players:").padBottom(10f).row();
+        for (Player player : game.getPlayers().values()) {
+            layout.add("Player name: " + String.valueOf(player.name)).padBottom(10f).row();
+        }
+        // Add UI elements to the table
+        // layout.add(joinButton).padRight(10f);
+        layout.add(leaveButton).padLeft(10f);
+        stage.addActor(layout);
         // create layout
-        updateLobby();
         Gdx.input.setInputProcessor(stage);
 
     }
@@ -57,6 +68,7 @@ public class LobbyScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act();
         stage.draw();
+
     }
     @Override
     public void resize(int width, int height) {
@@ -75,23 +87,6 @@ public class LobbyScreen implements Screen {
     public void dispose() {
     }
     public void updateLobby() {
-        // update the lobby
-        // create layout
-        layout = new Table(skin);
-        layout.setFillParent(true);
-        layout.add(title).padBottom(10f).row();
-        layout.clearChildren();
-        stage.clear();
-        layout.add(title).padBottom(10f).row();
-        layout.add("Total players: " + String.valueOf(game.getPlayers().size()) + " / 2").padBottom(10f).row();
-        layout.add("Players:").padBottom(10f).row();
-        for (Player player : game.getPlayers().values()) {
-            layout.add("Player id: " + String.valueOf(player.id)).padBottom(10f).row();
-        }
 
-        // Add UI elements to the table
-        // layout.add(joinButton).padRight(10f);
-        layout.add(leaveButton).padLeft(10f);
-        stage.addActor(layout);
     }
 }

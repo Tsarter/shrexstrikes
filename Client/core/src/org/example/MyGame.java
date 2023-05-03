@@ -69,7 +69,7 @@ public class MyGame extends Game {
 
     @Override
     public void create() {
-        skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
         player = new Player();
         gamePreferences = new GamePreferences();
         assetManager = new AssetManager();
@@ -85,13 +85,13 @@ public class MyGame extends Game {
             @Override
             public void run() {
                 // Asynchronously load the map
-                assetManager.load("assets/Shrek_Body.png", Texture.class);
-                assetManager.load("assets/Shrek_Head_Legs.png", Texture.class);
-                assetManager.load("assets/characters/Fiona/fiona.obj", Model.class);
-                assetManager.load("assets/Shrek.obj", Model.class);
-                assetManager.load("assets/characters/Shrek/Shrek.obj", Model.class);
-                assetManager.load("assets/maps/City/MediEvalCity.g3db", Model.class);
-                assetManager.load("assets/skyboxes/skyboxBasicBlue.png", Texture.class);
+                assetManager.load("Shrek_Body.png", Texture.class);
+                assetManager.load("Shrek_Head_Legs.png", Texture.class);
+                assetManager.load("characters/Fiona/fiona.obj", Model.class);
+                assetManager.load("Shrek.obj", Model.class);
+                assetManager.load("characters/Shrek/Shrek.obj", Model.class);
+                assetManager.load("maps/City/MediEvalCity.g3db", Model.class);
+                assetManager.load("skyboxes/skyboxBasicBlue.png", Texture.class);
                 setScreen(menuScreen);
             }
         });
@@ -119,7 +119,7 @@ public class MyGame extends Game {
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
-                    if (gameScreen == null) {
+                    if (gameScreen == null  || gameScreen instanceof PVPScreen) {
                         try {
                             gameScreen = new ZombiesScreen(MyGame.this);
                         } catch (IOException e) {
@@ -162,6 +162,7 @@ public class MyGame extends Game {
             @Override
             public void run() {
                 setScreen(gameScreen);
+                gameState = GameStateChange.GameStates.IN_GAME;
             }
         });
     }
@@ -174,7 +175,7 @@ public class MyGame extends Game {
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
-                if (gameScreen == null) {
+                if (gameScreen == null || gameScreen instanceof ZombiesScreen) {
                     try {
                         gameScreen = new PVPScreen(MyGame.this,100);
                     } catch (IOException e) {
@@ -246,7 +247,7 @@ public class MyGame extends Game {
         super.render();
     }
     public GameClient initGameClient() {
-        // Server ip 193.40.156.227
+        // Server ip 193.40.156.227 / localhost
         return new GameClient(this, "193.40.156.227", 8080, 8081);
     }
     public GamePreferences getGamePreferences() {

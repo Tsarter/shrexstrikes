@@ -11,6 +11,7 @@ import org.example.messages.*;
 import org.example.tasks.PVPGameTask;
 import org.example.tasks.UpdatePlayersTask;
 
+import java.util.HashMap;
 import java.util.Timer;
 
 public class PVPRoom extends GameSession {
@@ -28,6 +29,9 @@ public class PVPRoom extends GameSession {
     }
 
     public void startGame() {
+        if (gameStarted) {
+            return;
+        }
         super.startGame();
         gameStarted = true;
         // Start PVPGameTask (Send GameStatus(timeleft) to clients every second)
@@ -48,6 +52,8 @@ public class PVPRoom extends GameSession {
         gameStarted = false;
         sendGameEndToPlayers();
         timer.cancel();
+        timer.purge();
+        timer = null;
     }
     @Override
     public void processData(Object data) {
@@ -67,7 +73,13 @@ public class PVPRoom extends GameSession {
                         }
                     }
                     if (allReady) {
-                        startGame();
+                        if (!gameStarted) {
+                            startGame();
+                        } else {
+                            // Don't start the game but still send the game start message
+                            GameStateChange gameStart = new GameStateChange(player.id, GameStateChange.GameStates.GAME_STARTING);
+                            myServer.getServer().sendToTCP(player.id, gameStart);
+                        }
                     }
                 }
             }
@@ -88,6 +100,12 @@ public class PVPRoom extends GameSession {
                 player.rotation = playerClient.rotation;
                 player.boundingBox = playerClient.boundingBox;
                 player.name = playerClient.name;
+            }
+            if (!gameStarted){
+                // Send all players to all players (update lobby for players)
+                for (Player p : super.getPlayers().values()) {
+                    myServer.getServer().sendToTCP(p.id, super.getPlayers());
+                }
             }
         }
         else if (data instanceof PlayerBullet) {

@@ -23,7 +23,7 @@ public class PVPRespawnScreen implements Screen {
     @Override
     public void show() {
         this.stage = new Stage(new ScreenViewport());
-        Skin skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
+        Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
         // create the countdown label with initial text
         countdownLabel = new Label("Respawning in " + countdownSeconds + " seconds", skin);
         // set the label position
