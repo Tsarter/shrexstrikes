@@ -34,7 +34,6 @@ public class LoadingScreen implements Screen {
     private String loadingMessage;
     private Stage stage;
     private TextButton skipButton;
-    private String currentAd;
     private Texture currentFrame;
 
     public LoadingScreen(MyGame game) {
@@ -89,34 +88,39 @@ public class LoadingScreen implements Screen {
             // double random = Math.random();
             int currentAdId = game.getGamePreferences().getCurrentAdId();
             if (currentAdId == 0) {
-                currentAd = "Bolt";
                 videoPlayer.play(Gdx.files.internal("ads/weAreBolt.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreBolt.mp3"));
                 game.getGamePreferences().setCurrentAdId(1);
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                game.music.play();
             } else if (currentAdId == 1) {
-                currentAd = "Grow";
                 videoPlayer.play(Gdx.files.internal("ads/weAreGrow.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreGrow.mp3"));
                 game.getGamePreferences().setCurrentAdId(2);
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                game.music.play();
             } else if (currentAdId == 2) {
-                currentAd = "Interstellar";
                 videoPlayer.play(Gdx.files.internal("ads/interstellar.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/interstellar.mp3"));
-                game.getGamePreferences().setCurrentAdId(0);
+                game.getGamePreferences().setCurrentAdId(3);
                 if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f){
-                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.1f);
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.2f);
                 }else{
                     game.music.setVolume(game.getGamePreferences().getMusicVolume());
                 }
-
+                game.music.play();
+            } else if (currentAdId == 3) {
+                videoPlayer.play(Gdx.files.internal("ads/CAMPUS.webm"));
+                game.music.dispose();
+                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
+                videoPlayer.setVolume(0);
+                game.getGamePreferences().setCurrentAdId(0);
+                game.music.play();
             }
             System.out.println("Music volume is " + game.getGamePreferences().getMusicVolume());
-            game.music.play();
 
         } catch (FileNotFoundException e) {
             Gdx.app.error("LoadingScreen", "Video file not found", e);
@@ -145,14 +149,6 @@ public class LoadingScreen implements Screen {
             int x = (screenWidth - scaledVideoWidth) / 2;
             int y = (screenHeight - scaledVideoHeight) / 2;
             spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
-
-            if (currentAd == "Grow"){
-
-            } else if (currentAd == "Bolt") {
-
-            } else if (currentAd == "Interstellar") {
-
-            }
         }
 
         // Check if all assets are loaded
