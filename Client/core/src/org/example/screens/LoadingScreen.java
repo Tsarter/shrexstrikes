@@ -35,7 +35,6 @@ public class LoadingScreen implements Screen {
     private Stage stage;
     private TextButton skipButton;
     private Texture currentFrame;
-    private boolean renderVideo = true;
 
     public LoadingScreen(MyGame game) {
         this.game = game;
@@ -45,7 +44,6 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void show() {
-        renderVideo = true;
         this.font = new BitmapFont();
         this.spriteBatch = new SpriteBatch();
         // Set the message to display while loading assets
@@ -61,8 +59,8 @@ public class LoadingScreen implements Screen {
         skipButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                renderVideo = false;
-                // videoPlayer.dispose();
+                game.music.stop();
+                //videoPlayer.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                     game.showZombiesScreen();
@@ -75,9 +73,9 @@ public class LoadingScreen implements Screen {
         videoPlayer.setOnCompletionListener(new VideoPlayer.CompletionListener() {
             @Override
             public void onCompletionListener(FileHandle fileHandle) {
-                // videoPlayer.dispose();
+                videoPlayer.dispose();
+                game.music.stop();
                 // spriteBatch.dispose();
-                renderVideo = false;
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
                     game.showZombiesScreen();
@@ -116,7 +114,7 @@ public class LoadingScreen implements Screen {
                 }
                 game.music.play();
             } else if (currentAdId == 3) {
-                videoPlayer.play(Gdx.files.internal("ads/CAMPUS.webm"));
+                videoPlayer.play(Gdx.files.internal("ads/CAMPUS2.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
@@ -135,9 +133,7 @@ public class LoadingScreen implements Screen {
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (!renderVideo) {
-            return;
-        }
+
         // Update the asset manager and display progress
         float progress = game.getAssetManager().getProgress();
         videoPlayer.update();
