@@ -56,4 +56,14 @@ public class ObjLoaderCustom {
 
         return null;
     }
+    public ModelInstance loadGun() {
+        Model gunModel = game.getAssetManager().get("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
+        ModelInstance gunInstance = new ModelInstance(gunModel);
+        for (Mesh mesh : gunModel.meshes) {
+            mesh.scale(0.03f, 0.03f, 0.03f);
+        }
+        gunInstance.transform.setToTranslation(0, 0, 0);
+
+        return gunInstance;
+    }
 }

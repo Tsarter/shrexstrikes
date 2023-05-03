@@ -92,6 +92,7 @@ public class MyGame extends Game {
                 assetManager.load("characters/Shrek/Shrek.obj", Model.class);
                 assetManager.load("maps/City/MediEvalCity.g3db", Model.class);
                 assetManager.load("skyboxes/skyboxBasicBlue.png", Texture.class);
+                assetManager.load("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
                 setScreen(menuScreen);
             }
         });
@@ -248,7 +249,7 @@ public class MyGame extends Game {
     }
     public GameClient initGameClient() {
         // Server ip 193.40.156.227 / localhost
-        return new GameClient(this, "193.40.156.227", 8080, 8081);
+        return new GameClient(this, "localhost", 8080, 8081);
     }
     public GamePreferences getGamePreferences() {
         return gamePreferences;
