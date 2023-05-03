@@ -116,6 +116,7 @@ public class LoadingScreen implements Screen {
                 videoPlayer.play(Gdx.files.internal("ads/CAMPUS.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
+                game.music.setVolume(game.getGamePreferences().getMusicVolume());
                 videoPlayer.setVolume(0);
                 game.getGamePreferences().setCurrentAdId(0);
                 game.music.play();

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -128,6 +129,17 @@ public class GameScreen implements ApplicationListener,Screen {
         // Load shrex model
         playerModelInstance = objLoaderCustom.loadShrek();
         templateEnemyModelInstance = playerModelInstance.copy();
+        ModelInstance gun = objLoaderCustom.loadGun();
+        for (Node node : gun.nodes){
+            node.translation.y = node.translation.y + 0.65f;
+            node.translation.x = node.translation.x - 0.1f;
+            node.translation.z = node.translation.z + 0.2f;
+            node.rotation.setEulerAngles(95, 0, 0);
+            playerModelInstance.nodes.add(node);
+        }
+        Matrix4 gunTransform = new Matrix4().translate(0.5f, 1.0f, 0.0f);
+        gun.transform.set(gunTransform);
+        playerModelInstance = playerModelInstance.copy();
         // Load all the walking shrek frames
         /*ModelInstance[] animationFrames = new ModelInstance[260];
         for (int i = 1; i < 250; i++) {
