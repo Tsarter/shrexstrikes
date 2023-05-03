@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.MyGame;
+import org.example.messages.GameMode;
 
 public class PauseOverlay implements Screen {
     private MyGame game;
@@ -63,7 +64,12 @@ public class PauseOverlay implements Screen {
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.showZombiesScreen();
+                if (game.gameMode == GameMode.GameModes.ZOMBIES){
+                    game.showZombiesScreen();
+                }
+                else if (game.gameMode == GameMode.GameModes.PVP){
+                    game.showPVPLobbyScreen();
+                }
             }
         });
         // Create table

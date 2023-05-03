@@ -266,7 +266,7 @@ public class GameScreen implements ApplicationListener,Screen {
             float previousRotation = previousRotations.getOrDefault(enemy.id, 0f);            //float rotationDelta = enemy.rotation - previousRotation;
             float currentRotation = lerp(previousRotation, enemy.rotation, 0.2f);
             previousRotations.put(enemy.id, currentRotation);
-            // Smoothly update enemy dposition
+            // Smoothly update enemy position
             Vector3 currentPosition = enemyModelInstance.transform.getTranslation(new Vector3());
             Vector3 targetPosition = new Vector3(enemy.X, enemy.Y, enemy.Z);
             Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);

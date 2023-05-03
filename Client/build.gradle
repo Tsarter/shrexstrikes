@@ -51,6 +51,7 @@ project(":desktop") {
         implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
         implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation "com.badlogicgames.gdx-video:gdx-video-lwjgl3:$gdxVideo"
+        implementation "com.badlogicgames.gdx:gdx-lwjgl3-glfw-awt-macos:$gdxVersion"
     }
     jar {
         manifest {

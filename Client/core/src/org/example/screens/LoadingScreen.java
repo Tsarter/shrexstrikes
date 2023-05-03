@@ -59,7 +59,7 @@ public class LoadingScreen implements Screen {
         skipButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                game.music.stop();
                 //videoPlayer.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
@@ -74,6 +74,7 @@ public class LoadingScreen implements Screen {
             @Override
             public void onCompletionListener(FileHandle fileHandle) {
                 videoPlayer.dispose();
+                game.music.stop();
                 // spriteBatch.dispose();
                 // All assets are loaded, switch to the next screen
                 if (game.gameMode == GameMode.GameModes.ZOMBIES) {
@@ -113,11 +114,10 @@ public class LoadingScreen implements Screen {
                 }
                 game.music.play();
             } else if (currentAdId == 3) {
-                videoPlayer.play(Gdx.files.internal("ads/CAMPUS.webm"));
+                videoPlayer.play(Gdx.files.internal("ads/CAMPUS2.webm"));
                 game.music.dispose();
                 game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
                 game.music.setVolume(game.getGamePreferences().getMusicVolume());
-                videoPlayer.setVolume(0);
                 game.getGamePreferences().setCurrentAdId(0);
                 game.music.play();
             }
