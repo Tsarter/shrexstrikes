@@ -3,6 +3,7 @@ package org.example;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
 import org.example.messages.GameStateChange;
 import org.example.screens.gameModes.GameScreen;
@@ -142,6 +143,7 @@ public class MyInputProcessor implements InputProcessor {
         return false;
     }
 
+    Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("assets/shootgun.wav"));
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         // Check if right mouse button is pressed
@@ -153,7 +155,9 @@ public class MyInputProcessor implements InputProcessor {
         }
         if (button == Input.Buttons.LEFT) {
             // shoot bullet
+            shootGun.play();
             gameScreen.shootBullet();
+            shootGun.stop();
         }
         return false;
     }
