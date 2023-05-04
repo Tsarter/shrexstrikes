@@ -3,8 +3,10 @@ package org.example;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Timer;
 import org.example.messages.GameStateChange;
 import org.example.screens.gameModes.GameScreen;
 
@@ -38,6 +40,7 @@ public class MyInputProcessor implements InputProcessor {
 
     }
 
+    private Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("shrekjumpingsound.mp3"));
     @Override
     public boolean keyDown(int keycode) {
         switch (keycode) {
@@ -56,6 +59,7 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.SPACE:
                 if (!jumpOnGoing) {
                     jumpOnGoing = true;
+                    jumpSound.play();
                     jumpTime = 0f;
                 }
                 break;
@@ -143,7 +147,8 @@ public class MyInputProcessor implements InputProcessor {
         return false;
     }
 
-    Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("assets/shootgun.wav"));
+    private Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("shootgun.mp3"));
+
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         // Check if right mouse button is pressed
@@ -155,9 +160,18 @@ public class MyInputProcessor implements InputProcessor {
         }
         if (button == Input.Buttons.LEFT) {
             // shoot bullet
+            gameScreen.camera.fieldOfView = 67;
             shootGun.play();
             gameScreen.shootBullet();
-            shootGun.stop();
+
+
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    // Do something after the delay
+                    gameScreen.camera.fieldOfView = 68;
+                }
+            }, 0.1f);
         }
         return false;
     }
