@@ -14,10 +14,20 @@ public class ObjLoaderCustom {
     ModelLoader loader = new com.badlogic.gdx.graphics.g3d.loader.ObjLoader();
     MyGame game;
     Model shrexModel;
+    Model gunModel;
 
     public ObjLoaderCustom(MyGame game) {
         this.game = game;
-        shrexModel =  game.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
+        game.getAssetManager().unload("characters/Shrek/Shrek.obj");
+        game.getAssetManager().load("characters/Shrek/Shrek.obj", Model.class);
+        game.getAssetManager().finishLoading();
+        shrexModel = game.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
+
+        game.getAssetManager().unload("guns/sci-fi-gun/sci fi m254 gun - high poly.obj");
+        game.getAssetManager().load("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
+        game.getAssetManager().finishLoading();
+        gunModel = game.getAssetManager().get("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
+
     }
     public ModelInstance loadShrek() {
         for (Mesh mesh : shrexModel.meshes) {
@@ -57,7 +67,6 @@ public class ObjLoaderCustom {
         return null;
     }
     public ModelInstance loadGun() {
-        Model gunModel = game.getAssetManager().get("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
         ModelInstance gunInstance = new ModelInstance(gunModel);
         for (Mesh mesh : gunModel.meshes) {
             mesh.scale(0.03f, 0.03f, 0.03f);

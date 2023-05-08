@@ -84,7 +84,6 @@ public class GameScreen implements ApplicationListener,Screen {
     @Override
     public void create() {
         Bullet.init();
-        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
         previousRotations = new HashMap<Integer, Float>();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();
@@ -128,6 +127,8 @@ public class GameScreen implements ApplicationListener,Screen {
         ObjLoaderCustom objLoaderCustom = new ObjLoaderCustom(myGame);
         // Load shrex model
         playerModelInstance = objLoaderCustom.loadShrek();
+        // Model shrexModel =  myGame.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
+        // playerModelInstance = new ModelInstance(shrexModel);
         templateEnemyModelInstance = playerModelInstance.copy();
         ModelInstance gun = objLoaderCustom.loadGun();
         for (Node node : gun.nodes){
@@ -151,7 +152,7 @@ public class GameScreen implements ApplicationListener,Screen {
         }*/
 
 
-
+        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
@@ -207,10 +208,6 @@ public class GameScreen implements ApplicationListener,Screen {
 
         stage.act(delta);
         stage.draw();
-        // Center the crosshair
-        Gdx.input.setInputProcessor(inputMultiplexer);
-        Gdx.input.setCursorCatched(true);
-
     }
     @Override
     public void render() {
@@ -327,10 +324,15 @@ public class GameScreen implements ApplicationListener,Screen {
 
     @Override
     public void dispose() {
-        shadowBatch.dispose();
-        modelBatch.dispose();
-        model.dispose();
-
+        if (modelBatch != null) {
+            modelBatch.dispose();
+        }
+        if (shadowBatch != null) {
+            shadowBatch.dispose();
+        }
+        if(templateEnemyModelInstance.model != null) {
+            // templateEnemyModelInstance.model.dispose();
+        }
     }
 
     @Override
@@ -353,6 +355,9 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        Gdx.input.setCursorCatched(true);
+
         myGame.music.stop();
         stage = new Stage(new ScreenViewport());
         // Add text to the stage to display the player's health
