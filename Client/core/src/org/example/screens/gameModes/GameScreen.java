@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 
@@ -18,6 +19,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -81,6 +83,7 @@ public class GameScreen implements ApplicationListener,Screen {
     protected Label scoreLabel;
     protected Label waveLabel;
     public Image gunHud;
+    public Image gunMuzzleFlashImage;
     protected Label enemiesRemainingLabel;
     protected int score = 0;
     protected int currentWave = 0;
@@ -368,6 +371,7 @@ public class GameScreen implements ApplicationListener,Screen {
         myGame.music.stop();
         stage = new Stage(new ScreenViewport());
 
+        // Gun HUD
         Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
         gunHud = new Image(gunTexture);
         gunHud.setOrigin(Align.center);
@@ -375,6 +379,15 @@ public class GameScreen implements ApplicationListener,Screen {
         gunHud.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
         gunHud.setPosition(camera.viewportWidth / 2, 0);
         stage.addActor(gunHud);
+        // Texture gunMuzzleFlash = new Texture("guns/Sniper/sniperHudMuzzleFlash1.png");
+        Texture gunMuzzleFlash = new Texture("guns/Sniper/muzzleFlash2.png");
+        gunMuzzleFlashImage = new Image(gunMuzzleFlash);
+        // Set transparency to 0 so the muzzle flash is invisible
+        gunMuzzleFlashImage.getColor().a = 0f;
+        gunMuzzleFlashImage.setOrigin(Align.center);
+        gunMuzzleFlashImage.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        gunMuzzleFlashImage.setPosition(camera.viewportWidth / 2, 0);
+        stage.addActor(gunMuzzleFlashImage);
 
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -414,13 +427,14 @@ public class GameScreen implements ApplicationListener,Screen {
         bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, myGame.getPlayer().id);
         myGame.getClient().sendUDP(bullet);
         GunShoot gunShoot = new GunShoot();
-        gunHud.addAction(gunShoot.Action(camera));
-
+        Action gunMuzzleFlashAction = gunShoot.MuzzleFlash(camera);
+        gunMuzzleFlashImage.addAction(gunMuzzleFlashAction);
+        Action gunShootAction = gunShoot.Action(camera);
+        gunHud.addAction(gunShootAction);
         Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("shootgun.mp3"));
         float gunVolume = myGame.getGamePreferences().getSoundVolume();
         long volumeId = shootGun.play();
         shootGun.setVolume(volumeId, gunVolume);
-
     }
     public void handleDeath() {
         // Show death screen, when player dies
