@@ -20,7 +20,10 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Player;
@@ -75,6 +78,7 @@ public class GameScreen implements ApplicationListener,Screen {
     private Label ammoLabel;
     protected Label scoreLabel;
     protected Label waveLabel;
+    protected Image gunHud;
     protected Label enemiesRemainingLabel;
     protected int score = 0;
     protected int currentWave = 0;
@@ -359,6 +363,15 @@ public class GameScreen implements ApplicationListener,Screen {
 
         myGame.music.stop();
         stage = new Stage(new ScreenViewport());
+
+        Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
+        gunHud = new Image(gunTexture);
+        gunHud.setOrigin(Align.center);
+        Viewport viewport = new StretchViewport(gunHud.getWidth() * 0.5f, gunHud.getHeight() * 0.5f);
+        gunHud.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        gunHud.setPosition(camera.viewportWidth - gunHud.getWidth(), 0);
+        stage.addActor(gunHud);
+
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();

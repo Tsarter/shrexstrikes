@@ -166,7 +166,12 @@ public class PVPScreen extends GameScreen {
         healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
         killLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         timeLabel.setPosition(10, Gdx.graphics.getHeight() - 60);
-
+        // gun hud as image on the bottom right
+        Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
+        gunHud = new Image(gunTexture);
+        gunHud.setSize(200, 200);
+        gunHud.setPosition(Gdx.graphics.getWidth() - 200, 0);
+        stage.addActor(gunHud);
         stage.addActor(healthLabel);
         stage.addActor(killLabel);
         stage.addActor(timeLabel);
