@@ -140,7 +140,7 @@ public class GameScreen implements ApplicationListener,Screen {
             node.translation.x = node.translation.x - 0.1f;
             node.translation.z = node.translation.z + 0.2f;
             node.rotation.setEulerAngles(95, 0, 0);
-            playerModelInstance.nodes.add(node);
+            // playerModelInstance.nodes.add(node);
         }
         Matrix4 gunTransform = new Matrix4().translate(0.5f, 1.0f, 0.0f);
         gun.transform.set(gunTransform);
@@ -371,7 +371,7 @@ public class GameScreen implements ApplicationListener,Screen {
         gunHud.setOrigin(Align.center);
         Viewport viewport = new StretchViewport(gunHud.getWidth() * 0.5f, gunHud.getHeight() * 0.5f);
         gunHud.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
-        gunHud.setPosition(camera.viewportWidth - gunHud.getWidth(), 0);
+        gunHud.setPosition(camera.viewportWidth / 2, 0);
         stage.addActor(gunHud);
 
         // Add text to the stage to display the player's health
