@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import org.example.MyGame;
 import org.example.MyInputProcessor;
 import org.example.Player;
+import org.example.animations.GunShoot;
 import org.example.animations.Pulse;
 import org.example.loader.ObjLoaderCustom;
 import org.example.messages.*;
@@ -78,7 +79,7 @@ public class GameScreen implements ApplicationListener,Screen {
     private Label ammoLabel;
     protected Label scoreLabel;
     protected Label waveLabel;
-    protected Image gunHud;
+    public Image gunHud;
     protected Label enemiesRemainingLabel;
     protected int score = 0;
     protected int currentWave = 0;
@@ -411,6 +412,8 @@ public class GameScreen implements ApplicationListener,Screen {
         PlayerBullet bullet = new PlayerBullet();
         bullet.set(cameraPosition.x, cameraPosition.y, cameraPosition.z, cameraDirection.x, cameraDirection.y, cameraDirection.z, 100, myGame.getPlayer().id);
         myGame.getClient().sendUDP(bullet);
+        GunShoot gunShoot = new GunShoot();
+        gunHud.addAction(gunShoot.Action(camera));
 
     }
     public void jump(){
