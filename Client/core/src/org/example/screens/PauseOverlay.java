@@ -23,6 +23,8 @@ public class PauseOverlay implements Screen {
     private Stage stage;
     private Skin skin;
     private float sensitivity;
+    private Skin slider = new Skin(Gdx.files.internal("uiskin.json"));
+    private Slider soundSlider;
     public PauseOverlay(MyGame game) {
         this.game = game;
         this.stage = new Stage(new ScreenViewport());
@@ -51,6 +53,17 @@ public class PauseOverlay implements Screen {
             }
         });
 
+        // Sound slider & label
+        Label soundLabel = new Label("Sounds: ", slider);
+        soundSlider = new Slider(0f, 1f, 0.1f, false, slider);
+        soundSlider.setValue(game.getGamePreferences().getSoundVolume());
+        soundSlider.addListener(new EventListener() {
+            @Override
+            public boolean handle(Event event) {
+                game.getGamePreferences().setSoundVolume(soundSlider.getValue());
+                return true;
+            }
+        });
         // Exit button, that will return to the main menu
         TextButton exitButton = new TextButton("Exit", skin);
         exitButton.addListener(new ClickListener() {
@@ -83,6 +96,10 @@ public class PauseOverlay implements Screen {
         table.add(sensitivityLabel).center().padBottom(10);
         table.row();
         table.add(sensitivitySlider).center().padBottom(50);
+        table.row();
+        table.add(soundLabel).center().padBottom(10);
+        table.row();
+        table.add(soundSlider).padBottom(30).row();
         // Add buttons to the stage
         stage.addActor(table);
 

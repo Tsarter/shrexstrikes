@@ -34,6 +34,7 @@ public class SettingsScreen implements Screen {
     private MyGame myGame;
     private Skin slider = new Skin(Gdx.files.internal("uiskin.json"));
     private Slider volumeSlider;
+    private Slider soundSlider;
     public SettingsScreen(MyGame myGame) {
         this.myGame = myGame;
         this.stage = new Stage(new ScreenViewport());
@@ -110,7 +111,7 @@ public class SettingsScreen implements Screen {
         // Volume slider & label
         Label volumeLabel = new Label("Volume: ", slider);
         volumeSlider = new Slider(0f, 1f, 0.1f, false, slider);
-        volumeSlider.setValue(myGame.music.getVolume());
+        volumeSlider.setValue(myGame.getGamePreferences().getMusicVolume());
         volumeSlider.addListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
@@ -121,6 +122,14 @@ public class SettingsScreen implements Screen {
         });
         table.add(volumeLabel).row();
         table.add(volumeSlider).padBottom(30).row();
+
+        // Sound slider & label
+        Label soundLabel = new Label("Sounds: ", slider);
+        soundSlider = new Slider(0f, 1f, 0.1f, false, slider);
+        soundSlider.setValue(myGame.getGamePreferences().getSoundVolume());
+        table.add(soundLabel).row();
+        table.add(soundSlider).padBottom(30).row();
+
 
         // Buy Shrex Blue button
         TextButton buyShrexBlueButton = new TextButton("Buy Shrex Green", skin);
@@ -197,5 +206,6 @@ public class SettingsScreen implements Screen {
     public void saveSettings() {
         myGame.getGamePreferences().setMusicVolume(volumeSlider.getValue());
         myGame.getGamePreferences().setUsername(usernameField.getText());
+        myGame.getGamePreferences().setSoundVolume(soundSlider.getValue());
     }
 }

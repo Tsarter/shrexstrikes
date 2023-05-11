@@ -99,7 +99,7 @@ public class MyGame extends Game {
     }
 
     public void showMenuScreen() {
-        if (client.isConnected()) {
+        if (client != null && client.isConnected()) {
             // If the client is connected, disconnect it
             client.close();
         }
@@ -107,7 +107,7 @@ public class MyGame extends Game {
             // If the gameClient is not null, set it to null
             gameClient = null;
         }
-        if (gameMode == GameMode.GameModes.ZOMBIES) {
+        if (gameMode == GameMode.GameModes.ZOMBIES && gameScreen != null) {
             // If the gameMode is zombies, hide all the enemies (zombies
             gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
         }

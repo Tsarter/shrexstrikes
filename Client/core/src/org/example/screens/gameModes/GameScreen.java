@@ -2,6 +2,7 @@ package org.example.screens.gameModes;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.*;
@@ -415,8 +416,10 @@ public class GameScreen implements ApplicationListener,Screen {
         GunShoot gunShoot = new GunShoot();
         gunHud.addAction(gunShoot.Action(camera));
 
-    }
-    public void jump(){
+        Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("shootgun.mp3"));
+        float gunVolume = myGame.getGamePreferences().getSoundVolume();
+        long volumeId = shootGun.play();
+        shootGun.setVolume(volumeId, gunVolume);
 
     }
     public void handleDeath() {

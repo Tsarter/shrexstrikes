@@ -148,8 +148,6 @@ public class MyInputProcessor implements InputProcessor {
         return false;
     }
 
-    private Sound shootGun = Gdx.audio.newSound(Gdx.files.internal("shootgun.mp3"));
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         // Check if right mouse button is pressed
@@ -162,7 +160,6 @@ public class MyInputProcessor implements InputProcessor {
         if (button == Input.Buttons.LEFT) {
             // shoot bullet
             gameScreen.camera.fieldOfView = 67;
-            shootGun.play();
 
             gameScreen.shootBullet();
 
