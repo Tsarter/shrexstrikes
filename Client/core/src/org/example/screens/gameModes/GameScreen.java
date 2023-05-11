@@ -331,7 +331,6 @@ public class GameScreen implements ApplicationListener,Screen {
     public void dispose() {
         shadowBatch.dispose();
         modelBatch.dispose();
-        model.dispose();
 
     }
 
