@@ -189,7 +189,6 @@ public class LoadingScreen implements Screen {
     @Override
     public void hide() {
         // Dispose assets here if necessary
-        spriteBatch.dispose();
         font.dispose();
         game.music.stop();
     }
@@ -197,7 +196,11 @@ public class LoadingScreen implements Screen {
     @Override
     public void dispose() {
         // Dispose assets here if necessary
-        spriteBatch.dispose();
+        try {
+            spriteBatch.dispose();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         font.dispose();
         if (videoPlayer != null) {
             videoPlayer.dispose();
