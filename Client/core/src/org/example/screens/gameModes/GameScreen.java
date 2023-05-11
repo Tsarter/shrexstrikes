@@ -128,6 +128,8 @@ public class GameScreen implements ApplicationListener,Screen {
         ObjLoaderCustom objLoaderCustom = new ObjLoaderCustom(myGame);
         // Load shrex model
         playerModelInstance = objLoaderCustom.loadShrek();
+        // Model shrexModel =  myGame.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
+        // playerModelInstance = new ModelInstance(shrexModel);
         templateEnemyModelInstance = playerModelInstance.copy();
         ModelInstance gun = objLoaderCustom.loadGun();
         for (Node node : gun.nodes){
@@ -353,6 +355,9 @@ public class GameScreen implements ApplicationListener,Screen {
     }
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(inputMultiplexer);
+        Gdx.input.setCursorCatched(true);
+
         myGame.music.stop();
         stage = new Stage(new ScreenViewport());
         // Add text to the stage to display the player's health

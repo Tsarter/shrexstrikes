@@ -99,14 +99,22 @@ public class MyGame extends Game {
     }
 
     public void showMenuScreen() {
-        if (client != null && client.isConnected()) {
+        if (client.isConnected()) {
             // If the client is connected, disconnect it
             client.close();
+        }
+        if (gameClient != null) {
+            // If the gameClient is not null, set it to null
             gameClient = null;
         }
         if (gameMode == GameMode.GameModes.ZOMBIES) {
             // If the gameMode is zombies, hide all the enemies (zombies
             gameScreen.enemiesToHide.addAll(gameScreen.enemies.values());
+        }
+        if (gameScreen != null) {
+            // If the gameScreen is not null, dispose it
+            gameScreen.dispose();
+            gameScreen = null;
         }
         gameState = GameStateChange.GameStates.IN_MENU;
         setScreen(menuScreen);
@@ -147,7 +155,6 @@ public class MyGame extends Game {
                             }
                             gameState = GameStateChange.GameStates.IN_GAME;
                             client.sendTCP(new GameStateChange(client.getID(), GameStateChange.GameStates.IN_GAME));
-
                         }
                     }
                     else {
