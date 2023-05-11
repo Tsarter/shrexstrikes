@@ -105,11 +105,9 @@ public class MyServer {
              */
             public void disconnected(Connection c) {
                 Player player = players.get(c.getID());
-                players.remove(c.getID());
                 // Remove player from game session
                 gameSessionManager.removePlayerFromGameSession(player);
-
-
+                players.remove(c.getID());
             }
         });
 
