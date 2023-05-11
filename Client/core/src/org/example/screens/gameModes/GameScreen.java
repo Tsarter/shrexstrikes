@@ -88,7 +88,6 @@ public class GameScreen implements ApplicationListener,Screen {
     @Override
     public void create() {
         Bullet.init();
-        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
         previousRotations = new HashMap<Integer, Float>();
         // load the 3D model of the map
         //ModelLoader loader = new ObjLoaderCustom();
@@ -156,8 +155,7 @@ public class GameScreen implements ApplicationListener,Screen {
             animationFrames[i] = new ModelInstance(playerModel);
         }*/
 
-
-
+        myInputProcessor = new MyInputProcessor(this, myGame.getGamePreferences());
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(myInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
@@ -333,8 +331,12 @@ public class GameScreen implements ApplicationListener,Screen {
 
     @Override
     public void dispose() {
-        shadowBatch.dispose();
-        modelBatch.dispose();
+        if (modelBatch != null) {
+            modelBatch.dispose();
+        }
+        if (shadowBatch != null) {
+            shadowBatch.dispose();
+        }
 
     }
 
