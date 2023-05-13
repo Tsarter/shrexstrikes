@@ -31,7 +31,7 @@ public class ZombiesScreen extends GameScreen {
         } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
             // Animates the crosshair when the player hit another player
             Pulse pulse = new Pulse();
-            crosshair.addAction(pulse.Action(crosshair));
+            crosshair.addAction(pulse.Action(camera));
         } else if (playerHit.idOfPlayerWhoHit == -1){
             // We got hit by zombie
             myGame.getPlayer().health -= playerHit.damage;

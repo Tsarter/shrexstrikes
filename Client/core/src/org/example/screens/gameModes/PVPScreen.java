@@ -71,8 +71,11 @@ public class PVPScreen extends GameScreen {
         Vector3 oldCamPos = camera.position.cpy();
 
         myInputProcessor.updatePlayerMovement(delta);
-
-        camera.position.set(cameraPosition);
+        if (myInputProcessor.isLeftMousePressed && myGame.getPlayer().health > 0 && timeSinceLastShot > fireRate) {
+            shootBullet();
+            timeSinceLastShot = 0;
+        }
+        timeSinceLastShot += delta;
 
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
@@ -196,7 +199,7 @@ public class PVPScreen extends GameScreen {
         } else if (playerHit.idOfPlayerWhoHit == myGame.getPlayer().id) {
             // Animates the crosshair when the player hit another player
             Pulse pulse = new Pulse();
-            crosshair.addAction(pulse.Action(crosshair));
+            crosshair.addAction(pulse.Action(camera));
         }
         if (myGame.getPlayer().health <= 0) {
             myGame.showPVPRespawnScreen();

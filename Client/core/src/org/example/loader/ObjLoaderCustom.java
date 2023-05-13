@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.utils.JsonReader;
 import org.example.MyGame;
 
 public class ObjLoaderCustom {
@@ -15,6 +18,7 @@ public class ObjLoaderCustom {
     MyGame game;
     Model shrexModel;
     Model gunModel;
+    Model soldierModel;
 
     public ObjLoaderCustom(MyGame game) {
         this.game = game;
@@ -27,6 +31,10 @@ public class ObjLoaderCustom {
         game.getAssetManager().load("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
         game.getAssetManager().finishLoading();
         gunModel = game.getAssetManager().get("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
+
+/*        game.getAssetManager().load("characters/ZombieSoldier/soldier.g3db", Model.class);
+        game.getAssetManager().finishLoading();
+        soldierModel = game.getAssetManager().get("characters/ZombieSoldier/soldier.g3db", Model.class);*/
     }
     public ModelInstance loadShrek() {
         for (Mesh mesh : shrexModel.meshes) {
@@ -60,6 +68,13 @@ public class ObjLoaderCustom {
         playerModelInstance.materials.get(1).set(bodyMaterial);
         playerModelInstance.materials.get(0).set(headLegsMaterial);
         return playerModelInstance;
+    }
+    public ModelInstance loadSoldier() {
+        soldierModel = new G3dModelLoader(new JsonReader()).loadModel(Gdx.files.internal("characters/ZombieSoldier/soldier.g3dj"));
+
+        ModelInstance soldierModelInstance = new ModelInstance(soldierModel);
+        soldierModelInstance.transform.setToTranslation(0, 1, 0);
+        return soldierModelInstance;
     }
     public ModelInstance loadMap() {
 

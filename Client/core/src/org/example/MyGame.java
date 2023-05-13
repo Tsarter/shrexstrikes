@@ -93,6 +93,7 @@ public class MyGame extends Game {
                 assetManager.load("maps/City/MediEvalCity.g3db", Model.class);
                 assetManager.load("skyboxes/skyboxBasicBlue.png", Texture.class);
                 assetManager.load("guns/sci-fi-gun/sci fi m254 gun - high poly.obj", Model.class);
+                assetManager.load("skyboxes/BillBoardX.g3db", Model.class);
                 setScreen(menuScreen);
             }
         });
