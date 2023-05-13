@@ -118,8 +118,8 @@ public class GameScreen implements ApplicationListener,Screen {
         camera.position.set(cameraPosition);
         cameraDirection = new Vector3(0, 0, -1);
         camera.direction.set(cameraDirection);
-        camera.near = 0.2f;
-        camera.far = 500f;
+        camera.near = 0.1f;
+        camera.far = 5000000f;
         cameraAngle = 0;
         cameraSpeed = 6;
         // set up the model batch for rendering
@@ -135,7 +135,7 @@ public class GameScreen implements ApplicationListener,Screen {
         Model skyboxModel = modelBuilder.createBox(300f, 300f, 300f,
                 skyBoxMaterial,
                 attributes);
-        skyBoxInstance = new ModelInstance(skyboxModel);
+        skyBoxInstance = new ModelInstance(myGame.getAssetManager().get("skyboxes/skybox2.g3db", Model.class));
 
         // create a directional light for casting shadows
         environment = new Environment();
@@ -294,9 +294,9 @@ public class GameScreen implements ApplicationListener,Screen {
         shadowBatch.begin(shadowLight.getCamera());
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
-        modelBatch.render(playerModelInstance);
+        // modelBatch.render(playerModelInstance);
+        shadowBatch.render(playerModelInstance);
         modelBatch.render(skyBoxInstance);
-
         // Render enemies
         HashMap<Integer, Enemy> clonedEnemies = (HashMap<Integer, Enemy>) enemies.clone();
         for (Map.Entry<Integer, Enemy> entry : clonedEnemies.entrySet()) {
