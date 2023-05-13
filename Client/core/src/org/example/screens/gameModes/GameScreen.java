@@ -3,20 +3,23 @@ package org.example.screens.gameModes;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.*;
 
 
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -96,6 +99,7 @@ public class GameScreen implements ApplicationListener,Screen {
     Map<Integer, Float> previousRotations;
     protected float timeSinceLastShot = 0;
     protected float fireRate = 0.1f;
+    private ModelInstance skyBoxInstance;
     @Override
     public void create() {
         Bullet.init();
@@ -115,12 +119,23 @@ public class GameScreen implements ApplicationListener,Screen {
         cameraDirection = new Vector3(0, 0, -1);
         camera.direction.set(cameraDirection);
         camera.near = 0.2f;
-        camera.far = 100f;
+        camera.far = 500f;
         cameraAngle = 0;
         cameraSpeed = 6;
         // set up the model batch for rendering
         modelBatch = new ModelBatch();
 
+        // Skybox left
+        ModelBuilder modelBuilder = new ModelBuilder();
+        long attributes = VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorUnpacked;
+        // ColorAttribute lightBlue = new ColorAttribute(ColorAttribute.Diffuse, 0.88f, 0.89f, 1f, 1f);
+        ColorAttribute darkBlue = new ColorAttribute(ColorAttribute.Diffuse, 0.1f, 0.1f, 0.1f, 1f);
+        Material skyBoxMaterial = new Material();
+        skyBoxMaterial.set(darkBlue);
+        Model skyboxModel = modelBuilder.createBox(300f, 300f, 300f,
+                skyBoxMaterial,
+                attributes);
+        skyBoxInstance = new ModelInstance(skyboxModel);
 
         // create a directional light for casting shadows
         environment = new Environment();
@@ -280,6 +295,7 @@ public class GameScreen implements ApplicationListener,Screen {
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
         modelBatch.render(playerModelInstance);
+        modelBatch.render(skyBoxInstance);
 
         // Render enemies
         HashMap<Integer, Enemy> clonedEnemies = (HashMap<Integer, Enemy>) enemies.clone();
@@ -485,7 +501,7 @@ public class GameScreen implements ApplicationListener,Screen {
     public void handleIncomingEnemyHit(EnemyHit enemyHit){
         // Add animation to the crosshair
         Pulse pulse = new Pulse();
-        crosshair.addAction(pulse.Action(crosshair));
+        crosshair.addAction(pulse.Action(camera));
         if (enemies.containsKey(enemyHit.idOfEnemyHit)) {
             System.out.println("Enemy hit, health: " + enemies.get(enemyHit.idOfEnemyHit).health);
         }
