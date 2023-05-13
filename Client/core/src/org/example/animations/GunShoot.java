@@ -23,19 +23,19 @@ public class GunShoot {
     }
     public SequenceAction MuzzleFlash(Camera camera){
         Action moveDownAction = Actions.moveTo(camera.viewportWidth / 2 + 10, -10, 0.1f);
-        Action fadeInAction = Actions.fadeIn(0.1f);
+        Action fadeInAction = Actions.fadeIn(0);
         Action moveUpAction = Actions.moveTo(camera.viewportWidth / 2, 0, 0.1f);
-        Action fadeOutAction = Actions.fadeOut(0.1f);
+        Action fadeOutAction = Actions.fadeOut(0.03f);
 
         ParallelAction parallelAction1 = Actions.parallel(
-                fadeInAction,
-                moveDownAction
+                moveDownAction,
+                fadeOutAction
         );
         ParallelAction parallelAction2 = Actions.parallel(
-                fadeOutAction,
                 moveUpAction
         );
         SequenceAction sequenceAction = Actions.sequence(
+                fadeInAction,
                 parallelAction1,
                 parallelAction2
         );

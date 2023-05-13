@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
@@ -13,6 +14,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -24,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -90,6 +94,8 @@ public class GameScreen implements ApplicationListener,Screen {
     private int enemiesRemaining = 0;
     public float zoom = 67;
     Map<Integer, Float> previousRotations;
+    protected float timeSinceLastShot = 0;
+    protected float fireRate = 0.1f;
     @Override
     public void create() {
         Bullet.init();
@@ -138,7 +144,10 @@ public class GameScreen implements ApplicationListener,Screen {
         playerModelInstance = objLoaderCustom.loadShrek();
         // Model shrexModel =  myGame.getAssetManager().get("characters/Shrek/Shrek.obj", Model.class);
         // playerModelInstance = new ModelInstance(shrexModel);
-        templateEnemyModelInstance = playerModelInstance.copy();
+        templateEnemyModelInstance = objLoaderCustom.loadSoldier();
+
+        //enemyAnimationController.setAnimation("Armature|ArmatureAction", -1);
+
         ModelInstance gun = objLoaderCustom.loadGun();
         for (Node node : gun.nodes){
             node.translation.y = node.translation.y + 0.65f;
@@ -216,6 +225,7 @@ public class GameScreen implements ApplicationListener,Screen {
 
         stage.act(delta);
         stage.draw();
+        // enemyAnimationController.update(delta);
         // Center the crosshair
         Gdx.input.setInputProcessor(inputMultiplexer);
         Gdx.input.setCursorCatched(true);
@@ -230,6 +240,11 @@ public class GameScreen implements ApplicationListener,Screen {
         Vector3 oldCamPos = camera.position.cpy();
 
         myInputProcessor.updatePlayerMovement(delta);
+        if (myInputProcessor.isLeftMousePressed && myGame.getPlayer().health > 0 && timeSinceLastShot > fireRate) {
+            shootBullet();
+            timeSinceLastShot = 0;
+        }
+        timeSinceLastShot += delta;
 
         camera.position.set(cameraPosition);
 
@@ -277,11 +292,12 @@ public class GameScreen implements ApplicationListener,Screen {
             previousRotations.put(enemy.id, currentRotation);
             // Smoothly update enemy position
             Vector3 currentPosition = enemyModelInstance.transform.getTranslation(new Vector3());
-            Vector3 targetPosition = new Vector3(enemy.X, enemy.Y, enemy.Z);
+            Vector3 targetPosition = new Vector3(enemy.X, 0.5f, enemy.Z);
             Vector3 newPosition = currentPosition.lerp(targetPosition, 0.05f);
             // Translate the enemy model to the new position and rotate it
             enemyModelInstance.transform.setToTranslation(newPosition);
             enemyModelInstance.transform.rotate(Vector3.Y, currentRotation);
+            //enemyAnimationController.update(delta);
             modelBatch.render(enemyModelInstance, environment);
             shadowBatch.render(enemyModelInstance);
         }
@@ -476,8 +492,10 @@ public class GameScreen implements ApplicationListener,Screen {
         if (enemyHit.isDead) {
             System.out.println("Enemy is dead, id: " + enemyHit.idOfEnemyHit);
             Enemy enemy = enemies.get(enemyHit.idOfEnemyHit);
-            enemy.hide(); // moves enemy outside the map
-            enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+            if (enemy != null) {
+                enemy.hide(); // moves enemy outside the map
+                enemiesToHide.add(enemy); // adds enemy to list of enemies to hide
+            }
 
         }
     }

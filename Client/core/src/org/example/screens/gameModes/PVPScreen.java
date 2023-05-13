@@ -71,8 +71,11 @@ public class PVPScreen extends GameScreen {
         Vector3 oldCamPos = camera.position.cpy();
 
         myInputProcessor.updatePlayerMovement(delta);
-
-        camera.position.set(cameraPosition);
+        if (myInputProcessor.isLeftMousePressed && myGame.getPlayer().health > 0 && timeSinceLastShot > fireRate) {
+            shootBullet();
+            timeSinceLastShot = 0;
+        }
+        timeSinceLastShot += delta;
 
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));

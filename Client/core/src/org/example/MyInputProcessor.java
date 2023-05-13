@@ -25,7 +25,7 @@ public class MyInputProcessor implements InputProcessor {
     private final float JUMP_DURATION = 1f;
     private final float initialPlayerHeight;
     private boolean cursorCaptured = true;
-
+    public boolean isLeftMousePressed = false;
     private float zoom;
     private boolean zoomingIn = false;
     private float movementSpeed = 50f; // Change this value to adjust sensitivity
@@ -161,7 +161,8 @@ public class MyInputProcessor implements InputProcessor {
             // shoot bullet
             gameScreen.camera.fieldOfView = 67;
 
-            gameScreen.shootBullet();
+            // gameScreen.shootBullet();
+            isLeftMousePressed = true;
 
 
             Timer.schedule(new Timer.Task() {
@@ -182,6 +183,9 @@ public class MyInputProcessor implements InputProcessor {
             zoom = 67;
             gameScreen.camera.fieldOfView = 67;
             zoomingIn = false;
+        }
+        if (button == Input.Buttons.LEFT) {
+            isLeftMousePressed = false;
         }
         return false;
     }
