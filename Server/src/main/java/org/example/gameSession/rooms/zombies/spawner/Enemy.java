@@ -1,6 +1,7 @@
 package org.example.gameSession.rooms.zombies.spawner;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.esotericsoftware.kryonet.Server;
@@ -62,6 +63,8 @@ public class Enemy extends ModelInstance {
 
             Vector3 enemyPosition = new Vector3(this.x, this.y, this.z);
             Vector3 direction = playerPosition.cpy().sub(enemyPosition).nor();
+            float directionRandomness = MathUtils.random(-5f, 5f);
+            direction.rotate(Vector3.Y, directionRandomness);
             enemyPosition.add(direction.scl(speed));
             this.position = enemyPosition;
             this.position.y = 0.6f;
