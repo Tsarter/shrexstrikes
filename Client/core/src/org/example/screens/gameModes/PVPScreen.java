@@ -12,7 +12,10 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import org.example.MyGame;
 import org.example.Player;
 import org.example.animations.Pulse;
@@ -149,6 +152,7 @@ public class PVPScreen extends GameScreen {
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
+
         // Add text to the stage to display the player's health
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = new BitmapFont();
@@ -167,6 +171,13 @@ public class PVPScreen extends GameScreen {
         killLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         timeLabel.setPosition(10, Gdx.graphics.getHeight() - 60);
 
+        Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
+        gunHud = new Image(gunTexture);
+        gunHud.setOrigin(Align.center);
+        Viewport viewport = new StretchViewport(gunHud.getWidth() * 0.5f, gunHud.getHeight() * 0.5f);
+        gunHud.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        gunHud.setPosition(camera.viewportWidth / 2, 0);
+        stage.addActor(gunHud);
         stage.addActor(healthLabel);
         stage.addActor(killLabel);
         stage.addActor(timeLabel);

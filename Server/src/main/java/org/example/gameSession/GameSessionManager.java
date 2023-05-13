@@ -38,7 +38,7 @@ public class GameSessionManager {
     public void removePlayerFromGameSession(Player player) {
         // Find the game session that this player belongs to and remove the player
         for (GameSession gameSession : gameSessions.values()) {
-            if (gameSession.hasPlayer(player.id)) {
+            if (player != null && gameSession.hasPlayer(player.id)) {
                 gameSession.removePlayer(player);
                 if (gameSession.getPlayers().size() == 0) {
                     gameSessions.remove(gameSession.sessionId);
