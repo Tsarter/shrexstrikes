@@ -39,8 +39,10 @@ public class ZombiesRoom extends GameSession {
     private EnemyLocationUpdateTask enemyLocationUpdateTask;
     private Timer timer = new Timer();
     private static int zombieIdCounter = 0;
-    int zombieDamage = 10;
-    int zombieHealth = 100;
+    private int zombieDamage = 10;
+    private int zombieHealth = 100;
+    private float maxZombieSpeed = 2;
+    private float minZombieSpeed = 0.5f;
     public ZombiesRoom(MyServer myServer, int sessionId) {
         super(GameMode.GameModes.ZOMBIES, sessionId, myServer);
         this.myServer = myServer;
@@ -114,10 +116,13 @@ public class ZombiesRoom extends GameSession {
         // Increase the wave number and calculate the number of zombies for the new wave
         currentWave++;
         int numPlayers = super.getPlayers().size();
-        int baseZombies = currentWave * 10;
+        int baseZombies = currentWave * 20;
         zombiesRemaining = baseZombies + (numPlayers * 5);
-        if (zombieDamage <= 30) {
-            zombieDamage = zombieDamage + 5;
+        if (currentWave != 1) {
+            minZombieSpeed = minZombieSpeed + 1f;
+            maxZombieSpeed = maxZombieSpeed + 1f;
+            zombieHealth = zombieHealth + 30;
+            zombieDamage = zombieDamage + 10;
         }
         // Spawn zombies and send initial data to players
         spawnZombies();
@@ -141,7 +146,7 @@ public class ZombiesRoom extends GameSession {
             float x = MathUtils.random(-50f, 50f);
             float y = 0.4f;
             float z = MathUtils.random(-50f, 50f);
-            float speed = MathUtils.random(0.5f, 2f);
+            float speed = MathUtils.random(minZombieSpeed, maxZombieSpeed);
             Enemy enemy = new Enemy(new ModelInstance(new Model()), new Vector3(x, y, z), 0, zombieIdCounter, speed, this);
 
             // Add the enemy to the list of active enemies
@@ -183,49 +188,48 @@ public class ZombiesRoom extends GameSession {
     }
     public void checkIfBulletHitEnemy(PlayerBullet playerBullet, Player player) {
         // Check if the bullet hit any enemies
+        Enemy closestEnemy = null;
+        float closestDistance = 1000f;
         for (Enemy e : enemies) {
             if (e.getBoundingBox() != null) {
                 Ray bulletRay = new Ray(playerBullet.getPosition(), playerBullet.getDirection());  // create a ray from the bullet
                 if (Intersector.intersectRayBoundsFast(bulletRay, e.getBoundingBox())) {
-                    // check if there are any blocking objects between the player that fired the bullet and the enemy that was hit
-                    boolean hit = true;
-                    // get the distance from the player that fired the bullet to the enemy that was hit
                     float distance = playerBullet.getPosition().dst(e.getBoundingBox().getCenter(new com.badlogic.gdx.math.Vector3()));
                     Vector3 intersection = new Vector3();
+                    if (closestDistance > distance) {
+                        closestDistance = distance;
+                        closestEnemy = e;
+                    }
                     for (BoundingBox bb : myServer.getMapBounds()) {
-                        if (Intersector.intersectRayBounds(bulletRay, bb, intersection)){
+                        if (Intersector.intersectRayBounds(bulletRay, bb, intersection)) {
                             // Object might be after the enemy that was hit, so check the distance
                             if (intersection.dst(playerBullet.getPosition()) < distance) {
-                                hit = false;
+                                closestEnemy = null;
                                 System.out.println("Object between target and player.");
                                 break;
                             }
                         }
 
                     }
-                    if (hit) {
-                        // send a message to all players in the room to tell them that the enemy was hit
-                        enemies.get(enemies.indexOf(e)).dealDamage(zombieDamage);
-                        if (e.health <= 0) {
-                            for (Player p : super.getPlayers().values()) {
-                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, true));
-                            }
-                            player.score += 20;
-                            score += 20;
-                            enemies.remove(e);
-                            break;
-                        } else{
-                            for (Player p : super.getPlayers().values()) {
-                                server.sendToUDP(p.id, new EnemyHit(e.id, player.id, zombieDamage, false));
-                            }
-                            player.score += 10;
-                            score += 10;
-                        }
-                        break;
-                    }
-                } else{
-                    // System.out.println("Player missed");
                 }
+            }
+        }
+        if (closestEnemy != null) {
+            // send a message to all players in the room to tell them that the enemy was hit
+            enemies.get(enemies.indexOf(closestEnemy)).dealDamage(zombieDamage);
+            if (closestEnemy.health <= 0) {
+                for (Player p : super.getPlayers().values()) {
+                    server.sendToUDP(p.id, new EnemyHit(closestEnemy.id, player.id, zombieDamage, true));
+                }
+                player.score += 20;
+                score += 20;
+                enemies.remove(closestEnemy);
+            } else{
+                for (Player p : super.getPlayers().values()) {
+                    server.sendToUDP(p.id, new EnemyHit(closestEnemy.id, player.id, zombieDamage, false));
+                }
+                player.score += 10;
+                score += 10;
             }
         }
     }
