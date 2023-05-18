@@ -13,6 +13,7 @@ public class GamePreferences {
     private String username;
     private Player.Character character;
     private int currentAdId;
+    private Boolean adsEnabled = true;
     public GamePreferences() {
         prefs = Gdx.app.getPreferences("GamePreferences");
         String soundVolume = prefs.getString("soundVolume", "0.6f");
@@ -24,6 +25,7 @@ public class GamePreferences {
         String username = prefs.getString("username", "Player " + randomNum);
         String character = prefs.getString("character", Player.Character.Shrex.toString());
         String currentAdId = prefs.getString("currentAdId", "0");
+        String adsEnabled = prefs.getString("adsEnabled", "false");
         this.soundVolume = Float.parseFloat(soundVolume);
         this.musicVolume = Float.parseFloat(musicVolume);
         this.isSoundEnabled = Boolean.parseBoolean(isSoundEnabled);
@@ -32,6 +34,7 @@ public class GamePreferences {
         this.username = username;
         this.character = Player.Character.valueOf(character);
         this.currentAdId = Integer.parseInt(currentAdId);
+        this.adsEnabled = Boolean.parseBoolean(adsEnabled);
     }
     public float getSoundVolume() {
         return soundVolume;
@@ -95,6 +98,14 @@ public class GamePreferences {
     public void setCurrentAdId(int currentAdId) {
         this.currentAdId = currentAdId;
         prefs.putString("currentAdId", String.valueOf(currentAdId));
+        save();
+    }
+    public Boolean getAdsEnabled() {
+        return adsEnabled;
+    }
+    public void setAdsEnabled(Boolean adsEnabled) {
+        this.adsEnabled = adsEnabled;
+        prefs.putString("adsEnabled", String.valueOf(adsEnabled));
         save();
     }
     public void save() {

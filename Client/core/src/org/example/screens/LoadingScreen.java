@@ -51,7 +51,6 @@ public class LoadingScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         loadingMessage = "Loading assets...";
         spriteBatch = new SpriteBatch();
-        videoPlayer = VideoPlayerCreator.createVideoPlayer();
         // Skip button
         skipButton = new TextButton("Skip", game.getSkin());
         skipButton.setPosition(Gdx.graphics.getWidth() - skipButton.getWidth() - 80, 50);
@@ -70,61 +69,64 @@ public class LoadingScreen implements Screen {
                 }
             }
         });
-        videoPlayer.setOnCompletionListener(new VideoPlayer.CompletionListener() {
-            @Override
-            public void onCompletionListener(FileHandle fileHandle) {
-                videoPlayer.dispose();
-                game.music.stop();
-                // spriteBatch.dispose();
-                // All assets are loaded, switch to the next screen
-                if (game.gameMode == GameMode.GameModes.ZOMBIES) {
-                    game.showZombiesScreen();
+        if (game.getGamePreferences().getAdsEnabled()) {
+            videoPlayer = VideoPlayerCreator.createVideoPlayer();
+            videoPlayer.setOnCompletionListener(new VideoPlayer.CompletionListener() {
+                @Override
+                public void onCompletionListener(FileHandle fileHandle) {
+                    videoPlayer.dispose();
+                    game.music.stop();
+                    // spriteBatch.dispose();
+                    // All assets are loaded, switch to the next screen
+                    if (game.gameMode == GameMode.GameModes.ZOMBIES) {
+                        game.showZombiesScreen();
+                    }
+                    if (game.gameMode == GameMode.GameModes.PVP) {
+                        game.showPVPLobbyScreen();
+                    }
                 }
-                if (game.gameMode == GameMode.GameModes.PVP) {
-                    game.showPVPLobbyScreen();
-                }
-            }
-        });
-        try {
-            // double random = Math.random();
-            int currentAdId = game.getGamePreferences().getCurrentAdId();
-            if (currentAdId == 0) {
-                videoPlayer.play(Gdx.files.internal("ads/weAreBolt.webm"));
-                game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreBolt.mp3"));
-                game.getGamePreferences().setCurrentAdId(1);
-                game.music.setVolume(game.getGamePreferences().getMusicVolume());
-                game.music.play();
-            } else if (currentAdId == 1) {
-                videoPlayer.play(Gdx.files.internal("ads/weAreGrow.webm"));
-                game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreGrow.mp3"));
-                game.getGamePreferences().setCurrentAdId(2);
-                game.music.setVolume(game.getGamePreferences().getMusicVolume());
-                game.music.play();
-            } else if (currentAdId == 2) {
-                videoPlayer.play(Gdx.files.internal("ads/interstellar.webm"));
-                game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/interstellar.mp3"));
-                game.getGamePreferences().setCurrentAdId(3);
-                if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f){
-                    game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.2f);
-                }else{
+            });
+            try {
+                // double random = Math.random();
+                int currentAdId = game.getGamePreferences().getCurrentAdId();
+                if (currentAdId == 0) {
+                    videoPlayer.play(Gdx.files.internal("ads/weAreBolt.webm"));
+                    game.music.dispose();
+                    game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreBolt.mp3"));
+                    game.getGamePreferences().setCurrentAdId(1);
                     game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                    game.music.play();
+                } else if (currentAdId == 1) {
+                    videoPlayer.play(Gdx.files.internal("ads/weAreGrow.webm"));
+                    game.music.dispose();
+                    game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/weAreGrow.mp3"));
+                    game.getGamePreferences().setCurrentAdId(2);
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                    game.music.play();
+                } else if (currentAdId == 2) {
+                    videoPlayer.play(Gdx.files.internal("ads/interstellar.webm"));
+                    game.music.dispose();
+                    game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/interstellar.mp3"));
+                    game.getGamePreferences().setCurrentAdId(3);
+                    if (game.getGamePreferences().getMusicVolume() > 0.01 && game.getGamePreferences().getMusicVolume() < 0.7f) {
+                        game.music.setVolume(game.getGamePreferences().getMusicVolume() + 0.2f);
+                    } else {
+                        game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                    }
+                    game.music.play();
+                } else if (currentAdId == 3) {
+                    videoPlayer.play(Gdx.files.internal("ads/CAMPUS2.webm"));
+                    game.music.dispose();
+                    game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
+                    game.music.setVolume(game.getGamePreferences().getMusicVolume());
+                    game.getGamePreferences().setCurrentAdId(0);
+                    game.music.play();
                 }
-                game.music.play();
-            } else if (currentAdId == 3) {
-                videoPlayer.play(Gdx.files.internal("ads/CAMPUS2.webm"));
-                game.music.dispose();
-                game.music = Gdx.audio.newMusic(Gdx.files.internal("ads/CAMPUS.mp3"));
-                game.music.setVolume(game.getGamePreferences().getMusicVolume());
-                game.getGamePreferences().setCurrentAdId(0);
-                game.music.play();
-            }
-            System.out.println("Music volume is " + game.getGamePreferences().getMusicVolume());
+                System.out.println("Music volume is " + game.getGamePreferences().getMusicVolume());
 
-        } catch (FileNotFoundException e) {
-            Gdx.app.error("LoadingScreen", "Video file not found", e);
+            } catch (FileNotFoundException e) {
+                Gdx.app.error("LoadingScreen", "Video file not found", e);
+            }
         }
     }
 
@@ -136,22 +138,23 @@ public class LoadingScreen implements Screen {
 
         // Update the asset manager and display progress
         float progress = game.getAssetManager().getProgress();
-        videoPlayer.update();
         spriteBatch.begin();
-        currentFrame = videoPlayer.getTexture();
-        if (currentFrame != null) {
-            int videoWidth = videoPlayer.getVideoWidth();
-            int videoHeight = videoPlayer.getVideoHeight();
-            int screenWidth = Gdx.graphics.getWidth();
-            int screenHeight = Gdx.graphics.getHeight();
-            int scaledVideoWidth = (int) (screenWidth);
-            int scaledVideoHeight = (int) (screenWidth * 0.565);
+        if (videoPlayer != null) {
+            videoPlayer.update();
+            currentFrame = videoPlayer.getTexture();
+            if (currentFrame != null) {
+                int videoWidth = videoPlayer.getVideoWidth();
+                int videoHeight = videoPlayer.getVideoHeight();
+                int screenWidth = Gdx.graphics.getWidth();
+                int screenHeight = Gdx.graphics.getHeight();
+                int scaledVideoWidth = (int) (screenWidth);
+                int scaledVideoHeight = (int) (screenWidth * 0.565);
 
-            int x = (screenWidth - scaledVideoWidth) / 2;
-            int y = (screenHeight - scaledVideoHeight) / 2;
-            spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
+                int x = (screenWidth - scaledVideoWidth) / 2;
+                int y = (screenHeight - scaledVideoHeight) / 2;
+                spriteBatch.draw(currentFrame, x, y,scaledVideoWidth, scaledVideoHeight);
+            }
         }
-
         // Check if all assets are loaded
         if (game.getAssetManager().update()) {
             // add the skip button

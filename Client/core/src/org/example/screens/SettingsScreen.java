@@ -35,6 +35,7 @@ public class SettingsScreen implements Screen {
     private Skin slider = new Skin(Gdx.files.internal("uiskin.json"));
     private Slider volumeSlider;
     private Slider soundSlider;
+    private CheckBox tickBox;
     public SettingsScreen(MyGame myGame) {
         this.myGame = myGame;
         this.stage = new Stage(new ScreenViewport());
@@ -162,6 +163,15 @@ public class SettingsScreen implements Screen {
                 myGame.showMenuScreen();
             }
         });
+        tickBox = new CheckBox("Enable ads", skin); // Replace "Enable Feature" with your desired label
+        tickBox.setChecked( myGame.getGamePreferences().getAdsEnabled());
+        tickBox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                myGame.getGamePreferences().setAdsEnabled(tickBox.isChecked());
+            }
+        });
+        table.add(tickBox).center().padBottom(10).row();
         table.add(exitButton).center().padBottom(10).row();
 
         // Add table to stage
