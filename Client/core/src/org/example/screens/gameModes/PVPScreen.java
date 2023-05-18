@@ -77,6 +77,7 @@ public class PVPScreen extends GameScreen {
         }
         timeSinceLastShot += delta;
 
+        camera.position.set(cameraPosition);
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
         playerModelInstance.transform.set(new Vector3(cameraPosition.x, cameraPosition.y - 1f, cameraPosition.z), new Quaternion().set(Vector3.Y, playerModelRotation), new Vector3(1f, 1f, 1f));
@@ -86,7 +87,7 @@ public class PVPScreen extends GameScreen {
         // Check if the new position of the player is colliding with the map
         Vector3 newPos = playerModelInstance.transform.getTranslation(new Vector3());
         playerBounds = new BoundingBox();
-        playerBounds.set(new Vector3(newPos.x - 0.1f, newPos.y + 0.5f, newPos.z - 0.1f), new Vector3(newPos.x + 0.1f, newPos.y + 0.7f, newPos.z + 0.1f));
+        playerBounds.set(new Vector3(newPos.x - 0.4f, newPos.y + 0.4f, newPos.z - 0.4f), new Vector3(newPos.x + 0.4f, newPos.y +1f, newPos.z + 0.4f));
 
         // Check for collisions with the map
         for (BoundingBox bounds : mapBounds) {
@@ -109,7 +110,7 @@ public class PVPScreen extends GameScreen {
         shadowBatch.begin(shadowLight.getCamera());
         modelBatch.begin(camera);
         modelBatch.render(groundModelInstance, environment);
-        modelBatch.render(playerModelInstance);
+        shadowBatch.render(playerModelInstance);
 
         /**
          * If player is connected to the server, render all other players.
@@ -120,7 +121,7 @@ public class PVPScreen extends GameScreen {
                 // don't render the player if they are the same as the current playerd
                 if (myGame.getPlayer().id != otherPlayer.id && otherPlayer.alive) {
                     // create a new instance of the player model for this player
-                    ModelInstance otherPlayerModelInstance = templateEnemyModelInstance.copy();
+                    ModelInstance otherPlayerModelInstance = playerModelInstance.copy();
                     Vector3 playerPosition = new Vector3(otherPlayer.x, otherPlayer.y - 0.9f, otherPlayer.z);
 
                     // set the position and orientation of the player model instance
@@ -154,6 +155,7 @@ public class PVPScreen extends GameScreen {
     }
     @Override
     public void show() {
+        fireRate = 0.1f;
         stage = new Stage(new ScreenViewport());
 
         // Add text to the stage to display the player's health
@@ -174,6 +176,8 @@ public class PVPScreen extends GameScreen {
         killLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         timeLabel.setPosition(10, Gdx.graphics.getHeight() - 60);
 
+
+        // Gun HUD
         Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
         gunHud = new Image(gunTexture);
         gunHud.setOrigin(Align.center);
@@ -181,6 +185,15 @@ public class PVPScreen extends GameScreen {
         gunHud.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
         gunHud.setPosition(camera.viewportWidth / 2, 0);
         stage.addActor(gunHud);
+        Texture gunMuzzleFlash = new Texture("guns/Sniper/muzzleFlash2.png");
+        gunMuzzleFlashImage = new Image(gunMuzzleFlash);
+        // Set transparency to 0 so the muzzle flash is invisible
+        gunMuzzleFlashImage.getColor().a = 0f;
+        gunMuzzleFlashImage.setOrigin(Align.center);
+        gunMuzzleFlashImage.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        gunMuzzleFlashImage.setPosition(camera.viewportWidth / 2, 0);
+        stage.addActor(gunMuzzleFlashImage);
+
         stage.addActor(healthLabel);
         stage.addActor(killLabel);
         stage.addActor(timeLabel);
