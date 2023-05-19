@@ -258,15 +258,27 @@ public class GameScreen implements ApplicationListener,Screen {
         // Save the player's and cameras position
         Vector3 oldPos = playerModelInstance.transform.getTranslation(new Vector3());
         Vector3 oldCamPos = camera.position.cpy();
+        float cameraTiltAngle = 0f;
 
         myInputProcessor.updatePlayerMovement(delta);
         if (myInputProcessor.isLeftMousePressed && myGame.getPlayer().health > 0 && timeSinceLastShot > fireRate) {
             shootBullet();
             timeSinceLastShot = 0;
+            cameraTiltAngle += delta * 10f;
+
+            // Calculate the tilt vector based on the camera's up vector and tilt angle
+            Vector3 tiltVector = camera.up.cpy().scl(cameraTiltAngle);
+
+            // Add the tilt vector to the camera direction to tilt it upwards
+            camera.direction.add(tiltVector);
+        } else {
+            cameraTiltAngle = 0f;
+
+            camera.position.set(cameraPosition);
+
         }
         timeSinceLastShot += delta;
 
-        camera.position.set(cameraPosition);
 
         // update the transform of the playerModelInstance
         float playerModelRotation = (float) Math.toDegrees(Math.atan2(cameraDirection.x, cameraDirection.z));
