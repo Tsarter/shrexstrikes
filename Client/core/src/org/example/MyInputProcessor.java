@@ -40,7 +40,7 @@ public class MyInputProcessor implements InputProcessor {
         this.initialPlayerHeight = gameScreen.getMyGame().getPlayer().y;
 
     }
-
+    private Sound tauntSound= Gdx.audio.newSound(Gdx.files.internal("waydims.mp3"));
     private Sound jumpSound = Gdx.audio.newSound(Gdx.files.internal("shrekjumpingsound.mp3"));
     @Override
     public boolean keyDown(int keycode) {
@@ -57,6 +57,11 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.D:
                 rightPressed = true;
                 break;
+
+            case Input.Keys.F:
+                tauntSound.play();
+                break;
+
             case Input.Keys.SPACE:
                 if (!jumpOnGoing) {
                     jumpOnGoing = true;
