@@ -29,8 +29,10 @@ import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -48,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 import static com.badlogic.gdx.math.MathUtils.lerp;
 
@@ -100,6 +103,8 @@ public class GameScreen implements ApplicationListener,Screen {
     protected float timeSinceLastShot = 0;
     protected float fireRate = 0.1f;
     private ModelInstance skyBoxInstance;
+
+    protected Label waveEndLabel;
     @Override
     public void create() {
         Bullet.init();
@@ -403,6 +408,7 @@ public class GameScreen implements ApplicationListener,Screen {
         myGame.music.stop();
         stage = new Stage(new ScreenViewport());
 
+
         // Gun HUD
         Texture gunTexture = new Texture("guns/Sniper/sniperHud.png");
         gunHud = new Image(gunTexture);
@@ -428,6 +434,7 @@ public class GameScreen implements ApplicationListener,Screen {
         waveLabel = new Label("Wave: " + currentWave, labelStyle);
         enemiesRemainingLabel = new Label("Enemies Remaining: " + enemiesRemaining, labelStyle);
         scoreLabel = new Label("Score: " + score, labelStyle);
+        waveEndLabel = new Label("", labelStyle);
         // Create the crosshair image and center it on the screen
         Texture texture = new Texture("crosshair-icon.png");
         crosshair = new Image(texture);
@@ -437,10 +444,17 @@ public class GameScreen implements ApplicationListener,Screen {
                 Gdx.graphics.getWidth() / 2 - crosshair.getWidth() / 2,
                 Gdx.graphics.getHeight() / 2 - crosshair.getHeight() / 2);
         healthLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        waveEndLabel.setFontScale(3f);
+        waveEndLabel.setPosition(10, Gdx.graphics.getHeight() - 20);
+        waveEndLabel.setSize(400f, 100f);
+        waveEndLabel.setPosition(
+                Gdx.graphics.getWidth() / 2 - waveEndLabel.getWidth() / 1.5f,
+                Gdx.graphics.getHeight() / 1.5f);
         waveLabel.setPosition(Gdx.graphics.getWidth() - waveLabel.getWidth() - 20f, Gdx.graphics.getHeight() - 20);
         enemiesRemainingLabel.setPosition(Gdx.graphics.getWidth() - enemiesRemainingLabel.getWidth() - 20f, Gdx.graphics.getHeight() - 40);
         scoreLabel.setPosition(10, Gdx.graphics.getHeight() - 40);
         // Add the health label to the stage
+        stage.addActor(waveEndLabel);
         stage.addActor(healthLabel);
         stage.addActor(waveLabel);
         stage.addActor(enemiesRemainingLabel);
@@ -448,6 +462,27 @@ public class GameScreen implements ApplicationListener,Screen {
         // Add the crosshair to the stage
         stage.addActor(crosshair);
 
+    }
+    private Timer.Task hideTask;
+    private static final float DISPLAY_DURATION = 3f;
+    public void showWaveCompleted() {
+        waveEndLabel.setText("Wave " + (currentWave - 1) + " has been completed");
+        waveEndLabel.setVisible(true);
+
+        // Schedule the hide task to execute after the specified duration
+        if (hideTask != null) {
+            hideTask.cancel(); // Cancel the previous hide task if any
+        }
+        hideTask = Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                hideWaveCompleted();
+            }
+        }, DISPLAY_DURATION);
+    }
+
+    public void hideWaveCompleted() {
+        waveEndLabel.setVisible(false);
     }
     @Override
     public void hide() {
@@ -473,9 +508,13 @@ public class GameScreen implements ApplicationListener,Screen {
         myGame.showDeathScreen();
     }
     public void handleIncomingEnemies(Enemies enemiesInfo){
-
+            int previousWave = currentWave;
             System.out.println("Enemies received");
             currentWave = enemiesInfo.waveNumber;
+
+            if (previousWave + 1 == currentWave) {
+                showWaveCompleted();
+            }
             enemiesRemaining = enemiesInfo.enemies.size();
             score = enemiesInfo.score;
             for (Map.Entry<Integer, HashMap> entry : enemiesInfo.enemies.entrySet()) {
