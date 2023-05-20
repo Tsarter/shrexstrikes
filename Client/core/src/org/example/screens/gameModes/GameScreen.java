@@ -32,6 +32,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 
 import static com.badlogic.gdx.math.MathUtils.lerp;
@@ -507,12 +509,67 @@ public class GameScreen implements ApplicationListener,Screen {
         // Show death screen, when player dies
         myGame.showDeathScreen();
     }
+
+
+    Sound sound1 = Gdx.audio.newSound(Gdx.files.internal("ouch1.mp3"));
+    Sound sound2 = Gdx.audio.newSound(Gdx.files.internal("ouch2.mp3"));
+    Sound sound3 = Gdx.audio.newSound(Gdx.files.internal("ouch3.mp3"));
+    public void playRandomSound() {
+        boolean soundPlayed = false;
+        if (!soundPlayed) {
+            int randomIndex = MathUtils.random(1, 3);
+
+            switch (randomIndex) {
+                case 1:
+                    sound1.play();
+                    break;
+                case 2:
+                    sound2.play();
+                    break;
+                case 3:
+                    sound3.play();
+                    break;
+                default:
+                    break;
+            }
+
+            soundPlayed = true;
+        }
+    }
+
+    private Timer.Task hideTask2;
+    private static final float DISPLAY_DURATION2 = 2f;
+
+    private int currentHealth;
+
+
     public void handleIncomingEnemies(Enemies enemiesInfo){
             int previousWave = currentWave;
             System.out.println("Enemies received");
             currentWave = enemiesInfo.waveNumber;
 
             if (previousWave + 1 == currentWave) {
+                showWaveCompleted();
+            }
+            int previousHealth = currentHealth;
+            currentHealth = myGame.getPlayer().health;
+
+            boolean soundPlayed = false;
+            // Check if the player's health has changed
+            if (myGame.getPlayer().health != previousHealth) {
+                if (!soundPlayed) {
+                    playRandomSound();
+                    soundPlayed = true;
+                }
+            } else {
+                soundPlayed = false;
+            }
+
+            System.out.println("Enemies received");
+            currentWave = enemiesInfo.waveNumber;
+
+
+            if (previousWave + 1 == currentWave && previousWave != 0) {
                 showWaveCompleted();
             }
             enemiesRemaining = enemiesInfo.enemies.size();
