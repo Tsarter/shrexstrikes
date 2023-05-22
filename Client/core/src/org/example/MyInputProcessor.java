@@ -191,6 +191,7 @@ public class MyInputProcessor implements InputProcessor {
         }
         if (button == Input.Buttons.LEFT) {
             isLeftMousePressed = false;
+
         }
         return false;
     }

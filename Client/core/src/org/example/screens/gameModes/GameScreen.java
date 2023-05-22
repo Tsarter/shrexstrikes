@@ -265,6 +265,12 @@ public class GameScreen implements ApplicationListener,Screen {
         if (myInputProcessor.isLeftMousePressed && myGame.getPlayer().health > 0 && timeSinceLastShot > fireRate) {
             shootBullet();
             timeSinceLastShot = 0;
+            float randomOffsetY = (float) (Math.random() * 2.0 - 1.0) * 10;
+            float delta1 = 25f * Gdx.graphics.getDeltaTime();
+            float delta2 = Gdx.graphics.getDeltaTime() * randomOffsetY;
+
+            cameraDirection.rotate(Vector3.Y, delta2);
+            cameraDirection.rotate(cameraDirection.cpy().crs(Vector3.Y), delta1);
         }
         timeSinceLastShot += delta;
 
