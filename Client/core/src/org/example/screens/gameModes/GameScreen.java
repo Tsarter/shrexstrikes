@@ -554,7 +554,7 @@ public class GameScreen implements ApplicationListener,Screen {
             System.out.println("Enemies received");
             currentWave = enemiesInfo.waveNumber;
 
-            if (previousWave + 1 == currentWave) {
+            if (previousWave + 1 == currentWave && previousWave != 0) {
                 showWaveCompleted();
             }
             int previousHealth = currentHealth;
